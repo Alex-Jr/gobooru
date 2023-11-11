@@ -1,0 +1,3 @@
+DROP TABLE "pool_posts" CASCADE;
+DROP TABLE "posts" CASCADE;
+DROP TABLE "pool" CASCADE;
