@@ -19,13 +19,12 @@ func main() {
 
 	poolRepository := repositories.NewPoolRepository(db)
 
-	newName := "new name"
-	pool, err := poolRepository.Update(
+	pool, _, err := poolRepository.ListFull(
 		context.TODO(),
-		repositories.PoolUpdateArgs{
-			ID:    2,
-			Name:  &newName,
-			Posts: &[]int{1, 2},
+		repositories.PoolListFullArgs{
+			Text:     "2",
+			Page:     1,
+			PageSize: 100,
 		},
 	)
 

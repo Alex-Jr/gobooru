@@ -30,10 +30,15 @@ func NewPoolQuery() PoolQuery {
 	return &poolQuery{
 		parser: query_parser.NewParser(query_parser.ParserConfig{
 			WhereField: map[string]query_parser.WhereField{
+				"id": {
+					DBName:   "pl.id",
+					Operator: "=",
+					ParserFn: query_parser.IntParserFn,
+				},
 				"custom": {
 					DBName:   "pl.custom",
 					Operator: "@>",
-					ParserFn: query_parser.ArrayStringParserFn,
+					ParserFn: query_parser.ArrayParserFn,
 				},
 				"createdAt": {
 					DBName:   "pl.created_at",
@@ -47,8 +52,8 @@ func NewPoolQuery() PoolQuery {
 					DefaultOrder: "DESC",
 				},
 			},
-			DefaultWhere: "id",
-			DefaultSort:  "id",
+			DefaultWhereField: "id",
+			DefaultSortField:  "id",
 		}),
 	}
 }
@@ -152,7 +157,7 @@ func (q poolQuery) GetFull(ctx context.Context, db database.DBClient, pool *mode
 }
 
 func (q poolQuery) ListFull(ctx context.Context, db database.DBClient, search models.Search, pools *[]models.Pool, count *int) error {
-	whereClause, sortLimitClause, whereArgs, metaArgs, err := q.parser.Parse(search)
+	parsed, err := q.parser.ParseSearch(search)
 	if err != nil {
 		return fmt.Errorf("parsing search: %w", err)
 	}
@@ -165,14 +170,14 @@ func (q poolQuery) ListFull(ctx context.Context, db database.DBClient, search mo
 				count(*)
 			FROM "pools" pl
 			WHERE
-		`+whereClause,
-		whereArgs...,
+		`+parsed.WhereQuery,
+		parsed.WhereArgs...,
 	)
 	if err != nil {
 		return fmt.Errorf("counting pools: %w", err)
 	}
 
-	// TODO: make count and list parallel
+	// TODO: maybe make count and list parallel
 	if count == nil || *count == 0 {
 		return nil
 	}
@@ -180,29 +185,35 @@ func (q poolQuery) ListFull(ctx context.Context, db database.DBClient, search mo
 	err = db.SelectContext(
 		ctx,
 		pools,
-		`
-		SELECT 
-			pl."created_at", 
-			pl."custom", 
-			pl."description", 
-			pl."id",
-			pl."name", 
-			JSONB_AGG(
-				ROW_TO_JSON(pt.*)
-				ORDER BY pp."position"
-			) AS "posts",
-			pl."updated_at"
-		FROM
-			"pools" pl
-		INNER JOIN "pool_posts" pp ON
-			pp."pool_id" = pl."id"
-		INNER JOIN "posts" pt ON
-			pp."post_id" = pt."id" 
-		WHERE`+whereClause+`
-		GROUP BY
-			pl."id"
-		ORDER BY`+sortLimitClause,
-		append(whereArgs, metaArgs...)...,
+		fmt.Sprintf(`
+			SELECT 
+				pl."created_at", 
+				pl."custom", 
+				pl."description", 
+				pl."id",
+				pl."name", 
+				JSONB_AGG(
+					ROW_TO_JSON(pt.*)
+					ORDER BY pp."position"
+				) AS "posts",
+				pl."updated_at"
+			FROM
+				"pools" pl
+			INNER JOIN "pool_posts" pp ON
+				pp."pool_id" = pl."id"
+			INNER JOIN "posts" pt ON
+				pp."post_id" = pt."id" 
+			WHERE
+				%s
+			GROUP BY
+				pl."id"
+			ORDER BY
+				%s
+			`,
+			parsed.WhereQuery,
+			parsed.SortQuery,
+		),
+		append(parsed.WhereArgs, parsed.PaginationArgs...)...,
 	)
 	if err != nil {
 		return fmt.Errorf("listing pools: %w", err)
