@@ -1,17 +1,24 @@
 package database
 
 import (
-	"database/sql"
 	"log"
 
+	"github.com/go-sqlx/sqlx"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 )
 
-func MustRunMigrations(db *sql.DB) {
+func MustRunMigrations(db *sqlx.DB) {
+	err := RunMigrations(db)
+	if err != nil {
+		log.Fatalf("error running migrations: %v", err)
+	}
+}
+
+func RunMigrations(db *sqlx.DB) error {
 	driver, err := postgres.WithInstance(
-		db,
+		db.DB,
 		&postgres.Config{},
 	)
 	if err != nil {
@@ -33,4 +40,6 @@ func MustRunMigrations(db *sql.DB) {
 	if err != nil && err != migrate.ErrNoChange {
 		log.Fatalf("error running migration: %v", err)
 	}
+
+	return nil
 }

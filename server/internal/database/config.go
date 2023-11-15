@@ -10,7 +10,7 @@ import (
 
 type DBConfig struct {
 	Host     string
-	Port     int
+	Port     string
 	User     string
 	Password string
 	Database string
@@ -18,7 +18,7 @@ type DBConfig struct {
 
 func GetConnectionString(c DBConfig) string {
 	return fmt.Sprintf(
-		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		"postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		c.User,
 		c.Password,
 		c.Host,
@@ -30,15 +30,22 @@ func GetConnectionString(c DBConfig) string {
 func GetDevConfig() DBConfig {
 	return DBConfig{
 		Host:     "localhost",
-		Port:     5450,
+		Port:     "5450",
 		User:     "user",
 		Password: "password",
 		Database: "database",
 	}
 }
 
-func GetSQLXConnection(c DBConfig) *sqlx.DB {
+func MustGetSQLXConnection(c DBConfig) *sqlx.DB {
 	return sqlx.MustConnect(
+		"postgres",
+		GetConnectionString(c),
+	)
+}
+
+func GetSQLXConnection(c DBConfig) (*sqlx.DB, error) {
+	return sqlx.Connect(
 		"postgres",
 		GetConnectionString(c),
 	)

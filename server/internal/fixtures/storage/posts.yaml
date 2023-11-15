@@ -1,0 +1,24 @@
+- id: 1
+  description: "post 1 description"
+  created_at: 2020-01-01T00:00:00Z
+  updated_at: 2020-01-01T00:00:00Z
+
+- id: 2
+  description: "post 2 description"
+  created_at: 2020-01-01T00:00:00Z
+  updated_at: 2020-01-01T00:00:00Z
+
+- id: 3
+  description: "post 3 description"
+  created_at: 2020-01-01T00:00:00Z
+  updated_at: 2020-01-01T00:00:00Z
+
+- id: 4
+  description: "post 4 description"
+  created_at: 2020-01-01T00:00:00Z
+  updated_at: 2020-01-01T00:00:00Z
+
+- id: 5
+  description: "post 5 description"
+  created_at: 2020-01-01T00:00:00Z
+  updated_at: 2020-01-01T00:00:00Z

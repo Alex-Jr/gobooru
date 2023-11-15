@@ -9,30 +9,30 @@ import (
 )
 
 func main() {
+	sqlx := database.MustGetSQLXConnection(database.GetDevConfig())
+
 	db := database.NewSQLClient(
-		database.GetSQLXConnection(database.GetDevConfig()),
+		sqlx,
 	)
 
 	database.MustRunMigrations(
-		database.GetSQLConnection(database.GetDevConfig()),
+		sqlx,
 	)
 
 	poolRepository := repositories.NewPoolRepository(db)
 
-	pool, _, err := poolRepository.ListFull(
-		context.TODO(),
-		repositories.PoolListFullArgs{
-			Text:     "2",
-			Page:     1,
-			PageSize: 100,
-		},
-	)
+	createdPool, err := poolRepository.Create(context.TODO(), repositories.PoolCreateArgs{
+		Custom:      []string{"asd"},
+		Description: "",
+		Name:        "test creation 1",
+		Posts:       []int{2, 1},
+	})
 
 	if err != nil {
 		panic(err)
 	}
 
-	s, _ := json.MarshalIndent(pool, "", "\t")
+	s, _ := json.MarshalIndent(createdPool, "", "\t")
 	fmt.Print(string(s))
 
 	// fmt.Print(count)

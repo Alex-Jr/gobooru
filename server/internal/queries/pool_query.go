@@ -69,6 +69,7 @@ func (q poolQuery) Create(ctx context.Context, db database.DBClient, pool *model
 		`
 			INSERT INTO pools (
 				"created_at",
+				"custom",
 				"description", 
 				"name", 
 				"post_count",
@@ -76,6 +77,7 @@ func (q poolQuery) Create(ctx context.Context, db database.DBClient, pool *model
 			)
 			VALUES (
 				:created_at,
+				:custom,
 				:description,
 				:name, 
 				:post_count,
@@ -135,6 +137,7 @@ func (q poolQuery) GetFull(ctx context.Context, db database.DBClient, pool *mode
 					ROW_TO_JSON(pt.*)
 					ORDER BY pp."position"
 				) AS "posts",
+				pl."post_count",
 				pl."updated_at"
 			FROM
 				"pools" pl

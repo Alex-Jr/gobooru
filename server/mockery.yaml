@@ -1,0 +1,9 @@
+all: true
+testonly: true
+with-expecter: true
+# dir: mocks/{{ replaceAll .InterfaceDirRelative "internal" "internal_" }}
+filename: "mock_{{ .InterfaceName | snakecase  }}.go"
+packages:
+  gobooru:
+    config: 
+      recursive: true
