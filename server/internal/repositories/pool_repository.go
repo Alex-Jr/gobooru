@@ -176,6 +176,7 @@ func (r poolRepository) Update(ctx context.Context, args PoolUpdateArgs) (models
 		pool.Name = *args.Name
 	}
 
+	// TODO: don't allow to remove all posts
 	if args.Posts != nil {
 		oldPostIDs := make([]int, len(pool.Posts))
 		for i, post := range pool.Posts {

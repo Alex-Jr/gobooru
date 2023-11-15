@@ -21,7 +21,7 @@ type TestSuite struct {
 	poolRepository repositories.PoolRepository
 }
 
-func (s *TestSuite) SetupSuite() {
+func (s *TestSuite) SetupTest() {
 	ctx, ctxCancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer ctxCancel()
 
@@ -50,7 +50,7 @@ func (s *TestSuite) SetupSuite() {
 	s.psqlContainer = sqlContainer
 }
 
-func (s *TestSuite) TearDownSuite() {
+func (s *TestSuite) TearDownTest() {
 	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer ctxCancel()
 
@@ -73,13 +73,13 @@ func (s *TestSuite) TestCreatePool() {
 			name: "all fields",
 			ctx:  context.Background(),
 			args: repositories.PoolCreateArgs{
-				Custom:      []string{"custom 1", "custom 2"},
+				Custom:      []string{"a", "b"},
 				Description: "description 1",
 				Name:        "creation 1",
 				Posts:       []int{3, 1, 2},
 			},
 			expectedPool: models.Pool{
-				Custom:      pq.StringArray{"custom 1", "custom 2"},
+				Custom:      pq.StringArray{"a", "b"},
 				Description: "description 1",
 				Name:        "creation 1",
 				PostCount:   3,
@@ -134,6 +134,7 @@ func (s *TestSuite) TestCreatePool() {
 			assert.NotZero(t, createdPool.UpdatedAt)
 			assert.EqualValues(t, tt.expectedPool.Custom, createdPool.Custom)
 			for i, post := range createdPool.Posts {
+				// checks for post order
 				assert.Equal(t, tt.expectedPool.Posts[i].ID, post.ID)
 			}
 			assert.Equal(t, tt.expectedPool.PostCount, createdPool.PostCount)
@@ -143,6 +144,38 @@ func (s *TestSuite) TestCreatePool() {
 			fetchedPool, err := s.poolRepository.GetFull(context.TODO(), createdPool.ID)
 			require.Nil(t, err)
 			assert.EqualValues(t, createdPool, fetchedPool)
+		})
+	}
+}
+
+func (s *TestSuite) TestDeletePool() {
+	tests := []struct {
+		name          string
+		ctx           context.Context
+		poolID        int
+		expectedError error
+	}{
+		{
+			name:          "existing pool 1",
+			ctx:           context.Background(),
+			poolID:        1,
+			expectedError: nil,
+		},
+		{
+			name:          "non-existing pool",
+			ctx:           context.Background(),
+			poolID:        9999,
+			expectedError: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		s.T().Run(tt.name, func(t *testing.T) {
+			err := s.poolRepository.Delete(tt.ctx, tt.poolID)
+			require.ErrorIs(t, err, tt.expectedError)
+
+			_, err = s.poolRepository.GetFull(tt.ctx, tt.poolID)
+			assert.ErrorIs(t, err, database.ErrNotFound)
 		})
 	}
 }
@@ -219,6 +252,7 @@ func (s *TestSuite) TestGetPool() {
 			assert.Equal(t, tt.expectedPool.UpdatedAt, pool.UpdatedAt)
 			assert.EqualValues(t, tt.expectedPool.Custom, pool.Custom)
 			for i, post := range pool.Posts {
+				// checks for post order
 				assert.Equal(t, tt.expectedPool.Posts[i].ID, post.ID)
 				assert.Equal(t, tt.expectedPool.Posts[i].CreatedAt, post.CreatedAt)
 				assert.Equal(t, tt.expectedPool.Posts[i].UpdatedAt, post.UpdatedAt)
@@ -227,6 +261,224 @@ func (s *TestSuite) TestGetPool() {
 			assert.Equal(t, tt.expectedPool.PostCount, pool.PostCount)
 			assert.Equal(t, tt.expectedPool.Name, pool.Name)
 			assert.Equal(t, tt.expectedPool.Description, pool.Description)
+		})
+	}
+}
+
+func (s *TestSuite) TestListPool() {
+	tests := []struct {
+		name          string
+		ctx           context.Context
+		args          repositories.PoolListFullArgs
+		expectedPools []models.Pool
+		expectedCount int
+	}{
+		{
+			name: "filter by custom first page",
+			ctx:  context.Background(),
+			args: repositories.PoolListFullArgs{
+				Text:     "custom:shared",
+				Page:     1,
+				PageSize: 2,
+			},
+			expectedPools: []models.Pool{
+				{
+					ID: 6,
+				},
+				{
+					ID: 5,
+				},
+			},
+			expectedCount: 3,
+		},
+		{
+			name: "filter by custom second page",
+			ctx:  context.Background(),
+			args: repositories.PoolListFullArgs{
+				Text:     "custom:shared",
+				Page:     2,
+				PageSize: 2,
+			},
+			expectedPools: []models.Pool{
+				{
+					ID: 4,
+				},
+			},
+			expectedCount: 3,
+		},
+		{
+			name: "filter by name",
+			ctx:  context.Background(),
+			args: repositories.PoolListFullArgs{
+				Text:     "name:pool",
+				Page:     1,
+				PageSize: 1,
+			},
+			expectedPools: []models.Pool{
+				{
+					ID: 6,
+				},
+			},
+			expectedCount: 6,
+		},
+		{
+			name: "filter by less than created_at",
+			ctx:  context.Background(),
+			args: repositories.PoolListFullArgs{
+				Text:     "createdAt:..2021-01-01",
+				Page:     1,
+				PageSize: 2,
+			},
+			expectedPools: []models.Pool{
+				{
+					ID: 6,
+				},
+				{
+					ID: 5,
+				},
+			},
+			expectedCount: 4,
+		},
+		{
+			name: "filter by greater than created_at",
+			ctx:  context.Background(),
+			args: repositories.PoolListFullArgs{
+				Text:     "createdAt:2021-01-01..",
+				Page:     1,
+				PageSize: 2,
+			},
+			expectedPools: []models.Pool{
+				{
+					ID: 2,
+				},
+				{
+					ID: 1,
+				},
+			},
+			expectedCount: 2,
+		},
+	}
+
+	for _, tt := range tests {
+		s.T().Run(tt.name, func(t *testing.T) {
+			pools, count, err := s.poolRepository.ListFull(tt.ctx, tt.args)
+
+			require.Nil(t, err)
+			assert.Equal(t, len(tt.expectedPools), len(pools))
+			assert.Equal(t, tt.expectedCount, count)
+			for i, pool := range pools {
+				assert.Equal(t, tt.expectedPools[i].ID, pool.ID)
+			}
+		})
+	}
+
+}
+func (s *TestSuite) TestUpdatePool() {
+	makeStringPointer := func(s string) *string {
+		return &s
+	}
+
+	tests := []struct {
+		name          string
+		ctx           context.Context
+		args          repositories.PoolUpdateArgs
+		expectedError error
+	}{
+		{
+			name: "description",
+			ctx:  context.Background(),
+			args: repositories.PoolUpdateArgs{
+				ID:          1,
+				Description: makeStringPointer("updated description 1"),
+			},
+			expectedError: nil,
+		},
+		{
+			name: "name",
+			ctx:  context.Background(),
+			args: repositories.PoolUpdateArgs{
+				ID:   1,
+				Name: makeStringPointer("updated name 1"),
+			},
+			expectedError: nil,
+		},
+		{
+			name: "custom",
+			ctx:  context.Background(),
+			args: repositories.PoolUpdateArgs{
+				ID:     1,
+				Custom: &[]string{"x", "y"},
+			},
+			expectedError: nil,
+		},
+		{
+			name: "posts",
+			ctx:  context.Background(),
+			args: repositories.PoolUpdateArgs{
+				ID:    1,
+				Posts: &[]int{2, 3},
+			},
+			expectedError: nil,
+		},
+		{
+			name: "posts 2",
+			ctx:  context.Background(),
+			args: repositories.PoolUpdateArgs{
+				ID:    1,
+				Posts: &[]int{1, 2, 3},
+			},
+			expectedError: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		s.T().Run(tt.name, func(t *testing.T) {
+			oldPool, _ := s.poolRepository.GetFull(tt.ctx, tt.args.ID)
+
+			updatedPool, err := s.poolRepository.Update(tt.ctx, tt.args)
+			require.ErrorIs(t, err, tt.expectedError)
+
+			newPool, _ := s.poolRepository.GetFull(tt.ctx, tt.args.ID)
+
+			if tt.args.Custom != nil {
+				assert.NotEqual(t, updatedPool.Custom, oldPool.Custom)
+				assert.Equal(t, updatedPool.Custom, newPool.Custom)
+			} else {
+				assert.Equal(t, updatedPool.Custom, oldPool.Custom)
+			}
+
+			if tt.args.Description != nil {
+				assert.NotEqual(t, updatedPool.Description, oldPool.Description)
+				assert.Equal(t, updatedPool.Description, newPool.Description)
+			} else {
+				assert.Equal(t, updatedPool.Description, oldPool.Description)
+			}
+
+			if tt.args.Name != nil {
+				assert.NotEqual(t, updatedPool.Name, oldPool.Name)
+				assert.Equal(t, updatedPool.Name, newPool.Name)
+			} else {
+				assert.Equal(t, updatedPool.Name, oldPool.Name)
+			}
+
+			if tt.args.Posts != nil {
+				assert.NotEqual(t, updatedPool.Posts, oldPool.Posts)
+				assert.Equal(t, updatedPool.Posts, newPool.Posts)
+				// checks for post order
+				for i, post := range updatedPool.Posts {
+					assert.Equal(t, (*tt.args.Posts)[i], post.ID)
+					assert.Equal(t, (*tt.args.Posts)[i], newPool.Posts[i].ID)
+				}
+			} else {
+				assert.Equal(t, updatedPool.Posts, oldPool.Posts)
+			}
+
+			if tt.args.Custom != nil {
+				assert.NotEqual(t, updatedPool.Custom, oldPool.Custom)
+				assert.Equal(t, updatedPool.Custom, newPool.Custom)
+			} else {
+				assert.Equal(t, updatedPool.Custom, oldPool.Custom)
+			}
 		})
 	}
 }

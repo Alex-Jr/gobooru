@@ -7,7 +7,7 @@ services:
   gobooru-dev-db:
     container_name: gobooru-dev-db
     image: postgres
-    restart: always
+    restart: no
     environment:
       POSTGRES_USER: user
       POSTGRES_PASSWORD: password

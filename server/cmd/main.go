@@ -21,19 +21,19 @@ func main() {
 
 	poolRepository := repositories.NewPoolRepository(db)
 
-	createdPool, err := poolRepository.Create(context.TODO(), repositories.PoolCreateArgs{
-		Custom:      []string{"asd"},
-		Description: "",
-		Name:        "test creation 1",
-		Posts:       []int{2, 1},
+	pool, count, err := poolRepository.ListFull(context.TODO(), repositories.PoolListFullArgs{
+		Text:     "custom:test",
+		Page:     1,
+		PageSize: 10,
 	})
 
 	if err != nil {
 		panic(err)
 	}
 
-	s, _ := json.MarshalIndent(createdPool, "", "\t")
+	s, _ := json.MarshalIndent(pool, "", "\t")
 	fmt.Print(string(s))
+	fmt.Print(count)
 
 	// fmt.Print(count)
 }

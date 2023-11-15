@@ -46,6 +46,11 @@ func NewPoolQuery() PoolQuery {
 					Rangable: true,
 					ParserFn: query_parser.TimeParserFn,
 				},
+				"postCount": {
+					DBName:   "pl.post_count",
+					Rangable: true,
+					ParserFn: query_parser.IntParserFn,
+				},
 			},
 			SortField: map[string]query_parser.SortField{
 				"id": {
