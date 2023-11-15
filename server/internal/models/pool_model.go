@@ -8,14 +8,14 @@ import (
 )
 
 type Pool struct {
-	CreatedAt   time.Time      `db:"created_at"`
-	Custom      pq.StringArray `db:"custom"`
-	Description string         `db:"description"`
-	ID          int            `db:"id"`
-	Name        string         `db:"name"`
-	PostCount   int            `db:"post_count"`
-	Posts       PostList       `db:"posts"`
-	UpdatedAt   time.Time      `db:"updated_at"`
+	CreatedAt   time.Time      `db:"created_at" json:"created_at"`
+	Custom      pq.StringArray `db:"custom" json:"custom"`
+	Description string         `db:"description" json:"description"`
+	ID          int            `db:"id" json:"id"`
+	Name        string         `db:"name" json:"name"`
+	PostCount   int            `db:"post_count" json:"post_count"`
+	Posts       PostList       `db:"posts" json:"posts"`
+	UpdatedAt   time.Time      `db:"updated_at" json:"updated_at"`
 }
 
 type PoolList []Post

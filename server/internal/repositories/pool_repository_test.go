@@ -54,7 +54,8 @@ func (s *TestSuite) TearDownSuite() {
 	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer ctxCancel()
 
-	s.Require().NoError(s.psqlContainer.Terminate(ctx))
+	err := s.psqlContainer.Terminate(ctx)
+	s.Require().NoError(err)
 }
 
 func TestSuite_Run(t *testing.T) {
@@ -142,6 +143,90 @@ func (s *TestSuite) TestCreatePool() {
 			fetchedPool, err := s.poolRepository.GetFull(context.TODO(), createdPool.ID)
 			require.Nil(t, err)
 			assert.EqualValues(t, createdPool, fetchedPool)
+		})
+	}
+}
+
+func (s *TestSuite) TestGetPool() {
+	tests := []struct {
+		name          string
+		ctx           context.Context
+		poolID        int
+		expectedError error
+		expectedPool  models.Pool
+	}{
+		{
+			name:          "existing pool 3",
+			ctx:           context.Background(),
+			poolID:        3,
+			expectedError: nil,
+			expectedPool: models.Pool{
+				ID:          3,
+				CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+				UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+				Custom:      pq.StringArray{},
+				Description: "pool 3 description",
+				Name:        "pool 3 name",
+				PostCount:   3,
+				Posts: []models.Post{
+					{
+						CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+						Description: "post 3 description",
+						ID:          3,
+						Pools:       []models.Post{},
+						UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+					},
+					{
+						CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+						Description: "post 1 description",
+						ID:          1,
+						Pools:       []models.Post{},
+						UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+					},
+					{
+						CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+						Description: "post 2 description",
+						ID:          2,
+						Pools:       []models.Post{},
+						UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+					},
+				},
+			},
+		},
+		{
+			name:          "non-existing pool",
+			ctx:           context.Background(),
+			poolID:        9999,
+			expectedError: database.ErrNotFound,
+			expectedPool: models.Pool{
+				ID:          0,
+				Custom:      nil,
+				Description: "",
+				Name:        "",
+				PostCount:   0,
+				Posts:       nil,
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		s.T().Run(tt.name, func(t *testing.T) {
+			pool, err := s.poolRepository.GetFull(tt.ctx, tt.poolID)
+
+			require.ErrorIs(t, err, tt.expectedError)
+			assert.Equal(t, tt.expectedPool.ID, pool.ID)
+			assert.Equal(t, tt.expectedPool.CreatedAt, pool.CreatedAt)
+			assert.Equal(t, tt.expectedPool.UpdatedAt, pool.UpdatedAt)
+			assert.EqualValues(t, tt.expectedPool.Custom, pool.Custom)
+			for i, post := range pool.Posts {
+				assert.Equal(t, tt.expectedPool.Posts[i].ID, post.ID)
+				assert.Equal(t, tt.expectedPool.Posts[i].CreatedAt, post.CreatedAt)
+				assert.Equal(t, tt.expectedPool.Posts[i].UpdatedAt, post.UpdatedAt)
+				assert.Equal(t, tt.expectedPool.Posts[i].Description, post.Description)
+			}
+			assert.Equal(t, tt.expectedPool.PostCount, pool.PostCount)
+			assert.Equal(t, tt.expectedPool.Name, pool.Name)
+			assert.Equal(t, tt.expectedPool.Description, pool.Description)
 		})
 	}
 }

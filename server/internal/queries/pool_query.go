@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"gobooru/internal/database"
 	"gobooru/internal/models"
@@ -153,6 +154,10 @@ func (q poolQuery) GetFull(ctx context.Context, db database.DBClient, pool *mode
 		pool.ID,
 	)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return database.ErrNotFound
+		}
+
 		return fmt.Errorf("finding pool: %w", err)
 	}
 

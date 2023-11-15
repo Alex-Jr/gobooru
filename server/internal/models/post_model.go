@@ -6,11 +6,11 @@ import (
 )
 
 type Post struct {
-	CreatedAt   time.Time `db:"created_at"`
-	Description string    `db:"description"`
-	ID          int       `db:"id"`
-	Pools       PoolList  `db:"pools"`
-	UpdatedAt   time.Time `db:"updated_at"`
+	CreatedAt   time.Time `db:"created_at" json:"created_at"`
+	Description string    `db:"description" json:"description"`
+	ID          int       `db:"id" json:"id"`
+	Pools       PoolList  `db:"pools" json:"pools"`
+	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
 }
 
 type PostList []Post

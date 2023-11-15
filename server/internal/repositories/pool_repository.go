@@ -41,7 +41,6 @@ type PoolCreateArgs struct {
 }
 
 func (r poolRepository) Create(ctx context.Context, args PoolCreateArgs) (models.Pool, error) {
-
 	pool := models.Pool{
 		Description: args.Description,
 		ID:          0,
@@ -106,7 +105,7 @@ func (r poolRepository) GetFull(ctx context.Context, id int) (models.Pool, error
 
 	err := r.poolQuery.GetFull(ctx, r.sqlClient, &pool)
 	if err != nil {
-		return pool, fmt.Errorf("finding pool: %w", err)
+		return models.Pool{}, fmt.Errorf("finding pool: %w", err)
 	}
 
 	return pool, nil
