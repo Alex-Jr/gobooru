@@ -39,7 +39,7 @@ type parser struct {
 }
 
 type Parser interface {
-	ParseSearch(search models.Search) (parserResponse, error)
+	ParseSearch(search models.Search) (ParserResponse, error)
 }
 
 func NewParser(config ParserConfig) Parser {
@@ -58,7 +58,7 @@ var twoDots = regexp.MustCompile(`\.\.`)
 
 // var dashRegex = regexp.MustCompile(`-`)
 
-type parserResponse struct {
+type ParserResponse struct {
 	WhereQuery     string
 	SortQuery      string
 	WhereArgs      []interface{}
@@ -85,7 +85,7 @@ func commaSplit(s string) []string {
 	return result
 }
 
-func (p parser) ParseSearch(search models.Search) (parserResponse, error) {
+func (p parser) ParseSearch(search models.Search) (ParserResponse, error) {
 	paginationArgs := []interface{}{
 		search.PageSize,
 		(search.Page - 1) * search.PageSize,
@@ -219,7 +219,7 @@ func (p parser) ParseSearch(search models.Search) (parserResponse, error) {
 		whereQuery = append(whereQuery, "1 = 1")
 	}
 
-	return parserResponse{
+	return ParserResponse{
 		WhereQuery:     strings.Join(whereQuery, " AND "),
 		SortQuery:      strings.Join(sortQuery, ", ") + fmt.Sprintf(" LIMIT $%d OFFSET $%d", len(whereArgs)+1, len(whereArgs)+2),
 		WhereArgs:      whereArgs,

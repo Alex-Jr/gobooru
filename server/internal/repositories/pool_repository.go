@@ -37,7 +37,7 @@ type PoolCreateArgs struct {
 	Custom      []string
 	Description string
 	Name        string
-	Posts       []int
+	PostIDs     []int
 }
 
 func (r poolRepository) Create(ctx context.Context, args PoolCreateArgs) (models.Pool, error) {
@@ -45,8 +45,8 @@ func (r poolRepository) Create(ctx context.Context, args PoolCreateArgs) (models
 		Description: args.Description,
 		ID:          0,
 		Name:        args.Name,
-		PostCount:   len(args.Posts),
-		Posts:       make([]models.Post, len(args.Posts)),
+		PostCount:   len(args.PostIDs),
+		Posts:       make([]models.Post, len(args.PostIDs)),
 		Custom:      pq.StringArray(args.Custom),
 	}
 
@@ -54,7 +54,7 @@ func (r poolRepository) Create(ctx context.Context, args PoolCreateArgs) (models
 		pool.Custom = pq.StringArray([]string{})
 	}
 
-	for i, postID := range args.Posts {
+	for i, postID := range args.PostIDs {
 		pool.Posts[i] = models.Post{
 			ID: postID,
 		}

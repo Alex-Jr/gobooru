@@ -76,7 +76,7 @@ func (s *TestSuite) TestCreatePool() {
 				Custom:      []string{"a", "b"},
 				Description: "description 1",
 				Name:        "creation 1",
-				Posts:       []int{3, 1, 2},
+				PostIDs:     []int{3, 1, 2},
 			},
 			expectedPool: models.Pool{
 				Custom:      pq.StringArray{"a", "b"},
@@ -102,7 +102,7 @@ func (s *TestSuite) TestCreatePool() {
 			args: repositories.PoolCreateArgs{
 				Description: "description 2",
 				Name:        "creation 2",
-				Posts:       []int{2, 1, 3},
+				PostIDs:     []int{2, 1, 3},
 			},
 			expectedPool: models.Pool{
 				Custom:      pq.StringArray{},

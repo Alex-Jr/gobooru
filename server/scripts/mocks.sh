@@ -1,1 +1,1 @@
-docker run -v "$PWD":/src -w /src vektra/mockery --config mockery.yaml
+docker run --rm -v "$PWD":/src -w /src vektra/mockery --config mockery.yaml

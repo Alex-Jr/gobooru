@@ -1,7 +1,8 @@
 all: true
-testonly: true
 with-expecter: true
-# dir: mocks/{{ replaceAll .InterfaceDirRelative "internal" "internal_" }}
+outpkg: mocks
+dir: internal/mocks
+# disabled, its generating wrong code for some reason for query_parser
 filename: "mock_{{ .InterfaceName | snakecase  }}.go"
 packages:
   gobooru:
