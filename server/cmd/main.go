@@ -1,11 +1,14 @@
 package main
 
 import (
-	"context"
-	"encoding/json"
-	"fmt"
+	"gobooru/internal/controllers"
 	"gobooru/internal/database"
 	"gobooru/internal/repositories"
+	"gobooru/internal/routes"
+	"gobooru/internal/services"
+	"log"
+
+	"github.com/labstack/echo/v4"
 )
 
 func main() {
@@ -21,19 +24,23 @@ func main() {
 
 	poolRepository := repositories.NewPoolRepository(db)
 
-	pool, count, err := poolRepository.ListFull(context.TODO(), repositories.PoolListFullArgs{
-		Text:     "custom:test",
-		Page:     1,
-		PageSize: 10,
+	poolService := services.NewPoolService(services.PoolRepositoryConfig{
+		PoolRepository: poolRepository,
 	})
 
-	if err != nil {
-		panic(err)
+	healthCheckController := controllers.NewHealthCheckController()
+	poolController := controllers.NewPoolController(controllers.PoolControllerConfig{
+		PoolService: poolService,
+	})
+
+	r := echo.New()
+
+	routes.RegisterHealthCheckRoutes(r, healthCheckController)
+	routes.RegisterPoolRoutes(r, poolController)
+
+	for _, route := range r.Routes() {
+		log.Printf("%s %s %s", route.Method, route.Path, route.Name)
 	}
 
-	s, _ := json.MarshalIndent(pool, "", "\t")
-	fmt.Print(string(s))
-	fmt.Print(count)
-
-	// fmt.Print(count)
+	r.Start(":8080")
 }

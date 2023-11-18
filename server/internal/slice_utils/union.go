@@ -1,6 +1,6 @@
 package slice_utils
 
-// Union returns the union of two slices.
+// A + B, returns an slice with elements from A and B, will deduplicate amy.
 func Union[T string | int](a, b []T) []T {
 	m := make(map[T]struct{})
 	for _, v := range a {
@@ -10,7 +10,7 @@ func Union[T string | int](a, b []T) []T {
 		m[v] = struct{}{}
 	}
 
-	var result []T
+	result := make([]T, 0)
 	for k := range m {
 		result = append(result, k)
 	}

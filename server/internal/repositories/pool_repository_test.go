@@ -63,35 +63,50 @@ func TestSuite_Run(t *testing.T) {
 }
 
 func (s *TestSuite) TestCreatePool() {
-	tests := []struct {
-		name         string
-		ctx          context.Context
-		args         repositories.PoolCreateArgs
-		expectedPool models.Pool
+	type args struct {
+		Custom      []string
+		Description string
+		Name        string
+		PostIDs     []int
+	}
+
+	type want struct {
+		pool models.Pool
+		err  error
+	}
+
+	testCases := []struct {
+		name string
+		ctx  context.Context
+		args args
+		want want
 	}{
 		{
 			name: "all fields",
 			ctx:  context.Background(),
-			args: repositories.PoolCreateArgs{
+			args: args{
 				Custom:      []string{"a", "b"},
 				Description: "description 1",
 				Name:        "creation 1",
 				PostIDs:     []int{3, 1, 2},
 			},
-			expectedPool: models.Pool{
-				Custom:      pq.StringArray{"a", "b"},
-				Description: "description 1",
-				Name:        "creation 1",
-				PostCount:   3,
-				Posts: []models.Post{
-					{
-						ID: 3,
-					},
-					{
-						ID: 1,
-					},
-					{
-						ID: 2,
+			want: want{
+				err: nil,
+				pool: models.Pool{
+					Custom:      pq.StringArray{"a", "b"},
+					Description: "description 1",
+					Name:        "creation 1",
+					PostCount:   3,
+					Posts: []models.Post{
+						{
+							ID: 3,
+						},
+						{
+							ID: 1,
+						},
+						{
+							ID: 2,
+						},
 					},
 				},
 			},
@@ -99,47 +114,56 @@ func (s *TestSuite) TestCreatePool() {
 		{
 			name: "no custom",
 			ctx:  context.Background(),
-			args: repositories.PoolCreateArgs{
+			args: args{
 				Description: "description 2",
 				Name:        "creation 2",
 				PostIDs:     []int{2, 1, 3},
 			},
-			expectedPool: models.Pool{
-				Custom:      pq.StringArray{},
-				Description: "description 2",
-				Name:        "creation 2",
-				PostCount:   3,
-				Posts: []models.Post{
-					{
-						ID: 2,
-					},
-					{
-						ID: 1,
-					},
-					{
-						ID: 3,
+			want: want{
+				err: nil,
+				pool: models.Pool{
+					Custom:      pq.StringArray{},
+					Description: "description 2",
+					Name:        "creation 2",
+					PostCount:   3,
+					Posts: []models.Post{
+						{
+							ID: 2,
+						},
+						{
+							ID: 1,
+						},
+						{
+							ID: 3,
+						},
 					},
 				},
 			},
 		},
 	}
 
-	for _, tt := range tests {
+	for _, tt := range testCases {
 		s.T().Run(tt.name, func(t *testing.T) {
-			createdPool, err := s.poolRepository.Create(tt.ctx, tt.args)
+			createdPool, err := s.poolRepository.Create(tt.ctx, repositories.PoolCreateArgs{
+				Custom:      tt.args.Custom,
+				Description: tt.args.Description,
+				Name:        tt.args.Name,
+				PostIDs:     tt.args.PostIDs,
+			})
 
-			require.Nil(t, err)
+			require.ErrorIs(t, err, tt.want.err)
 			assert.NotZero(t, createdPool.ID)
 			assert.NotZero(t, createdPool.CreatedAt)
 			assert.NotZero(t, createdPool.UpdatedAt)
-			assert.EqualValues(t, tt.expectedPool.Custom, createdPool.Custom)
+			assert.EqualValues(t, tt.want.pool.Custom, createdPool.Custom)
+			assert.Equal(t, tt.want.pool.PostCount, createdPool.PostCount)
+			assert.Equal(t, tt.want.pool.Name, createdPool.Name)
+			assert.Equal(t, tt.want.pool.Description, createdPool.Description)
+
+			// checks for post order
 			for i, post := range createdPool.Posts {
-				// checks for post order
-				assert.Equal(t, tt.expectedPool.Posts[i].ID, post.ID)
+				assert.Equal(t, tt.want.pool.Posts[i].ID, post.ID)
 			}
-			assert.Equal(t, tt.expectedPool.PostCount, createdPool.PostCount)
-			assert.Equal(t, tt.expectedPool.Name, createdPool.Name)
-			assert.Equal(t, tt.expectedPool.Description, createdPool.Description)
 
 			fetchedPool, err := s.poolRepository.GetFull(context.TODO(), createdPool.ID)
 			require.Nil(t, err)
@@ -149,118 +173,154 @@ func (s *TestSuite) TestCreatePool() {
 }
 
 func (s *TestSuite) TestDeletePool() {
-	tests := []struct {
-		name          string
-		ctx           context.Context
-		poolID        int
-		expectedError error
+	type args struct {
+		poolID int
+	}
+
+	type want struct {
+		err error
+	}
+
+	testCases := []struct {
+		name string
+		ctx  context.Context
+		args args
+		want want
 	}{
 		{
-			name:          "existing pool 1",
-			ctx:           context.Background(),
-			poolID:        1,
-			expectedError: nil,
+			name: "existing pool 1",
+			ctx:  context.Background(),
+			args: args{
+				poolID: 1,
+			},
+			want: want{
+				err: nil,
+			},
 		},
 		{
-			name:          "non-existing pool",
-			ctx:           context.Background(),
-			poolID:        9999,
-			expectedError: nil,
+			name: "non-existing pool",
+			ctx:  context.Background(),
+			args: args{
+				poolID: 9999,
+			},
+			want: want{
+				err: nil,
+			},
 		},
 	}
 
-	for _, tt := range tests {
+	for _, tt := range testCases {
 		s.T().Run(tt.name, func(t *testing.T) {
-			err := s.poolRepository.Delete(tt.ctx, tt.poolID)
-			require.ErrorIs(t, err, tt.expectedError)
+			err := s.poolRepository.Delete(tt.ctx, tt.args.poolID)
+			require.ErrorIs(t, err, tt.want.err)
 
-			_, err = s.poolRepository.GetFull(tt.ctx, tt.poolID)
+			_, err = s.poolRepository.GetFull(tt.ctx, tt.args.poolID)
 			assert.ErrorIs(t, err, database.ErrNotFound)
 		})
 	}
 }
 
 func (s *TestSuite) TestGetPool() {
+	type args struct {
+		poolID int
+	}
+
+	type want struct {
+		pool models.Pool
+		err  error
+	}
+
 	tests := []struct {
-		name          string
-		ctx           context.Context
-		poolID        int
-		expectedError error
-		expectedPool  models.Pool
+		name string
+		ctx  context.Context
+		args args
+		want want
 	}{
 		{
-			name:          "existing pool 3",
-			ctx:           context.Background(),
-			poolID:        3,
-			expectedError: nil,
-			expectedPool: models.Pool{
-				ID:          3,
-				CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-				UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
-				Custom:      pq.StringArray{},
-				Description: "pool 3 description",
-				Name:        "pool 3 name",
-				PostCount:   3,
-				Posts: []models.Post{
-					{
-						CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
-						Description: "post 3 description",
-						ID:          3,
-						Pools:       []models.Post{},
-						UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
-					},
-					{
-						CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
-						Description: "post 1 description",
-						ID:          1,
-						Pools:       []models.Post{},
-						UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
-					},
-					{
-						CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
-						Description: "post 2 description",
-						ID:          2,
-						Pools:       []models.Post{},
-						UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+			name: "existing pool 3",
+			ctx:  context.Background(),
+			args: args{
+				poolID: 3,
+			},
+			want: want{
+				err: nil,
+				pool: models.Pool{
+					ID:          3,
+					CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+					UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+					Custom:      pq.StringArray{},
+					Description: "pool 3 description",
+					Name:        "pool 3 name",
+					PostCount:   3,
+					Posts: []models.Post{
+						{
+							CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+							Description: "post 3 description",
+							ID:          3,
+							Pools:       []models.Post{},
+							UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+						},
+						{
+							CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+							Description: "post 1 description",
+							ID:          1,
+							Pools:       []models.Post{},
+							UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+						},
+						{
+							CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+							Description: "post 2 description",
+							ID:          2,
+							Pools:       []models.Post{},
+							UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+						},
 					},
 				},
 			},
 		},
 		{
-			name:          "non-existing pool",
-			ctx:           context.Background(),
-			poolID:        9999,
-			expectedError: database.ErrNotFound,
-			expectedPool: models.Pool{
-				ID:          0,
-				Custom:      nil,
-				Description: "",
-				Name:        "",
-				PostCount:   0,
-				Posts:       nil,
+			name: "non-existing pool",
+			ctx:  context.Background(),
+			args: args{
+				poolID: 9999,
+			},
+			want: want{
+				err: database.ErrNotFound,
+				pool: models.Pool{
+					ID:          0,
+					CreatedAt:   time.Time{},
+					UpdatedAt:   time.Time{},
+					Custom:      nil,
+					Description: "",
+					Name:        "",
+					PostCount:   0,
+					Posts:       nil,
+				},
 			},
 		},
 	}
 
 	for _, tt := range tests {
 		s.T().Run(tt.name, func(t *testing.T) {
-			pool, err := s.poolRepository.GetFull(tt.ctx, tt.poolID)
+			pool, err := s.poolRepository.GetFull(tt.ctx, tt.args.poolID)
 
-			require.ErrorIs(t, err, tt.expectedError)
-			assert.Equal(t, tt.expectedPool.ID, pool.ID)
-			assert.Equal(t, tt.expectedPool.CreatedAt, pool.CreatedAt)
-			assert.Equal(t, tt.expectedPool.UpdatedAt, pool.UpdatedAt)
-			assert.EqualValues(t, tt.expectedPool.Custom, pool.Custom)
+			require.ErrorIs(t, err, tt.want.err)
+
+			assert.Equal(t, tt.want.pool.ID, pool.ID)
+			assert.Equal(t, tt.want.pool.CreatedAt, pool.CreatedAt)
+			assert.Equal(t, tt.want.pool.UpdatedAt, pool.UpdatedAt)
+			assert.EqualValues(t, tt.want.pool.Custom, pool.Custom)
+			assert.Equal(t, tt.want.pool.PostCount, pool.PostCount)
+			assert.Equal(t, tt.want.pool.Name, pool.Name)
+			assert.Equal(t, tt.want.pool.Description, pool.Description)
+
 			for i, post := range pool.Posts {
 				// checks for post order
-				assert.Equal(t, tt.expectedPool.Posts[i].ID, post.ID)
-				assert.Equal(t, tt.expectedPool.Posts[i].CreatedAt, post.CreatedAt)
-				assert.Equal(t, tt.expectedPool.Posts[i].UpdatedAt, post.UpdatedAt)
-				assert.Equal(t, tt.expectedPool.Posts[i].Description, post.Description)
+				assert.Equal(t, tt.want.pool.Posts[i].ID, post.ID)
+				assert.Equal(t, tt.want.pool.Posts[i].CreatedAt, post.CreatedAt)
+				assert.Equal(t, tt.want.pool.Posts[i].UpdatedAt, post.UpdatedAt)
+				assert.Equal(t, tt.want.pool.Posts[i].Description, post.Description)
 			}
-			assert.Equal(t, tt.expectedPool.PostCount, pool.PostCount)
-			assert.Equal(t, tt.expectedPool.Name, pool.Name)
-			assert.Equal(t, tt.expectedPool.Description, pool.Description)
 		})
 	}
 }

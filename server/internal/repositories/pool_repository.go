@@ -183,7 +183,7 @@ func (r poolRepository) Update(ctx context.Context, args PoolUpdateArgs) (models
 			oldPostIDs[i] = post.ID
 		}
 
-		toRemove := slice_utils.Difference(*args.Posts, oldPostIDs)
+		toRemove := slice_utils.Difference(oldPostIDs, *args.Posts)
 
 		pool.PostCount = len(*args.Posts)
 		pool.Posts = make([]models.Post, pool.PostCount)

@@ -9,6 +9,18 @@ import (
 	"github.com/testcontainers/testcontainers-go/wait"
 )
 
+type Logger interface {
+	Printf(format string, args ...interface{})
+}
+
+type logger struct{}
+
+func (l *logger) Printf(format string, args ...interface{}) {}
+
+func NewLogger() Logger {
+	return &logger{}
+}
+
 type PostgresContainer struct {
 	testcontainers.Container
 	Config PostgresContainerConfig
@@ -46,7 +58,11 @@ func NewPostgresContainer(ctx context.Context, opts ...PostgresContainerOption) 
 	container, err := testcontainers.GenericContainer(
 		context.Background(),
 		testcontainers.GenericContainerRequest{
+			Logger: NewLogger(),
 			ContainerRequest: testcontainers.ContainerRequest{
+				LifecycleHooks: []testcontainers.ContainerLifecycleHooks{
+					testcontainers.DefaultLoggingHook(NewLogger()),
+				},
 				Env: map[string]string{
 					"POSTGRES_USER":     config.User,
 					"POSTGRES_PASSWORD": config.Password,
@@ -76,7 +92,7 @@ func NewPostgresContainer(ctx context.Context, opts ...PostgresContainerOption) 
 	config.Host = host
 	config.Port = mappedPort.Port()
 
-	fmt.Println("Host:", config.Host, config.Port)
+	// fmt.Println("Host:", config.Host, config.Port)
 
 	return &PostgresContainer{
 		Container: container,

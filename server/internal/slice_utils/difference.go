@@ -1,14 +1,14 @@
 package slice_utils
 
-// Diference returns the difference between two slices.
+// A  B, returns an slice with the elements that are in A but not in B
 func Difference[T string | int](a, b []T) []T {
 	m := make(map[T]bool)
-	for _, item := range a {
+	for _, item := range b {
 		m[item] = true
 	}
 
-	var diff []T
-	for _, item := range b {
+	diff := make([]T, 0)
+	for _, item := range a {
 		if _, ok := m[item]; !ok {
 			diff = append(diff, item)
 		}

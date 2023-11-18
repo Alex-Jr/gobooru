@@ -1,13 +1,13 @@
 package slice_utils
 
-// Intersection returns the intersection of two slices.
+// A ∩ B, returns an slice with only elements that are in both A and B
 func Intersection[T string | int](a, b []T) []T {
 	m := make(map[T]struct{})
 	for _, v := range a {
 		m[v] = struct{}{}
 	}
 
-	var result []T
+	result := make([]T, 0)
 	for _, v := range b {
 		if _, ok := m[v]; ok {
 			result = append(result, v)
