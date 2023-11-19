@@ -87,8 +87,15 @@ func commaSplit(s string) []string {
 
 func (p parser) ParseSearch(search models.Search) (ParserResponse, error) {
 	paginationArgs := []interface{}{
-		search.PageSize,
-		(search.Page - 1) * search.PageSize,
+		100,
+		0,
+	}
+
+	if search.Page > 0 && search.PageSize > 0 {
+		paginationArgs = []interface{}{
+			search.PageSize,
+			(search.Page - 1) * search.PageSize,
+		}
 	}
 
 	whereQuery := make([]string, 0)
