@@ -254,25 +254,25 @@ func (s *TestSuite) TestGetPool() {
 					PostCount:   3,
 					Posts: []models.Post{
 						{
-							CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+							CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 							Description: "post 3 description",
 							ID:          3,
 							Pools:       []models.Post{},
-							UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+							UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 						},
 						{
-							CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+							CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 							Description: "post 1 description",
 							ID:          1,
 							Pools:       []models.Post{},
-							UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+							UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 						},
 						{
-							CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+							CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 							Description: "post 2 description",
 							ID:          2,
 							Pools:       []models.Post{},
-							UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.FixedZone("", 0)),
+							UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 						},
 					},
 				},
@@ -317,8 +317,9 @@ func (s *TestSuite) TestGetPool() {
 			for i, post := range pool.Posts {
 				// checks for post order
 				assert.Equal(t, tt.want.pool.Posts[i].ID, post.ID)
-				assert.Equal(t, tt.want.pool.Posts[i].CreatedAt, post.CreatedAt)
-				assert.Equal(t, tt.want.pool.Posts[i].UpdatedAt, post.UpdatedAt)
+				// ? using time jsonUNMARSHAL returns +0000 while time scan return UTC
+				assert.Equal(t, tt.want.pool.CreatedAt.Compare(tt.want.pool.Posts[i].CreatedAt), 0)
+				assert.Equal(t, tt.want.pool.UpdatedAt.Compare(tt.want.pool.Posts[i].UpdatedAt), 0)
 				assert.Equal(t, tt.want.pool.Posts[i].Description, post.Description)
 			}
 		})
