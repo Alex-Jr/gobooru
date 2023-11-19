@@ -3,6 +3,7 @@ package main
 import (
 	"gobooru/internal/controllers"
 	"gobooru/internal/database"
+	"gobooru/internal/middlewares"
 	"gobooru/internal/repositories"
 	"gobooru/internal/routes"
 	"gobooru/internal/services"
@@ -12,7 +13,7 @@ import (
 )
 
 func main() {
-	sqlx := database.MustGetSQLXConnection(database.GetDevConfig())
+	sqlx := database.MustGetSQLXConnection(database.GetConfig())
 
 	db := database.NewSQLClient(
 		sqlx,
@@ -34,6 +35,8 @@ func main() {
 	})
 
 	r := echo.New()
+
+	r.Use(middlewares.NewLoggerMiddleware())
 
 	routes.RegisterHealthCheckRoutes(r, healthCheckController)
 	routes.RegisterPoolRoutes(r, poolController)

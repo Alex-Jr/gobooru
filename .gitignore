@@ -22,3 +22,9 @@ go.work
 
 # Debug binary
 __debug_bin*
+
+# Production build
+docker-data/
+
+# envs
+.env

@@ -1,0 +1,48 @@
+
+version: '3.9'
+
+name: gobooru
+
+# contain all services
+services:
+  gobooru-server:
+    container_name: gobooru-server
+    depends_on:
+      gobooru-db:
+        condition: service_healthy
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    restart: no
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_SSLMODE=${DB_SSLMODE}
+    ports:
+      - ${SERVER_PORT}:8080
+  gobooru-db:
+    container_name: gobooru-db
+    image: postgres
+    restart: no
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - "5450:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
+      interval: 5s  
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data: 
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker-data/db

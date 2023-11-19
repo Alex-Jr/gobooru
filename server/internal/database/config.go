@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/go-sqlx/sqlx"
 )
@@ -27,13 +28,13 @@ func GetConnectionString(c DBConfig) string {
 	)
 }
 
-func GetDevConfig() DBConfig {
+func GetConfig() DBConfig {
 	return DBConfig{
-		Host:     "localhost",
-		Port:     "5450",
-		User:     "user",
-		Password: "password",
-		Database: "database",
+		Host:     os.Getenv("DB_HOST"),
+		Port:     os.Getenv("DB_PORT"),
+		User:     os.Getenv("DB_USER"),
+		Password: os.Getenv("DB_PASSWORD"),
+		Database: os.Getenv("DB_DATABASE"),
 	}
 }
 
