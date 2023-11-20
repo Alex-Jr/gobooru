@@ -1,1 +1,1 @@
-docker run --rm -v "$PWD":/src -w /src vektra/mockery --config mockery.yaml
+docker run --user "$(id -u):$(id -g)" --rm -v "$PWD":/src -w /src vektra/mockery --config mockery.yaml 
