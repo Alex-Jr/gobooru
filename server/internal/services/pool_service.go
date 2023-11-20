@@ -9,6 +9,8 @@ import (
 
 type PoolService interface {
 	Create(ctx context.Context, dto dtos.CreatePoolDTO) (dtos.CreatePoolResponseDTO, error)
+	Fetch(ctx context.Context, dto dtos.FetchPoolDTO) (dtos.FetchPoolResponseDTO, error)
+	List(ctx context.Context, dto dtos.ListPoolDTO) (dtos.ListPoolResponseDTO, error)
 }
 
 type poolService struct {
@@ -39,5 +41,32 @@ func (s poolService) Create(ctx context.Context, dto dtos.CreatePoolDTO) (dtos.C
 
 	return dtos.CreatePoolResponseDTO{
 		Pool: pool,
+	}, nil
+}
+
+func (s poolService) Fetch(ctx context.Context, dto dtos.FetchPoolDTO) (dtos.FetchPoolResponseDTO, error) {
+	pool, err := s.poolRepository.GetFull(ctx, dto.ID)
+	if err != nil {
+		return dtos.FetchPoolResponseDTO{}, fmt.Errorf("failed to fetch pool: %w", err)
+	}
+
+	return dtos.FetchPoolResponseDTO{
+		Pool: pool,
+	}, nil
+}
+
+func (s poolService) List(ctx context.Context, dto dtos.ListPoolDTO) (dtos.ListPoolResponseDTO, error) {
+	pools, count, err := s.poolRepository.ListFull(ctx, repositories.PoolListFullArgs{
+		Text:     dto.Search,
+		Page:     dto.Page,
+		PageSize: dto.PageSize,
+	})
+	if err != nil {
+		return dtos.ListPoolResponseDTO{}, fmt.Errorf("failed to list pools: %w", err)
+	}
+
+	return dtos.ListPoolResponseDTO{
+		Pools: pools,
+		Count: count,
 	}, nil
 }
