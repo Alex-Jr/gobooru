@@ -4,7 +4,7 @@ import (
 	"gobooru/internal/slice_utils"
 	"testing"
 
-	"gotest.tools/v3/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestDifference(t *testing.T) {
@@ -43,7 +43,7 @@ func TestDifference(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			result := slice_utils.Difference(tc.args.a, tc.args.b)
 
-			assert.DeepEqual(t, result, tc.want.expected)
+			assert.EqualValues(t, result, tc.want.expected)
 		})
 	}
 }

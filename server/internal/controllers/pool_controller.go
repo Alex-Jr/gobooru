@@ -10,7 +10,11 @@ import (
 )
 
 type PoolController interface {
-	CreatePool(c echo.Context) error
+	Create(c echo.Context) error
+	Delete(c echo.Context) error
+	Fetch(c echo.Context) error
+	List(c echo.Context) error
+	Update(c echo.Context) error
 }
 
 type poolController struct {
@@ -27,7 +31,7 @@ func NewPoolController(c PoolControllerConfig) PoolController {
 	}
 }
 
-func (p poolController) CreatePool(c echo.Context) error {
+func (p poolController) Create(c echo.Context) error {
 	var dto dtos.CreatePoolDTO
 
 	err := c.Bind(&dto)
@@ -36,6 +40,70 @@ func (p poolController) CreatePool(c echo.Context) error {
 	}
 
 	response, err := p.poolService.Create(context.TODO(), dto)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+func (p poolController) Fetch(c echo.Context) error {
+	var dto dtos.FetchPoolDTO
+
+	err := c.Bind(&dto)
+	if err != nil {
+		return err
+	}
+
+	response, err := p.poolService.Fetch(context.TODO(), dto)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+func (p poolController) Delete(c echo.Context) error {
+	var dto dtos.DeletePoolDTO
+
+	err := c.Bind(&dto)
+	if err != nil {
+		return err
+	}
+
+	response, err := p.poolService.Delete(context.TODO(), dto)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+func (p poolController) List(c echo.Context) error {
+	var dto dtos.ListPoolDTO
+
+	err := c.Bind(&dto)
+	if err != nil {
+		return err
+	}
+
+	response, err := p.poolService.List(context.TODO(), dto)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+func (p poolController) Update(c echo.Context) error {
+	var dto dtos.UpdatePoolDTO
+
+	err := c.Bind(&dto)
+	if err != nil {
+		return err
+	}
+
+	response, err := p.poolService.Update(context.TODO(), dto)
 	if err != nil {
 		return err
 	}

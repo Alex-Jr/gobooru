@@ -4,7 +4,7 @@ import (
 	"gobooru/internal/slice_utils"
 	"testing"
 
-	"gotest.tools/v3/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUnion(t *testing.T) {
@@ -66,7 +66,7 @@ func TestUnion(t *testing.T) {
 
 			for _, v := range tc.want.result {
 				_, ok := resultMap[v]
-				assert.Assert(t, ok, "expected %v to be in result", v)
+				assert.True(t, ok, "expected %v to be in result", v)
 			}
 		})
 	}

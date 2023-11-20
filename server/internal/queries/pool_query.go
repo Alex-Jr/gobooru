@@ -205,6 +205,7 @@ func (q poolQuery) ListFull(ctx context.Context, db database.DBClient, search mo
 				pl."description", 
 				pl."id",
 				pl."name", 
+				pl."post_count",
 				JSONB_AGG(
 					ROW_TO_JSON(pt.*)
 					ORDER BY pp."position"

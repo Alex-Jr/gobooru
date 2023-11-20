@@ -3,7 +3,7 @@ package slice_utils
 import (
 	"testing"
 
-	"gotest.tools/v3/assert"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestIntersection(t *testing.T) {
@@ -37,7 +37,7 @@ func TestIntersection(t *testing.T) {
 		t.Run(tc.name, func(t *testing.T) {
 			result := Intersection(tc.a, tc.b)
 
-			assert.DeepEqual(t, result, tc.expected)
+			assert.EqualValues(t, result, tc.expected)
 		})
 	}
 }
