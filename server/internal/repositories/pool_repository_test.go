@@ -17,13 +17,13 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type TestSuite struct {
+type PoolTestSuite struct {
 	suite.Suite
 	psqlContainer  *database.PostgresContainer
 	poolRepository repositories.PoolRepository
 }
 
-func (s *TestSuite) SetupTest() {
+func (s *PoolTestSuite) SetupTest() {
 	ctx, ctxCancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer ctxCancel()
 
@@ -52,7 +52,7 @@ func (s *TestSuite) SetupTest() {
 	s.psqlContainer = sqlContainer
 }
 
-func (s *TestSuite) TearDownTest() {
+func (s *PoolTestSuite) TearDownTest() {
 	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer ctxCancel()
 
@@ -60,11 +60,11 @@ func (s *TestSuite) TearDownTest() {
 	s.Require().NoError(err)
 }
 
-func TestSuite_Run(t *testing.T) {
-	suite.Run(t, new(TestSuite))
+func TestPoolSuite_Run(t *testing.T) {
+	suite.Run(t, new(PoolTestSuite))
 }
 
-func (s *TestSuite) TestPoolRepositoryCreate() {
+func (s *PoolTestSuite) TestPoolRepositoryCreate() {
 	type args struct {
 		Custom      []string
 		Description string
@@ -174,7 +174,7 @@ func (s *TestSuite) TestPoolRepositoryCreate() {
 	}
 }
 
-func (s *TestSuite) TestPoolRepositoryDelete() {
+func (s *PoolTestSuite) TestPoolRepositoryDelete() {
 	type args struct {
 		poolID int
 	}
@@ -222,7 +222,7 @@ func (s *TestSuite) TestPoolRepositoryDelete() {
 	}
 }
 
-func (s *TestSuite) TestPoolRepositoryGetFull() {
+func (s *PoolTestSuite) TestPoolRepositoryGetFull() {
 	type args struct {
 		poolID int
 	}
@@ -288,7 +288,7 @@ func (s *TestSuite) TestPoolRepositoryGetFull() {
 	}
 }
 
-func (s *TestSuite) TestPoolRepositoryListFull() {
+func (s *PoolTestSuite) TestPoolRepositoryListFull() {
 	type args struct {
 		text     string
 		page     int
@@ -431,7 +431,7 @@ func (s *TestSuite) TestPoolRepositoryListFull() {
 	}
 
 }
-func (s *TestSuite) TestPoolRepositoryUpdate() {
+func (s *PoolTestSuite) TestPoolRepositoryUpdate() {
 	makeStringPointer := func(s string) *string {
 		return &s
 	}
