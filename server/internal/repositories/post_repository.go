@@ -2,9 +2,11 @@ package repositories
 
 import (
 	"context"
+	"fmt"
 	"gobooru/internal/database"
 	"gobooru/internal/models"
 	"gobooru/internal/queries"
+	"time"
 )
 
 type PostRepository interface {
@@ -16,29 +18,71 @@ type PostRepository interface {
 type postRepository struct {
 	sqlClient database.SQLClient
 	postQuery queries.PostQuery
+	tagQuery  queries.TagQuery
 }
 
 type CreatePostArgs struct {
 	Description string
+	Rating      string
+	Tags        []string
 }
 
 func NewPostRepository(sqlClient database.SQLClient) PostRepository {
 	return &postRepository{
 		sqlClient: sqlClient,
 		postQuery: queries.NewPostQuery(),
+		tagQuery:  queries.NewTagQuery(),
 	}
 }
 
 func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (models.Post, error) {
+	tx, err := r.sqlClient.BeginTxx(ctx, nil)
+	if err != nil {
+		return models.Post{}, fmt.Errorf("sqlClient.BeginTxx: %w", err)
+	}
+	defer tx.Rollback()
+
+	now := time.Now()
+
 	post := models.Post{
+		Rating:      args.Rating,
 		Description: args.Description,
+		TagIDs:      make([]string, len(args.Tags)),
+		TagCount:    len(args.Tags),
+		PoolCount:   0,
+		CreatedAt:   now,
+		UpdatedAt:   now,
+		Pools:       make(models.PoolList, 0),
+		Tags:        make(models.TagList, len(args.Tags)),
 	}
 
-	err := r.postQuery.Create(ctx, r.sqlClient, &post)
+	err = r.postQuery.Create(ctx, tx, &post)
 
 	if err != nil {
-		return models.Post{}, err
+		return models.Post{}, fmt.Errorf("postQuery.Create: %w", err)
 	}
+
+	tags := make([]models.Tag, len(args.Tags))
+
+	for i, tag := range args.Tags {
+		tags[i] = models.Tag{
+			ID:        tag,
+			PostCount: 1,
+			CreatedAt: now,
+			UpdatedAt: now,
+		}
+
+		post.TagIDs[i] = tag
+	}
+	post.Tags = tags
+
+	err = r.tagQuery.CreateMany(ctx, tx, &tags)
+
+	if err != nil {
+		return models.Post{}, fmt.Errorf("tagQuery.CreateMany: %w", err)
+	}
+
+	tx.Commit()
 
 	return post, nil
 }

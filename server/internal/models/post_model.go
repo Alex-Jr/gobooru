@@ -3,14 +3,21 @@ package models
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type Post struct {
-	CreatedAt   time.Time `db:"created_at" json:"created_at"`
-	Description string    `db:"description" json:"description"`
-	ID          int       `db:"id" json:"id"`
-	Pools       PoolList  `db:"pools" json:"pools"`
-	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
+	ID          int            `db:"id" json:"id"`
+	Rating      string         `db:"rating" json:"rating"`
+	Description string         `db:"description" json:"description"`
+	TagIDs      pq.StringArray `db:"tag_ids" json:"tag_ids"`
+	TagCount    int            `db:"tag_count" json:"tag_count"`
+	PoolCount   int            `db:"pool_count" json:"pool_count"`
+	CreatedAt   time.Time      `db:"created_at" json:"created_at"`
+	UpdatedAt   time.Time      `db:"updated_at" json:"updated_at"`
+	Pools       PoolList       `db:"pools" json:"pools"`
+	Tags        TagList        `db:"tags" json:"tags"`
 }
 
 type PostList []Post

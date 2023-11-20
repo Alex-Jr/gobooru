@@ -120,6 +120,8 @@ var Pools = []models.Pool{
 func LoadPoolRelations(p models.Pool) models.Pool {
 	for i := range p.Posts {
 		p.Posts[i] = Posts[p.Posts[i].ID-1]
+		p.Posts[i].Pools = nil
+		p.Posts[i].Tags = nil
 	}
 
 	return p

@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 	"gobooru/internal/dtos"
 	"gobooru/internal/repositories"
 )
@@ -29,10 +30,12 @@ func NewPostService(c PostServiceConfig) PostService {
 func (s postService) Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.CreatePostResponseDTO, error) {
 	post, err := s.postRepository.Create(ctx, repositories.CreatePostArgs{
 		Description: dto.Description,
+		Rating:      dto.Rating,
+		Tags:        dto.Tags,
 	})
 
 	if err != nil {
-		return dtos.CreatePostResponseDTO{}, err
+		return dtos.CreatePostResponseDTO{}, fmt.Errorf("postRepository.Create: %w", err)
 	}
 
 	return dtos.CreatePostResponseDTO{

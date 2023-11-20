@@ -62,6 +62,8 @@ func TestPostSuite_Run(t *testing.T) {
 func (s *PostTestSuit) TestPostCreate() {
 	type args struct {
 		description string
+		rating      string
+		tags        []string
 	}
 
 	type want struct {
@@ -74,13 +76,30 @@ func (s *PostTestSuit) TestPostCreate() {
 		want want
 	}{
 		{
-			name: "create post",
+			name: "create post with tags",
 			args: args{
 				description: "test description",
+				rating:      "s",
+				tags:        []string{"tag_one", "tag_two"},
 			},
 			want: want{
 				post: models.Post{
 					Description: "test description",
+					Rating:      "s",
+					TagIDs:      []string{"tag_one", "tag_two"},
+					TagCount:    2,
+					PoolCount:   0,
+					Pools:       make(models.PoolList, 0),
+					Tags: models.TagList{
+						{
+							ID:        "tag_one",
+							PostCount: 2,
+						},
+						{
+							ID:        "tag_two",
+							PostCount: 1,
+						},
+					},
 				},
 			},
 		},
@@ -92,6 +111,8 @@ func (s *PostTestSuit) TestPostCreate() {
 				context.TODO(),
 				repositories.CreatePostArgs{
 					Description: tc.args.description,
+					Rating:      tc.args.rating,
+					Tags:        tc.args.tags,
 				},
 			)
 
@@ -100,6 +121,19 @@ func (s *PostTestSuit) TestPostCreate() {
 			s.Assert().NotZero(post.CreatedAt)
 			s.Assert().NotZero(post.UpdatedAt)
 			s.Assert().Equal(tc.want.post.Description, post.Description)
+			s.Assert().Equal(tc.want.post.Rating, post.Rating)
+			s.Assert().Equal(tc.want.post.TagIDs, post.TagIDs)
+			s.Assert().Equal(tc.want.post.TagCount, post.TagCount)
+			s.Assert().Equal(tc.want.post.PoolCount, post.PoolCount)
+			s.Assert().Equal(tc.want.post.Pools, post.Pools)
+
+			for i, tag := range post.Tags {
+				s.Assert().Equal(tc.want.post.Tags[i].ID, tag.ID)
+				s.Assert().Equal(tc.want.post.Tags[i].PostCount, tag.PostCount)
+				s.Assert().Zero(tag.Description)
+				s.Assert().NotZero(tag.CreatedAt)
+				s.Assert().NotZero(tag.UpdatedAt)
+			}
 		})
 	}
 }

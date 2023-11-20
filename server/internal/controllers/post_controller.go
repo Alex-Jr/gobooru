@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"gobooru/internal/dtos"
 	"gobooru/internal/services"
 
@@ -31,7 +32,7 @@ func (c postController) Create(ctx echo.Context) error {
 	dto := dtos.CreatePostDTO{}
 
 	if err := ctx.Bind(&dto); err != nil {
-		return err
+		return fmt.Errorf("error binding dto: %w", err)
 	}
 
 	response, err := c.postService.Create(
@@ -40,7 +41,7 @@ func (c postController) Create(ctx echo.Context) error {
 	)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("postService.Create: %w", err)
 	}
 
 	return ctx.JSON(200, response)

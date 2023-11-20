@@ -3,8 +3,9 @@ package dtos
 import "gobooru/internal/models"
 
 type CreatePostDTO struct {
-	Description string `form:"description"`
-	Tags        string `form:"tags"`
+	Description string   `form:"description"`
+	Rating      string   `form:"rating"`
+	Tags        []string `form:"tags"`
 }
 
 type CreatePostResponseDTO struct {

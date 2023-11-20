@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"fmt"
 	"gobooru/internal/database"
 	"gobooru/internal/models"
 	"time"
@@ -30,12 +31,20 @@ func (q *postQuery) Create(ctx context.Context, db database.DBClient, post *mode
 		ctx,
 		`
 			INSERT INTO "posts" (
-				"created_at",
+				"rating",
 				"description",
+				"tag_ids",
+				"tag_count",
+				"pool_count",
+				"created_at",
 				"updated_at"
 			) VALUES (
-				:created_at,
+				:rating,
 				:description,
+				:tag_ids,
+				:tag_count,
+				:pool_count,
+				:created_at,
 				:updated_at
 			) RETURNING 
 				"id"
@@ -44,7 +53,7 @@ func (q *postQuery) Create(ctx context.Context, db database.DBClient, post *mode
 	)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("db.NamedQueryContext: %w", err)
 	}
 
 	defer rows.Close()
@@ -53,7 +62,7 @@ func (q *postQuery) Create(ctx context.Context, db database.DBClient, post *mode
 		err = rows.StructScan(post)
 
 		if err != nil {
-			return err
+			return fmt.Errorf("rows.StructScan: %w", err)
 		}
 	}
 
@@ -73,7 +82,7 @@ func (q *postQuery) Delete(ctx context.Context, db database.DBClient, post *mode
 	)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("db.ExecContext: %w", err)
 	}
 
 	return nil
@@ -114,7 +123,7 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 	)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("db.GetContext: %w", err)
 	}
 
 	return nil

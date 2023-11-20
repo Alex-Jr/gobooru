@@ -9,7 +9,16 @@ var Post1 = models.Post{
 	CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 	Description: "post 1 description",
 	ID:          1,
-	UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+	PoolCount:   0,
+	Rating:      "S",
+	TagCount:    1,
+	TagIDs:      []string{"tag_one"},
+	Tags: models.TagList{
+		{
+			ID: "tag_one",
+		},
+	},
+	UpdatedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 }
 
 var Post2 = models.Post{
@@ -50,7 +59,8 @@ var Posts = []models.Post{
 
 func LoadPostRelations(p models.Post) models.Post {
 	for i := range p.Pools {
-		p.Pools[i].Posts = Pools[p.Pools[i].ID-1].Posts
+		p.Pools[i] = Pools[p.Pools[i].ID-1]
+		p.Tags[i] = Tags[p.Tags[i].ID]
 	}
 
 	return p
