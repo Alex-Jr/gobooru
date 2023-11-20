@@ -14,6 +14,7 @@ type PoolController interface {
 	Delete(c echo.Context) error
 	Fetch(c echo.Context) error
 	List(c echo.Context) error
+	Update(c echo.Context) error
 }
 
 type poolController struct {
@@ -87,6 +88,22 @@ func (p poolController) List(c echo.Context) error {
 	}
 
 	response, err := p.poolService.List(context.TODO(), dto)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+func (p poolController) Update(c echo.Context) error {
+	var dto dtos.UpdatePoolDTO
+
+	err := c.Bind(&dto)
+	if err != nil {
+		return err
+	}
+
+	response, err := p.poolService.Update(context.TODO(), dto)
 	if err != nil {
 		return err
 	}

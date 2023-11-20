@@ -282,4 +282,73 @@ func TestPoolControllerList(t *testing.T) {
 	assert.EqualValues(t, want.dto, responseDTO)
 }
 
-func TestPoolControllerUpdate(t *testing.T) {}
+func TestPoolControllerUpdate(t *testing.T) {
+	args := struct {
+		ID          int
+		Description string
+		Name        string
+		Posts       []int
+	}{
+		ID:          1,
+		Description: "test description",
+		Name:        "test name",
+		Posts:       []int{3, 1},
+	}
+
+	want := struct {
+		statusCode int
+		dto        dtos.UpdatePoolResponseDTO
+	}{
+		statusCode: http.StatusOK,
+		dto: dtos.UpdatePoolResponseDTO{
+			Pool: fakes.LoadPool(fakes.Pool1),
+		},
+	}
+
+	poolService := mocks.NewMockPoolService(t)
+
+	poolController := controllers.NewPoolController(controllers.PoolControllerConfig{
+		PoolService: poolService,
+	})
+
+	poolService.On(
+		"Update",
+		context.TODO(),
+		dtos.UpdatePoolDTO{
+			ID:          args.ID,
+			Description: &args.Description,
+			Name:        &args.Name,
+			PostIDs:     &args.Posts,
+		},
+	).Return(
+		want.dto,
+		nil,
+	)
+
+	requestData, err := json.Marshal(args)
+	require.NoError(t, err)
+
+	e := echo.New()
+	req, err := http.NewRequest(
+		http.MethodPatch,
+		fmt.Sprintf("/pool/%d", 1),
+		bytes.NewBuffer(requestData),
+	)
+	require.NoError(t, err)
+
+	req.Header.Set("Content-Type", "application/json")
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprintf("%d", 1))
+
+	require.NoError(t, poolController.Update(c))
+
+	responseDTO := dtos.UpdatePoolResponseDTO{}
+
+	json.Unmarshal(rec.Body.Bytes(), &responseDTO)
+
+	assert.Equal(t, want.statusCode, rec.Code)
+	assert.Equal(t, want.dto, responseDTO)
+}

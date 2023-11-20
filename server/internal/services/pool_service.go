@@ -12,6 +12,7 @@ type PoolService interface {
 	Delete(ctx context.Context, dto dtos.DeletePoolDTO) (dtos.DeletePoolResponseDTO, error)
 	Fetch(ctx context.Context, dto dtos.FetchPoolDTO) (dtos.FetchPoolResponseDTO, error)
 	List(ctx context.Context, dto dtos.ListPoolDTO) (dtos.ListPoolResponseDTO, error)
+	Update(ctx context.Context, dto dtos.UpdatePoolDTO) (dtos.UpdatePoolResponseDTO, error)
 }
 
 type poolService struct {
@@ -85,5 +86,22 @@ func (s poolService) List(ctx context.Context, dto dtos.ListPoolDTO) (dtos.ListP
 	return dtos.ListPoolResponseDTO{
 		Pools: pools,
 		Count: count,
+	}, nil
+}
+
+func (s poolService) Update(ctx context.Context, dto dtos.UpdatePoolDTO) (dtos.UpdatePoolResponseDTO, error) {
+	pool, err := s.poolRepository.Update(ctx, repositories.PoolUpdateArgs{
+		Custom:      dto.Custom,
+		Description: dto.Description,
+		ID:          dto.ID,
+		Name:        dto.Name,
+		Posts:       dto.PostIDs,
+	})
+	if err != nil {
+		return dtos.UpdatePoolResponseDTO{}, fmt.Errorf("failed to update pool: %w", err)
+	}
+
+	return dtos.UpdatePoolResponseDTO{
+		Pool: pool,
 	}, nil
 }
