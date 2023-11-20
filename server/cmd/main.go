@@ -24,14 +24,21 @@ func main() {
 	)
 
 	poolRepository := repositories.NewPoolRepository(db)
+	postRepository := repositories.NewPostRepository(db)
 
-	poolService := services.NewPoolService(services.PoolRepositoryConfig{
+	poolService := services.NewPoolService(services.PoolServiceConfig{
 		PoolRepository: poolRepository,
+	})
+	postService := services.NewPostService(services.PostServiceConfig{
+		PostRepository: postRepository,
 	})
 
 	healthCheckController := controllers.NewHealthCheckController()
 	poolController := controllers.NewPoolController(controllers.PoolControllerConfig{
 		PoolService: poolService,
+	})
+	postController := controllers.NewPostController(controllers.PostControllerConfig{
+		PostService: postService,
 	})
 
 	r := echo.New()
@@ -40,6 +47,7 @@ func main() {
 
 	routes.RegisterHealthCheckRoutes(r, healthCheckController)
 	routes.RegisterPoolRoutes(r, poolController)
+	routes.RegisterPostRoutes(r, postController)
 
 	for _, route := range r.Routes() {
 		log.Printf("%s %s %s", route.Method, route.Path, route.Name)

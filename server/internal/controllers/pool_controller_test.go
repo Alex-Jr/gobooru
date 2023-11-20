@@ -63,23 +63,24 @@ func TestPoolControllerCreate(t *testing.T) {
 		nil,
 	)
 
-	e := echo.New()
 	requestData, err := json.Marshal(args)
 	require.NoError(t, err)
 
 	req, err := http.NewRequest(
 		http.MethodPost,
-		"/post",
+		"/pools",
 		bytes.NewBuffer(requestData),
 	)
 	require.NoError(t, err)
 
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	rec := httptest.NewRecorder()
+	e := echo.New()
 	c := e.NewContext(req, rec)
 
-	require.NoError(t, poolController.Create(c))
+	err = poolController.Create(c)
+	require.NoError(t, err)
 
 	var responseDTO dtos.CreatePoolResponseDTO
 

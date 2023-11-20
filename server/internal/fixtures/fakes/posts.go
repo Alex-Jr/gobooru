@@ -48,7 +48,7 @@ var Posts = []models.Post{
 	Post5,
 }
 
-func LoadPosts(p models.Post) models.Post {
+func LoadPost(p models.Post) models.Post {
 	for i := range p.Pools {
 		p.Pools[i].Posts = Pools[p.Pools[i].ID-1].Posts
 	}

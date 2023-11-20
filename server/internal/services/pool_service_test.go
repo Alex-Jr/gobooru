@@ -17,7 +17,7 @@ import (
 func TestPoolServiceCreate(t *testing.T) {
 	poolRepository := mocks.NewMockPoolRepository(t)
 
-	poolService := services.NewPoolService(services.PoolRepositoryConfig{
+	poolService := services.NewPoolService(services.PoolServiceConfig{
 		PoolRepository: poolRepository,
 	})
 
@@ -75,7 +75,7 @@ func TestPoolServiceCreate(t *testing.T) {
 func TestPoolServiceDelete(t *testing.T) {
 	poolRepository := mocks.NewMockPoolRepository(t)
 
-	poolService := services.NewPoolService(services.PoolRepositoryConfig{
+	poolService := services.NewPoolService(services.PoolServiceConfig{
 		PoolRepository: poolRepository,
 	})
 
@@ -134,7 +134,7 @@ func TestPoolServiceDelete(t *testing.T) {
 func TestPoolServiceFetch(t *testing.T) {
 	poolRepository := mocks.NewMockPoolRepository(t)
 
-	poolService := services.NewPoolService(services.PoolRepositoryConfig{
+	poolService := services.NewPoolService(services.PoolServiceConfig{
 		PoolRepository: poolRepository,
 	})
 
@@ -185,7 +185,7 @@ func TestPoolServiceFetch(t *testing.T) {
 func TestPoolServiceList(t *testing.T) {
 	poolRepository := mocks.NewMockPoolRepository(t)
 
-	poolService := services.NewPoolService(services.PoolRepositoryConfig{
+	poolService := services.NewPoolService(services.PoolServiceConfig{
 		PoolRepository: poolRepository,
 	})
 

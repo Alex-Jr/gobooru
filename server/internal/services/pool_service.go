@@ -19,11 +19,11 @@ type poolService struct {
 	poolRepository repositories.PoolRepository
 }
 
-type PoolRepositoryConfig struct {
+type PoolServiceConfig struct {
 	PoolRepository repositories.PoolRepository
 }
 
-func NewPoolService(c PoolRepositoryConfig) PoolService {
+func NewPoolService(c PoolServiceConfig) PoolService {
 	return &poolService{
 		poolRepository: c.PoolRepository,
 	}

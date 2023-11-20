@@ -29,8 +29,8 @@ func (q *postQuery) Create(ctx context.Context, db database.DBClient, post *mode
 		`
 			INSERT INTO "posts" (
 				"created_at",
-				"description"
-				"updated_at",
+				"description",
+				"updated_at"
 			) VALUES (
 				:created_at,
 				:description,
