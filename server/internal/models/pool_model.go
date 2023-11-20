@@ -18,7 +18,7 @@ type Pool struct {
 	UpdatedAt   time.Time      `db:"updated_at" json:"updated_at"`
 }
 
-type PoolList []Post
+type PoolList []Pool
 
 func (list *PoolList) Scan(src interface{}) error {
 	if data, ok := src.([]byte); ok && len(data) > 0 {
