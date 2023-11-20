@@ -32,7 +32,7 @@ func (c postController) Create(ctx echo.Context) error {
 	dto := dtos.CreatePostDTO{}
 
 	if err := ctx.Bind(&dto); err != nil {
-		return fmt.Errorf("error binding dto: %w", err)
+		return fmt.Errorf("ctx.Bind: %w", err)
 	}
 
 	response, err := c.postService.Create(
@@ -51,7 +51,7 @@ func (c postController) Delete(ctx echo.Context) error {
 	dto := dtos.DeletePostDTO{}
 
 	if err := ctx.Bind(&dto); err != nil {
-		return err
+		return fmt.Errorf("error binding dto: %w", err)
 	}
 
 	response, err := c.postService.Delete(
@@ -60,7 +60,7 @@ func (c postController) Delete(ctx echo.Context) error {
 	)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("postService.Delete: %w", err)
 	}
 
 	return ctx.JSON(200, response)
@@ -70,7 +70,7 @@ func (c postController) Fetch(ctx echo.Context) error {
 	dto := dtos.FetchPostDTO{}
 
 	if err := ctx.Bind(&dto); err != nil {
-		return err
+		return fmt.Errorf("ctx.Bind: %w", err)
 	}
 
 	response, err := c.postService.Fetch(
@@ -79,7 +79,7 @@ func (c postController) Fetch(ctx echo.Context) error {
 	)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("postService.Fetch: %w", err)
 	}
 
 	return ctx.JSON(200, response)

@@ -51,7 +51,7 @@ func (p poolPostQuery) AssociatePosts(ctx context.Context, db database.DBClient,
 	)
 
 	if err != nil {
-		return fmt.Errorf("creating pool posts: %w", err)
+		return fmt.Errorf("db.NamedExecContext: %w", err)
 	}
 
 	return nil
@@ -72,7 +72,7 @@ func (p poolPostQuery) DisassociatePostsByID(ctx context.Context, db database.DB
 	)
 
 	if err != nil {
-		return fmt.Errorf("deleting pool posts: %w", err)
+		return fmt.Errorf("db.ExecContext: %w", err)
 	}
 
 	return nil

@@ -95,14 +95,14 @@ func (q poolQuery) Create(ctx context.Context, db database.DBClient, pool *model
 		pool,
 	)
 	if err != nil {
-		return fmt.Errorf("creating pool: %w", err)
+		return fmt.Errorf("db.NamedQueryContext: %w", err)
 	}
 	defer rows.Close()
 
 	if rows.Next() {
 		err = rows.StructScan(pool)
 		if err != nil {
-			return fmt.Errorf("scanning pool: %w", err)
+			return fmt.Errorf("rows.StructScan: %w", err)
 		}
 	}
 
@@ -122,7 +122,7 @@ func (q poolQuery) Delete(ctx context.Context, db database.DBClient, pool *model
 	)
 
 	if err != nil {
-		return fmt.Errorf("deleting pool: %w", err)
+		return fmt.Errorf(" db.ExecContext: %w", err)
 	}
 
 	return nil
@@ -163,7 +163,7 @@ func (q poolQuery) GetFull(ctx context.Context, db database.DBClient, pool *mode
 			return database.ErrNotFound
 		}
 
-		return fmt.Errorf("finding pool: %w", err)
+		return fmt.Errorf("db.GetContext: %w", err)
 	}
 
 	return nil
@@ -172,7 +172,7 @@ func (q poolQuery) GetFull(ctx context.Context, db database.DBClient, pool *mode
 func (q poolQuery) ListFull(ctx context.Context, db database.DBClient, search models.Search, pools *[]models.Pool, count *int) error {
 	parsed, err := q.parser.ParseSearch(search)
 	if err != nil {
-		return fmt.Errorf("parsing search: %w", err)
+		return fmt.Errorf("parser.ParseSearch: %w", err)
 	}
 
 	err = db.GetContext(
@@ -187,7 +187,7 @@ func (q poolQuery) ListFull(ctx context.Context, db database.DBClient, search mo
 		parsed.WhereArgs...,
 	)
 	if err != nil {
-		return fmt.Errorf("counting pools: %w", err)
+		return fmt.Errorf("db.GetContext: %w", err)
 	}
 
 	// TODO: maybe make count and list parallel
@@ -230,7 +230,7 @@ func (q poolQuery) ListFull(ctx context.Context, db database.DBClient, search mo
 		append(parsed.WhereArgs, parsed.PaginationArgs...)...,
 	)
 	if err != nil {
-		return fmt.Errorf("listing pools: %w", err)
+		return fmt.Errorf("db.SelectContext: %w", err)
 	}
 
 	return nil
@@ -254,7 +254,7 @@ func (q poolQuery) Update(ctx context.Context, db database.DBClient, pool *model
 		pool,
 	)
 	if err != nil {
-		return fmt.Errorf("updating pool: %w", err)
+		return fmt.Errorf("db.NamedExecContext: %w", err)
 	}
 
 	return nil

@@ -38,7 +38,7 @@ func (s poolService) Create(ctx context.Context, dto dtos.CreatePoolDTO) (dtos.C
 	})
 
 	if err != nil {
-		return dtos.CreatePoolResponseDTO{}, fmt.Errorf("failed to create pool: %w", err)
+		return dtos.CreatePoolResponseDTO{}, fmt.Errorf("poolRepository.Create: %w", err)
 	}
 
 	return dtos.CreatePoolResponseDTO{
@@ -49,12 +49,12 @@ func (s poolService) Create(ctx context.Context, dto dtos.CreatePoolDTO) (dtos.C
 func (s poolService) Delete(ctx context.Context, dto dtos.DeletePoolDTO) (dtos.DeletePoolResponseDTO, error) {
 	pool, err := s.poolRepository.GetFull(ctx, dto.ID)
 	if err != nil {
-		return dtos.DeletePoolResponseDTO{}, fmt.Errorf("failed to fetch pool: %w", err)
+		return dtos.DeletePoolResponseDTO{}, fmt.Errorf("poolRepository.GetFull: %w", err)
 	}
 
 	err = s.poolRepository.Delete(ctx, pool.ID)
 	if err != nil {
-		return dtos.DeletePoolResponseDTO{}, fmt.Errorf("failed to delete pool: %w", err)
+		return dtos.DeletePoolResponseDTO{}, fmt.Errorf("poolRepository.Delete: %w", err)
 	}
 
 	return dtos.DeletePoolResponseDTO{
@@ -65,7 +65,7 @@ func (s poolService) Delete(ctx context.Context, dto dtos.DeletePoolDTO) (dtos.D
 func (s poolService) Fetch(ctx context.Context, dto dtos.FetchPoolDTO) (dtos.FetchPoolResponseDTO, error) {
 	pool, err := s.poolRepository.GetFull(ctx, dto.ID)
 	if err != nil {
-		return dtos.FetchPoolResponseDTO{}, fmt.Errorf("failed to fetch pool: %w", err)
+		return dtos.FetchPoolResponseDTO{}, fmt.Errorf("poolRepository.GetFull: %w", err)
 	}
 
 	return dtos.FetchPoolResponseDTO{
@@ -80,7 +80,7 @@ func (s poolService) List(ctx context.Context, dto dtos.ListPoolDTO) (dtos.ListP
 		PageSize: dto.PageSize,
 	})
 	if err != nil {
-		return dtos.ListPoolResponseDTO{}, fmt.Errorf("failed to list pools: %w", err)
+		return dtos.ListPoolResponseDTO{}, fmt.Errorf("poolRepository.ListFull: %w", err)
 	}
 
 	return dtos.ListPoolResponseDTO{
@@ -98,7 +98,7 @@ func (s poolService) Update(ctx context.Context, dto dtos.UpdatePoolDTO) (dtos.U
 		Posts:       dto.PostIDs,
 	})
 	if err != nil {
-		return dtos.UpdatePoolResponseDTO{}, fmt.Errorf("failed to update pool: %w", err)
+		return dtos.UpdatePoolResponseDTO{}, fmt.Errorf("poolRepository.Update: %w", err)
 	}
 
 	return dtos.UpdatePoolResponseDTO{
