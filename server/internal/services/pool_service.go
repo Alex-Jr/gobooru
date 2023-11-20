@@ -9,6 +9,7 @@ import (
 
 type PoolService interface {
 	Create(ctx context.Context, dto dtos.CreatePoolDTO) (dtos.CreatePoolResponseDTO, error)
+	Delete(ctx context.Context, dto dtos.DeletePoolDTO) (dtos.DeletePoolResponseDTO, error)
 	Fetch(ctx context.Context, dto dtos.FetchPoolDTO) (dtos.FetchPoolResponseDTO, error)
 	List(ctx context.Context, dto dtos.ListPoolDTO) (dtos.ListPoolResponseDTO, error)
 }
@@ -40,6 +41,22 @@ func (s poolService) Create(ctx context.Context, dto dtos.CreatePoolDTO) (dtos.C
 	}
 
 	return dtos.CreatePoolResponseDTO{
+		Pool: pool,
+	}, nil
+}
+
+func (s poolService) Delete(ctx context.Context, dto dtos.DeletePoolDTO) (dtos.DeletePoolResponseDTO, error) {
+	pool, err := s.poolRepository.GetFull(ctx, dto.ID)
+	if err != nil {
+		return dtos.DeletePoolResponseDTO{}, fmt.Errorf("failed to fetch pool: %w", err)
+	}
+
+	err = s.poolRepository.Delete(ctx, pool.ID)
+	if err != nil {
+		return dtos.DeletePoolResponseDTO{}, fmt.Errorf("failed to delete pool: %w", err)
+	}
+
+	return dtos.DeletePoolResponseDTO{
 		Pool: pool,
 	}, nil
 }

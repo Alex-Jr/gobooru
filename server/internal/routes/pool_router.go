@@ -9,7 +9,8 @@ import (
 func RegisterPoolRoutes(e *echo.Echo, poolController controllers.PoolController) {
 	g := e.Group("/pool")
 
-	g.GET("/:id", poolController.Fetch)
+	g.DELETE("/:id", poolController.Delete)
 	g.GET("", poolController.List)
+	g.GET("/:id", poolController.Fetch)
 	g.POST("", poolController.Create)
 }

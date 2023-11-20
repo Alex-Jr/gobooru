@@ -90,7 +90,65 @@ func TestPoolControllerCreate(t *testing.T) {
 	assert.EqualValues(t, want.dto, responseDTO)
 }
 
-func TestPoolControllerDelete(t *testing.T) {}
+func TestPoolControllerDelete(t *testing.T) {
+	args := struct {
+		ID int
+	}{
+		ID: 1,
+	}
+
+	want := struct {
+		statusCode int
+		dto        dtos.DeletePoolResponseDTO
+	}{
+		statusCode: http.StatusOK,
+		dto: dtos.DeletePoolResponseDTO{
+			Pool: fakes.LoadPool(fakes.Pool1),
+		},
+	}
+
+	poolService := mocks.NewMockPoolService(t)
+
+	poolController := controllers.NewPoolController(controllers.PoolControllerConfig{
+		PoolService: poolService,
+	})
+
+	poolService.On(
+		"Delete",
+		context.TODO(),
+		dtos.DeletePoolDTO{
+			ID: args.ID,
+		},
+	).Return(
+		want.dto,
+		nil,
+	)
+
+	e := echo.New()
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		fmt.Sprintf("/pool/%d", 1),
+		nil,
+	)
+	require.NoError(t, err)
+
+	req.Header.Set("Content-Type", "application/json")
+
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+	c.SetParamNames("id")
+	c.SetParamValues(fmt.Sprintf("%d", 1))
+
+	require.NoError(t, poolController.Delete(c))
+	require.Equal(t, want.statusCode, rec.Code)
+
+	var responseDTO dtos.DeletePoolResponseDTO
+
+	err = json.Unmarshal(rec.Body.Bytes(), &responseDTO)
+	require.NoError(t, err)
+
+	assert.EqualValues(t, want.dto, responseDTO)
+}
 
 func TestPoolControllerFetch(t *testing.T) {
 	args := struct {
@@ -142,7 +200,7 @@ func TestPoolControllerFetch(t *testing.T) {
 	c.SetParamValues(fmt.Sprintf("%d", 1))
 
 	require.NoError(t, poolController.Fetch(c))
-	require.Equal(t, http.StatusOK, rec.Code)
+	require.Equal(t, want.statusCode, rec.Code)
 
 	var responseDTO dtos.FetchPoolResponseDTO
 

@@ -11,6 +11,7 @@ import (
 
 type PoolController interface {
 	Create(c echo.Context) error
+	Delete(c echo.Context) error
 	Fetch(c echo.Context) error
 	List(c echo.Context) error
 }
@@ -54,6 +55,22 @@ func (p poolController) Fetch(c echo.Context) error {
 	}
 
 	response, err := p.poolService.Fetch(context.TODO(), dto)
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, response)
+}
+
+func (p poolController) Delete(c echo.Context) error {
+	var dto dtos.DeletePoolDTO
+
+	err := c.Bind(&dto)
+	if err != nil {
+		return err
+	}
+
+	response, err := p.poolService.Delete(context.TODO(), dto)
 	if err != nil {
 		return err
 	}

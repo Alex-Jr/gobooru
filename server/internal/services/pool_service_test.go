@@ -72,6 +72,65 @@ func TestPoolServiceCreate(t *testing.T) {
 	poolRepository.AssertExpectations(t)
 }
 
+func TestPoolServiceDelete(t *testing.T) {
+	poolRepository := mocks.NewMockPoolRepository(t)
+
+	poolService := services.NewPoolService(services.PoolRepositoryConfig{
+		PoolRepository: poolRepository,
+	})
+
+	poolRepository.On(
+		"GetFull",
+		context.TODO(),
+		1,
+	).Return(
+		fakes.LoadPool(fakes.Pool1),
+		nil,
+	)
+
+	poolRepository.On(
+		"Delete",
+		context.TODO(),
+		1,
+	).Return(
+		nil,
+	)
+
+	response, err := poolService.Delete(
+		context.TODO(),
+		dtos.DeletePoolDTO{
+			ID: 1,
+		},
+	)
+	require.NoError(t, err)
+
+	b, err := json.Marshal(response)
+	require.NoError(t, err)
+
+	require.JSONEq(t,
+		`{
+			"pool": {
+				"created_at": "2022-01-01T00:00:00Z",
+				"custom": ["a"],
+				"description": "pool 1 description",
+				"id": 1,
+				"name": "pool 1 name",
+				"post_count": 1,
+				"updated_at": "2022-01-01T00:00:00Z",
+				"posts": [
+					{
+						"created_at": "2020-01-01T00:00:00Z",
+						"description": "post 1 description",
+						"id": 1,
+						"pools": null,
+						"updated_at": "2020-01-01T00:00:00Z"
+					}
+				]
+			}
+		}`,
+		string(b))
+}
+
 func TestPoolServiceFetch(t *testing.T) {
 	poolRepository := mocks.NewMockPoolRepository(t)
 

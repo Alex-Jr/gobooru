@@ -13,6 +13,14 @@ type CreatePoolResponseDTO struct {
 	Pool models.Pool `json:"pool"`
 }
 
+type DeletePoolDTO struct {
+	ID int `param:"id"`
+}
+
+type DeletePoolResponseDTO struct {
+	Pool models.Pool `json:"pool"`
+}
+
 type FetchPoolDTO struct {
 	ID int `param:"id"`
 }
