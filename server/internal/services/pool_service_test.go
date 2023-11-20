@@ -31,7 +31,7 @@ func TestPoolServiceCreate(t *testing.T) {
 			PostIDs:     []int{1},
 		},
 	).Return(
-		fakes.LoadPool(fakes.Pool1),
+		fakes.LoadPoolRelations(fakes.Pool1),
 		nil,
 	)
 
@@ -84,7 +84,7 @@ func TestPoolServiceDelete(t *testing.T) {
 		context.TODO(),
 		1,
 	).Return(
-		fakes.LoadPool(fakes.Pool1),
+		fakes.LoadPoolRelations(fakes.Pool1),
 		nil,
 	)
 
@@ -143,7 +143,7 @@ func TestPoolServiceFetch(t *testing.T) {
 		context.TODO(),
 		1,
 	).Return(
-		fakes.LoadPool(fakes.Pool1),
+		fakes.LoadPoolRelations(fakes.Pool1),
 		nil,
 	)
 
@@ -199,7 +199,7 @@ func TestPoolServiceList(t *testing.T) {
 		},
 	).Return(
 		[]models.Pool{
-			fakes.LoadPool(fakes.Pool1),
+			fakes.LoadPoolRelations(fakes.Pool1),
 		},
 		1,
 		nil,

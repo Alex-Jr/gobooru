@@ -77,6 +77,102 @@ func (_c *MockPostRepository_Create_Call) RunAndReturn(run func(context.Context,
 	return _c
 }
 
+// Delete provides a mock function with given fields: ctx, postID
+func (_m *MockPostRepository) Delete(ctx context.Context, postID int) error {
+	ret := _m.Called(ctx, postID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, int) error); ok {
+		r0 = rf(ctx, postID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockPostRepository_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type MockPostRepository_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - ctx context.Context
+//   - postID int
+func (_e *MockPostRepository_Expecter) Delete(ctx interface{}, postID interface{}) *MockPostRepository_Delete_Call {
+	return &MockPostRepository_Delete_Call{Call: _e.mock.On("Delete", ctx, postID)}
+}
+
+func (_c *MockPostRepository_Delete_Call) Run(run func(ctx context.Context, postID int)) *MockPostRepository_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int))
+	})
+	return _c
+}
+
+func (_c *MockPostRepository_Delete_Call) Return(_a0 error) *MockPostRepository_Delete_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockPostRepository_Delete_Call) RunAndReturn(run func(context.Context, int) error) *MockPostRepository_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetFull provides a mock function with given fields: ctx, postID
+func (_m *MockPostRepository) GetFull(ctx context.Context, postID int) (models.Post, error) {
+	ret := _m.Called(ctx, postID)
+
+	var r0 models.Post
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int) (models.Post, error)); ok {
+		return rf(ctx, postID)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int) models.Post); ok {
+		r0 = rf(ctx, postID)
+	} else {
+		r0 = ret.Get(0).(models.Post)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
+		r1 = rf(ctx, postID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockPostRepository_GetFull_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetFull'
+type MockPostRepository_GetFull_Call struct {
+	*mock.Call
+}
+
+// GetFull is a helper method to define mock.On call
+//   - ctx context.Context
+//   - postID int
+func (_e *MockPostRepository_Expecter) GetFull(ctx interface{}, postID interface{}) *MockPostRepository_GetFull_Call {
+	return &MockPostRepository_GetFull_Call{Call: _e.mock.On("GetFull", ctx, postID)}
+}
+
+func (_c *MockPostRepository_GetFull_Call) Run(run func(ctx context.Context, postID int)) *MockPostRepository_GetFull_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(int))
+	})
+	return _c
+}
+
+func (_c *MockPostRepository_GetFull_Call) Return(_a0 models.Post, _a1 error) *MockPostRepository_GetFull_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockPostRepository_GetFull_Call) RunAndReturn(run func(context.Context, int) (models.Post, error)) *MockPostRepository_GetFull_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockPostRepository creates a new instance of MockPostRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockPostRepository(t interface {

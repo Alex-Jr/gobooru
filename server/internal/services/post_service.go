@@ -8,6 +8,8 @@ import (
 
 type PostService interface {
 	Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.CreatePostResponseDTO, error)
+	Delete(ctx context.Context, dto dtos.DeletePostDTO) (dtos.DeletePostResponseDTO, error)
+	Fetch(ctx context.Context, dto dtos.FetchPostDTO) (dtos.FetchPostResponseDTO, error)
 }
 
 type postService struct {
@@ -34,6 +36,33 @@ func (s postService) Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.C
 	}
 
 	return dtos.CreatePostResponseDTO{
+		Post: post,
+	}, nil
+}
+
+func (s postService) Delete(ctx context.Context, dto dtos.DeletePostDTO) (dtos.DeletePostResponseDTO, error) {
+	post, err := s.postRepository.GetFull(ctx, dto.ID)
+	if err != nil {
+		return dtos.DeletePostResponseDTO{}, err
+	}
+
+	err = s.postRepository.Delete(ctx, dto.ID)
+	if err != nil {
+		return dtos.DeletePostResponseDTO{}, err
+	}
+
+	return dtos.DeletePostResponseDTO{
+		Post: post,
+	}, nil
+}
+
+func (s postService) Fetch(ctx context.Context, dto dtos.FetchPostDTO) (dtos.FetchPostResponseDTO, error) {
+	post, err := s.postRepository.GetFull(ctx, dto.ID)
+	if err != nil {
+		return dtos.FetchPostResponseDTO{}, err
+	}
+
+	return dtos.FetchPostResponseDTO{
 		Post: post,
 	}, nil
 }

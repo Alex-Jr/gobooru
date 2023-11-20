@@ -45,7 +45,7 @@ func TestPoolControllerCreate(t *testing.T) {
 	}{
 		statusCode: http.StatusOK,
 		dto: dtos.CreatePoolResponseDTO{
-			Pool: fakes.LoadPool(fakes.Pool1),
+			Pool: fakes.LoadPoolRelations(fakes.Pool1),
 		},
 	}
 
@@ -104,7 +104,7 @@ func TestPoolControllerDelete(t *testing.T) {
 	}{
 		statusCode: http.StatusOK,
 		dto: dtos.DeletePoolResponseDTO{
-			Pool: fakes.LoadPool(fakes.Pool1),
+			Pool: fakes.LoadPoolRelations(fakes.Pool1),
 		},
 	}
 
@@ -164,7 +164,7 @@ func TestPoolControllerFetch(t *testing.T) {
 	}{
 		statusCode: http.StatusOK,
 		dto: dtos.FetchPoolResponseDTO{
-			Pool: fakes.LoadPool(fakes.Pool1),
+			Pool: fakes.LoadPoolRelations(fakes.Pool1),
 		},
 	}
 
@@ -229,8 +229,8 @@ func TestPoolControllerList(t *testing.T) {
 		statusCode: http.StatusOK,
 		dto: dtos.ListPoolResponseDTO{
 			Pools: []models.Pool{
-				fakes.LoadPool(fakes.Pool1),
-				fakes.LoadPool(fakes.Pool2),
+				fakes.LoadPoolRelations(fakes.Pool1),
+				fakes.LoadPoolRelations(fakes.Pool2),
 			},
 		},
 	}
@@ -302,7 +302,7 @@ func TestPoolControllerUpdate(t *testing.T) {
 	}{
 		statusCode: http.StatusOK,
 		dto: dtos.UpdatePoolResponseDTO{
-			Pool: fakes.LoadPool(fakes.Pool1),
+			Pool: fakes.LoadPoolRelations(fakes.Pool1),
 		},
 	}
 

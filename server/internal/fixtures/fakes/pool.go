@@ -117,7 +117,7 @@ var Pools = []models.Pool{
 }
 
 // function to load relationships without cyclic dependencies
-func LoadPool(p models.Pool) models.Pool {
+func LoadPoolRelations(p models.Pool) models.Pool {
 	for i := range p.Posts {
 		p.Posts[i] = Posts[p.Posts[i].ID-1]
 	}

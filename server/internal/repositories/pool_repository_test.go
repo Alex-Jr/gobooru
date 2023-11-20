@@ -246,7 +246,7 @@ func (s *PoolTestSuite) TestPoolRepositoryGetFull() {
 			},
 			want: want{
 				err:  nil,
-				pool: fakes.LoadPool(fakes.Pool3),
+				pool: fakes.LoadPoolRelations(fakes.Pool3),
 			},
 		},
 		{
@@ -319,8 +319,8 @@ func (s *PoolTestSuite) TestPoolRepositoryListFull() {
 				err:   nil,
 				count: 3,
 				pools: []models.Pool{
-					fakes.LoadPool(fakes.Pool6),
-					fakes.LoadPool(fakes.Pool5),
+					fakes.LoadPoolRelations(fakes.Pool6),
+					fakes.LoadPoolRelations(fakes.Pool5),
 				},
 			},
 		},
@@ -336,7 +336,7 @@ func (s *PoolTestSuite) TestPoolRepositoryListFull() {
 				err:   nil,
 				count: 3,
 				pools: []models.Pool{
-					fakes.LoadPool(fakes.Pool4),
+					fakes.LoadPoolRelations(fakes.Pool4),
 				},
 			},
 		},
@@ -352,7 +352,7 @@ func (s *PoolTestSuite) TestPoolRepositoryListFull() {
 				err:   nil,
 				count: 6,
 				pools: []models.Pool{
-					fakes.LoadPool(fakes.Pool6),
+					fakes.LoadPoolRelations(fakes.Pool6),
 				},
 			},
 		},
@@ -368,8 +368,8 @@ func (s *PoolTestSuite) TestPoolRepositoryListFull() {
 				err:   nil,
 				count: 4,
 				pools: []models.Pool{
-					fakes.LoadPool(fakes.Pool6),
-					fakes.LoadPool(fakes.Pool5),
+					fakes.LoadPoolRelations(fakes.Pool6),
+					fakes.LoadPoolRelations(fakes.Pool5),
 				},
 			},
 		},
@@ -385,8 +385,8 @@ func (s *PoolTestSuite) TestPoolRepositoryListFull() {
 				err:   nil,
 				count: 2,
 				pools: []models.Pool{
-					fakes.LoadPool(fakes.Pool2),
-					fakes.LoadPool(fakes.Pool1),
+					fakes.LoadPoolRelations(fakes.Pool2),
+					fakes.LoadPoolRelations(fakes.Pool1),
 				},
 			},
 		},

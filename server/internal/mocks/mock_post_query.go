@@ -68,6 +68,94 @@ func (_c *MockPostQuery_Create_Call) RunAndReturn(run func(context.Context, data
 	return _c
 }
 
+// Delete provides a mock function with given fields: ctx, db, post
+func (_m *MockPostQuery) Delete(ctx context.Context, db database.DBClient, post *models.Post) error {
+	ret := _m.Called(ctx, db, post)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.DBClient, *models.Post) error); ok {
+		r0 = rf(ctx, db, post)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockPostQuery_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
+type MockPostQuery_Delete_Call struct {
+	*mock.Call
+}
+
+// Delete is a helper method to define mock.On call
+//   - ctx context.Context
+//   - db database.DBClient
+//   - post *models.Post
+func (_e *MockPostQuery_Expecter) Delete(ctx interface{}, db interface{}, post interface{}) *MockPostQuery_Delete_Call {
+	return &MockPostQuery_Delete_Call{Call: _e.mock.On("Delete", ctx, db, post)}
+}
+
+func (_c *MockPostQuery_Delete_Call) Run(run func(ctx context.Context, db database.DBClient, post *models.Post)) *MockPostQuery_Delete_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.DBClient), args[2].(*models.Post))
+	})
+	return _c
+}
+
+func (_c *MockPostQuery_Delete_Call) Return(_a0 error) *MockPostQuery_Delete_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockPostQuery_Delete_Call) RunAndReturn(run func(context.Context, database.DBClient, *models.Post) error) *MockPostQuery_Delete_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
+// GetFull provides a mock function with given fields: ctx, db, post
+func (_m *MockPostQuery) GetFull(ctx context.Context, db database.DBClient, post *models.Post) error {
+	ret := _m.Called(ctx, db, post)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.DBClient, *models.Post) error); ok {
+		r0 = rf(ctx, db, post)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockPostQuery_GetFull_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'GetFull'
+type MockPostQuery_GetFull_Call struct {
+	*mock.Call
+}
+
+// GetFull is a helper method to define mock.On call
+//   - ctx context.Context
+//   - db database.DBClient
+//   - post *models.Post
+func (_e *MockPostQuery_Expecter) GetFull(ctx interface{}, db interface{}, post interface{}) *MockPostQuery_GetFull_Call {
+	return &MockPostQuery_GetFull_Call{Call: _e.mock.On("GetFull", ctx, db, post)}
+}
+
+func (_c *MockPostQuery_GetFull_Call) Run(run func(ctx context.Context, db database.DBClient, post *models.Post)) *MockPostQuery_GetFull_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.DBClient), args[2].(*models.Post))
+	})
+	return _c
+}
+
+func (_c *MockPostQuery_GetFull_Call) Return(_a0 error) *MockPostQuery_GetFull_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockPostQuery_GetFull_Call) RunAndReturn(run func(context.Context, database.DBClient, *models.Post) error) *MockPostQuery_GetFull_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockPostQuery creates a new instance of MockPostQuery. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockPostQuery(t interface {

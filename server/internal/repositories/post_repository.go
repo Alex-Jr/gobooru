@@ -9,6 +9,8 @@ import (
 
 type PostRepository interface {
 	Create(ctx context.Context, args CreatePostArgs) (models.Post, error)
+	Delete(ctx context.Context, postID int) error
+	GetFull(ctx context.Context, postID int) (models.Post, error)
 }
 
 type postRepository struct {
@@ -33,6 +35,34 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 	}
 
 	err := r.postQuery.Create(ctx, r.sqlClient, &post)
+
+	if err != nil {
+		return models.Post{}, err
+	}
+
+	return post, nil
+}
+
+func (r *postRepository) Delete(ctx context.Context, postID int) error {
+	post := models.Post{
+		ID: postID,
+	}
+
+	err := r.postQuery.Delete(ctx, r.sqlClient, &post)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (r *postRepository) GetFull(ctx context.Context, postID int) (models.Post, error) {
+	post := models.Post{
+		ID: postID,
+	}
+
+	err := r.postQuery.GetFull(ctx, r.sqlClient, &post)
 
 	if err != nil {
 		return models.Post{}, err

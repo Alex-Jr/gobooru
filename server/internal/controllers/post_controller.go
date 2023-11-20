@@ -9,6 +9,8 @@ import (
 
 type PostController interface {
 	Create(c echo.Context) error
+	Delete(c echo.Context) error
+	Fetch(c echo.Context) error
 }
 
 type postController struct {
@@ -33,6 +35,44 @@ func (c postController) Create(ctx echo.Context) error {
 	}
 
 	response, err := c.postService.Create(
+		ctx.Request().Context(),
+		dto,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(200, response)
+}
+
+func (c postController) Delete(ctx echo.Context) error {
+	dto := dtos.DeletePostDTO{}
+
+	if err := ctx.Bind(&dto); err != nil {
+		return err
+	}
+
+	response, err := c.postService.Delete(
+		ctx.Request().Context(),
+		dto,
+	)
+
+	if err != nil {
+		return err
+	}
+
+	return ctx.JSON(200, response)
+}
+
+func (c postController) Fetch(ctx echo.Context) error {
+	dto := dtos.FetchPostDTO{}
+
+	if err := ctx.Bind(&dto); err != nil {
+		return err
+	}
+
+	response, err := c.postService.Fetch(
 		ctx.Request().Context(),
 		dto,
 	)

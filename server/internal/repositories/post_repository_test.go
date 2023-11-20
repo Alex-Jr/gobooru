@@ -56,10 +56,10 @@ func (s *PostTestSuit) TearDownTest() {
 }
 
 func TestPostSuite_Run(t *testing.T) {
-	suite.Run(t, new(PoolTestSuite))
+	suite.Run(t, new(PostTestSuit))
 }
 
-func (s *PostTestSuit) TestCreate() {
+func (s *PostTestSuit) TestPostCreate() {
 	type args struct {
 		description string
 	}
@@ -100,6 +100,35 @@ func (s *PostTestSuit) TestCreate() {
 			s.Assert().NotZero(post.CreatedAt)
 			s.Assert().NotZero(post.UpdatedAt)
 			s.Assert().Equal(tc.want.post.Description, post.Description)
+		})
+	}
+}
+
+func (s *PostTestSuit) TestPostDelete() {
+	type args struct {
+		postID int
+	}
+
+	testCases := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "delete post",
+			args: args{
+				postID: 1,
+			},
+		},
+	}
+
+	for _, tc := range testCases {
+		s.Run(tc.name, func() {
+			err := s.postRepository.Delete(
+				context.TODO(),
+				tc.args.postID,
+			)
+
+			s.Require().NoError(err)
 		})
 	}
 }
