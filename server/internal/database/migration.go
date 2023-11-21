@@ -48,5 +48,7 @@ func RunMigrations(db *sqlx.DB) error {
 		log.Fatalf("error running migration: %v", err)
 	}
 
+	log.Println("migrations ran successfully")
+
 	return nil
 }

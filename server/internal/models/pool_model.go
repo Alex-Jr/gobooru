@@ -31,10 +31,8 @@ func (list *PoolList) Scan(src interface{}) error {
 
 type PoolPost struct {
 	CreatedAt time.Time `db:"created_at"`
-	Pool      Pool      `db:"pool"`
 	PoolID    int       `db:"pool_id"`
 	Position  int       `db:"position"`
-	Post      Post      `db:"post"`
 	PostID    int       `db:"post_id"`
 	UpdatedAt time.Time `db:"updated_at"`
 }

@@ -19,6 +19,7 @@ type postRepository struct {
 	sqlClient database.SQLClient
 	postQuery queries.PostQuery
 	tagQuery  queries.TagQuery
+	postTag   queries.PostTagQuery
 }
 
 type CreatePostArgs struct {
@@ -32,6 +33,7 @@ func NewPostRepository(sqlClient database.SQLClient) PostRepository {
 		sqlClient: sqlClient,
 		postQuery: queries.NewPostQuery(),
 		tagQuery:  queries.NewTagQuery(),
+		postTag:   queries.NewPostTagQuery(),
 	}
 }
 
@@ -80,6 +82,11 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 
 	if err != nil {
 		return models.Post{}, fmt.Errorf("tagQuery.CreateMany: %w", err)
+	}
+
+	err = r.postTag.AssociatePosts(ctx, tx, post, tags)
+	if err != nil {
+		return models.Post{}, fmt.Errorf("postTag.AssociatePosts: %w", err)
 	}
 
 	tx.Commit()

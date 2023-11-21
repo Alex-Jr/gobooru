@@ -30,3 +30,10 @@ func (list *PostList) Scan(src interface{}) error {
 	}
 	return nil
 }
+
+type PostTag struct {
+	CreatedAt time.Time `db:"created_at" json:"created_at"`
+	PostID    int       `db:"post_id" json:"post_id"`
+	TagID     string    `db:"tag_id" json:"tag_id"`
+	UpdatedAt time.Time `db:"updated_at" json:"updated_at"`
+}
