@@ -156,6 +156,52 @@ func (_c *MockPostQuery_GetFull_Call) RunAndReturn(run func(context.Context, dat
 	return _c
 }
 
+// List provides a mock function with given fields: ctx, db, search, posts, count
+func (_m *MockPostQuery) List(ctx context.Context, db database.DBClient, search models.Search, posts *[]models.Post, count *int) error {
+	ret := _m.Called(ctx, db, search, posts, count)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.DBClient, models.Search, *[]models.Post, *int) error); ok {
+		r0 = rf(ctx, db, search, posts, count)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockPostQuery_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
+type MockPostQuery_List_Call struct {
+	*mock.Call
+}
+
+// List is a helper method to define mock.On call
+//   - ctx context.Context
+//   - db database.DBClient
+//   - search models.Search
+//   - posts *[]models.Post
+//   - count *int
+func (_e *MockPostQuery_Expecter) List(ctx interface{}, db interface{}, search interface{}, posts interface{}, count interface{}) *MockPostQuery_List_Call {
+	return &MockPostQuery_List_Call{Call: _e.mock.On("List", ctx, db, search, posts, count)}
+}
+
+func (_c *MockPostQuery_List_Call) Run(run func(ctx context.Context, db database.DBClient, search models.Search, posts *[]models.Post, count *int)) *MockPostQuery_List_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.DBClient), args[2].(models.Search), args[3].(*[]models.Post), args[4].(*int))
+	})
+	return _c
+}
+
+func (_c *MockPostQuery_List_Call) Return(_a0 error) *MockPostQuery_List_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockPostQuery_List_Call) RunAndReturn(run func(context.Context, database.DBClient, models.Search, *[]models.Post, *int) error) *MockPostQuery_List_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdatePoolCount provides a mock function with given fields: ctx, db, post, increment
 func (_m *MockPostQuery) UpdatePoolCount(ctx context.Context, db database.DBClient, post []models.Post, increment int) error {
 	ret := _m.Called(ctx, db, post, increment)

@@ -11,6 +11,7 @@ type PostService interface {
 	Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.CreatePostResponseDTO, error)
 	Delete(ctx context.Context, dto dtos.DeletePostDTO) (dtos.DeletePostResponseDTO, error)
 	Fetch(ctx context.Context, dto dtos.FetchPostDTO) (dtos.FetchPostResponseDTO, error)
+	List(ctx context.Context, dto dtos.ListPostDTO) (dtos.ListPostResponseDTO, error)
 }
 
 type postService struct {
@@ -46,12 +47,12 @@ func (s postService) Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.C
 func (s postService) Delete(ctx context.Context, dto dtos.DeletePostDTO) (dtos.DeletePostResponseDTO, error) {
 	post, err := s.postRepository.GetFull(ctx, dto.ID)
 	if err != nil {
-		return dtos.DeletePostResponseDTO{}, err
+		return dtos.DeletePostResponseDTO{}, fmt.Errorf("postRepository.GetFull: %w", err)
 	}
 
 	err = s.postRepository.Delete(ctx, dto.ID)
 	if err != nil {
-		return dtos.DeletePostResponseDTO{}, err
+		return dtos.DeletePostResponseDTO{}, fmt.Errorf("postRepository.Delete: %w", err)
 	}
 
 	return dtos.DeletePostResponseDTO{
@@ -62,10 +63,27 @@ func (s postService) Delete(ctx context.Context, dto dtos.DeletePostDTO) (dtos.D
 func (s postService) Fetch(ctx context.Context, dto dtos.FetchPostDTO) (dtos.FetchPostResponseDTO, error) {
 	post, err := s.postRepository.GetFull(ctx, dto.ID)
 	if err != nil {
-		return dtos.FetchPostResponseDTO{}, err
+		return dtos.FetchPostResponseDTO{}, fmt.Errorf("postRepository.GetFull: %w", err)
 	}
 
 	return dtos.FetchPostResponseDTO{
 		Post: post,
+	}, nil
+}
+
+func (s postService) List(ctx context.Context, dto dtos.ListPostDTO) (dtos.ListPostResponseDTO, error) {
+	posts, count, err := s.postRepository.List(ctx, repositories.ListPostsArgs{
+		Search:   dto.Search,
+		Page:     dto.Page,
+		PageSize: dto.PageSize,
+	})
+
+	if err != nil {
+		return dtos.ListPostResponseDTO{}, fmt.Errorf("postRepository.List: %w", err)
+	}
+
+	return dtos.ListPostResponseDTO{
+		Posts: posts,
+		Count: count,
 	}, nil
 }

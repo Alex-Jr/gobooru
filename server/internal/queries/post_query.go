@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gobooru/internal/database"
 	"gobooru/internal/models"
+	"gobooru/internal/query_parser"
 	"time"
 
 	"github.com/lib/pq"
@@ -14,14 +15,34 @@ type PostQuery interface {
 	Create(ctx context.Context, db database.DBClient, post *models.Post) error
 	Delete(ctx context.Context, db database.DBClient, post *models.Post) error
 	GetFull(ctx context.Context, db database.DBClient, post *models.Post) error
+	List(ctx context.Context, db database.DBClient, search models.Search, posts *[]models.Post, count *int) error
 	UpdatePoolCount(ctx context.Context, db database.DBClient, post []models.Post, increment int) error
 }
 
 type postQuery struct {
+	queryParser query_parser.Parser
 }
 
 func NewPostQuery() PostQuery {
-	return &postQuery{}
+	return &postQuery{
+		queryParser: query_parser.NewParser(query_parser.ParserConfig{
+			WhereField: map[string]query_parser.WhereField{
+				"tag": {
+					DBName:   "pt.\"tag_ids\"",
+					Operator: "@>",
+					ParserFn: query_parser.ArrayParserFn,
+				},
+			},
+			SortField: map[string]query_parser.SortField{
+				"id": {
+					DBName:       "pt.\"id\"",
+					DefaultOrder: "DESC",
+				},
+			},
+			DefaultWhereField: "tag",
+			DefaultSortField:  "id",
+		}),
+	}
 }
 
 func (q *postQuery) Create(ctx context.Context, db database.DBClient, post *models.Post) error {
@@ -127,6 +148,72 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 
 	if err != nil {
 		return fmt.Errorf("db.GetContext: %w", err)
+	}
+
+	return nil
+}
+
+func (q *postQuery) List(ctx context.Context, db database.DBClient, search models.Search, posts *[]models.Post, count *int) error {
+	parsed, err := q.queryParser.ParseSearch(search)
+	if err != nil {
+		return fmt.Errorf("queryParser.ParseSearch: %w", err)
+	}
+
+	err = db.GetContext(
+		ctx,
+		&count,
+		`
+			SELECT
+				count(*)
+			FROM
+				"posts" pt
+			WHERE
+			`+parsed.WhereQuery,
+		parsed.WhereArgs...,
+	)
+
+	if err != nil {
+		return fmt.Errorf("db.GetContext: %w", err)
+	}
+
+	// TODO: maybe make count and list parallel
+	if count == nil || *count == 0 {
+		return nil
+	}
+
+	err = db.SelectContext(
+		ctx,
+		posts,
+		fmt.Sprintf(`
+			SELECT
+				pt."created_at",
+				pt."description",
+				pt."id",
+				pt."pool_count",
+				pt."pool_count",
+				pt."rating",
+				pt."tag_count",
+				pt."tag_count",
+				pt."tag_ids",
+				pt."updated_at",
+				pt."updated_at"
+			FROM
+				"posts" pt
+			WHERE
+				%s
+			GROUP BY
+				pt."id"
+			ORDER BY
+				%s
+		`,
+			parsed.WhereQuery,
+			parsed.SortQuery,
+		),
+		append(parsed.WhereArgs, parsed.PaginationArgs...)...,
+	)
+
+	if err != nil {
+		return fmt.Errorf("db.SelectContext: %w", err)
 	}
 
 	return nil

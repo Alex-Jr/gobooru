@@ -27,3 +27,14 @@ type FetchPostDTO struct {
 type FetchPostResponseDTO struct {
 	Post models.Post `json:"post"`
 }
+
+type ListPostDTO struct {
+	Search   string `query:"search"`
+	Page     int    `query:"page"`
+	PageSize int    `query:"page_size"`
+}
+
+type ListPostResponseDTO struct {
+	Posts []models.Post `json:"posts"`
+	Count int           `json:"count"`
+}

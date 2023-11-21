@@ -13,6 +13,7 @@ type PostRepository interface {
 	Create(ctx context.Context, args CreatePostArgs) (models.Post, error)
 	Delete(ctx context.Context, postID int) error
 	GetFull(ctx context.Context, postID int) (models.Post, error)
+	List(ctx context.Context, args ListPostsArgs) ([]models.Post, int, error)
 }
 
 type postRepository struct {
@@ -120,4 +121,33 @@ func (r *postRepository) GetFull(ctx context.Context, postID int) (models.Post, 
 	}
 
 	return post, nil
+}
+
+type ListPostsArgs struct {
+	Search   string
+	Page     int
+	PageSize int
+}
+
+func (r *postRepository) List(ctx context.Context, args ListPostsArgs) ([]models.Post, int, error) {
+	posts := make([]models.Post, 0)
+	count := 0
+
+	err := r.postQuery.List(
+		ctx,
+		r.sqlClient,
+		models.Search{
+			Text:     args.Search,
+			Page:     args.Page,
+			PageSize: args.PageSize,
+		},
+		&posts,
+		&count,
+	)
+
+	if err != nil {
+		return nil, 0, err
+	}
+
+	return posts, count, nil
 }

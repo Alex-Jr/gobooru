@@ -12,6 +12,7 @@ type PostController interface {
 	Create(c echo.Context) error
 	Delete(c echo.Context) error
 	Fetch(c echo.Context) error
+	List(c echo.Context) error
 }
 
 type postController struct {
@@ -28,15 +29,15 @@ func NewPostController(c PostControllerConfig) PostController {
 	}
 }
 
-func (c postController) Create(ctx echo.Context) error {
+func (cl postController) Create(c echo.Context) error {
 	dto := dtos.CreatePostDTO{}
 
-	if err := ctx.Bind(&dto); err != nil {
-		return fmt.Errorf("ctx.Bind: %w", err)
+	if err := c.Bind(&dto); err != nil {
+		return fmt.Errorf("c.Bind: %w", err)
 	}
 
-	response, err := c.postService.Create(
-		ctx.Request().Context(),
+	response, err := cl.postService.Create(
+		c.Request().Context(),
 		dto,
 	)
 
@@ -44,18 +45,18 @@ func (c postController) Create(ctx echo.Context) error {
 		return fmt.Errorf("postService.Create: %w", err)
 	}
 
-	return ctx.JSON(200, response)
+	return c.JSON(200, response)
 }
 
-func (c postController) Delete(ctx echo.Context) error {
+func (cl postController) Delete(c echo.Context) error {
 	dto := dtos.DeletePostDTO{}
 
-	if err := ctx.Bind(&dto); err != nil {
+	if err := c.Bind(&dto); err != nil {
 		return fmt.Errorf("error binding dto: %w", err)
 	}
 
-	response, err := c.postService.Delete(
-		ctx.Request().Context(),
+	response, err := cl.postService.Delete(
+		c.Request().Context(),
 		dto,
 	)
 
@@ -63,18 +64,18 @@ func (c postController) Delete(ctx echo.Context) error {
 		return fmt.Errorf("postService.Delete: %w", err)
 	}
 
-	return ctx.JSON(200, response)
+	return c.JSON(200, response)
 }
 
-func (c postController) Fetch(ctx echo.Context) error {
+func (cl postController) Fetch(c echo.Context) error {
 	dto := dtos.FetchPostDTO{}
 
-	if err := ctx.Bind(&dto); err != nil {
-		return fmt.Errorf("ctx.Bind: %w", err)
+	if err := c.Bind(&dto); err != nil {
+		return fmt.Errorf("c.Bind: %w", err)
 	}
 
-	response, err := c.postService.Fetch(
-		ctx.Request().Context(),
+	response, err := cl.postService.Fetch(
+		c.Request().Context(),
 		dto,
 	)
 
@@ -82,5 +83,24 @@ func (c postController) Fetch(ctx echo.Context) error {
 		return fmt.Errorf("postService.Fetch: %w", err)
 	}
 
-	return ctx.JSON(200, response)
+	return c.JSON(200, response)
+}
+
+func (cl postController) List(c echo.Context) error {
+	dto := dtos.ListPostDTO{}
+
+	if err := c.Bind(&dto); err != nil {
+		return fmt.Errorf("c.Bind: %w", err)
+	}
+
+	response, err := cl.postService.List(
+		c.Request().Context(),
+		dto,
+	)
+
+	if err != nil {
+		return fmt.Errorf("postService.List: %w", err)
+	}
+
+	return c.JSON(200, response)
 }

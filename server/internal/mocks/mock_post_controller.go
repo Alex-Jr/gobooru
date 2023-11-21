@@ -146,6 +146,48 @@ func (_c *MockPostController_Fetch_Call) RunAndReturn(run func(echo.Context) err
 	return _c
 }
 
+// List provides a mock function with given fields: c
+func (_m *MockPostController) List(c echo.Context) error {
+	ret := _m.Called(c)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(echo.Context) error); ok {
+		r0 = rf(c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockPostController_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
+type MockPostController_List_Call struct {
+	*mock.Call
+}
+
+// List is a helper method to define mock.On call
+//   - c echo.Context
+func (_e *MockPostController_Expecter) List(c interface{}) *MockPostController_List_Call {
+	return &MockPostController_List_Call{Call: _e.mock.On("List", c)}
+}
+
+func (_c *MockPostController_List_Call) Run(run func(c echo.Context)) *MockPostController_List_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(echo.Context))
+	})
+	return _c
+}
+
+func (_c *MockPostController_List_Call) Return(_a0 error) *MockPostController_List_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockPostController_List_Call) RunAndReturn(run func(echo.Context) error) *MockPostController_List_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockPostController creates a new instance of MockPostController. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockPostController(t interface {

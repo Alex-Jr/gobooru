@@ -181,6 +181,59 @@ func (_c *MockPostService_Fetch_Call) RunAndReturn(run func(context.Context, dto
 	return _c
 }
 
+// List provides a mock function with given fields: ctx, dto
+func (_m *MockPostService) List(ctx context.Context, dto dtos.ListPostDTO) (dtos.ListPostResponseDTO, error) {
+	ret := _m.Called(ctx, dto)
+
+	var r0 dtos.ListPostResponseDTO
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, dtos.ListPostDTO) (dtos.ListPostResponseDTO, error)); ok {
+		return rf(ctx, dto)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, dtos.ListPostDTO) dtos.ListPostResponseDTO); ok {
+		r0 = rf(ctx, dto)
+	} else {
+		r0 = ret.Get(0).(dtos.ListPostResponseDTO)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, dtos.ListPostDTO) error); ok {
+		r1 = rf(ctx, dto)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockPostService_List_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'List'
+type MockPostService_List_Call struct {
+	*mock.Call
+}
+
+// List is a helper method to define mock.On call
+//   - ctx context.Context
+//   - dto dtos.ListPostDTO
+func (_e *MockPostService_Expecter) List(ctx interface{}, dto interface{}) *MockPostService_List_Call {
+	return &MockPostService_List_Call{Call: _e.mock.On("List", ctx, dto)}
+}
+
+func (_c *MockPostService_List_Call) Run(run func(ctx context.Context, dto dtos.ListPostDTO)) *MockPostService_List_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(dtos.ListPostDTO))
+	})
+	return _c
+}
+
+func (_c *MockPostService_List_Call) Return(_a0 dtos.ListPostResponseDTO, _a1 error) *MockPostService_List_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockPostService_List_Call) RunAndReturn(run func(context.Context, dtos.ListPostDTO) (dtos.ListPostResponseDTO, error)) *MockPostService_List_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockPostService creates a new instance of MockPostService. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockPostService(t interface {

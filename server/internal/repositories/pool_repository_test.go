@@ -64,6 +64,7 @@ func TestPoolSuite_Run(t *testing.T) {
 	suite.Run(t, new(PoolTestSuite))
 }
 
+// TODO: should check if pool_count inside post was updated
 func (s *PoolTestSuite) TestPoolRepositoryCreate() {
 	type args struct {
 		Custom      []string
@@ -174,6 +175,7 @@ func (s *PoolTestSuite) TestPoolRepositoryCreate() {
 	}
 }
 
+// TODO: should check if pool_count inside post was updated
 func (s *PoolTestSuite) TestPoolRepositoryDelete() {
 	type args struct {
 		poolID int
@@ -431,6 +433,8 @@ func (s *PoolTestSuite) TestPoolRepositoryListFull() {
 	}
 
 }
+
+// TODO: should check if pool_count inside post was updated
 func (s *PoolTestSuite) TestPoolRepositoryUpdate() {
 	makeStringPointer := func(s string) *string {
 		return &s
