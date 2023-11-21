@@ -12,9 +12,9 @@ import (
 
 type PoolPostQuery interface {
 	// AssociatePosts associates posts to a pool.
-	AssociatePosts(ctx context.Context, db database.DBClient, poolID int, posts []models.Post) error
+	AssociatePosts(ctx context.Context, db database.DBClient, pool models.Pool, posts []models.Post) error
 	// DisassociatePosts disassociates posts from a pool.
-	DisassociatePostsByID(ctx context.Context, db database.DBClient, poolID int, postIDs []int) error
+	DisassociatePosts(ctx context.Context, db database.DBClient, pool models.Pool, posts []models.Post) error
 }
 
 type poolPostQuery struct {
@@ -24,13 +24,13 @@ func NewPoolPostQuery() PoolPostQuery {
 	return &poolPostQuery{}
 }
 
-func (p poolPostQuery) AssociatePosts(ctx context.Context, db database.DBClient, poolID int, posts []models.Post) error {
+func (p poolPostQuery) AssociatePosts(ctx context.Context, db database.DBClient, pool models.Pool, posts []models.Post) error {
 	now := time.Now()
 
 	poolPosts := make([]models.PoolPost, len(posts))
 	for i, posts := range posts {
 		poolPosts[i] = models.PoolPost{
-			PoolID:    poolID,
+			PoolID:    pool.ID,
 			PostID:    posts.ID,
 			Position:  i,
 			CreatedAt: now,
@@ -57,7 +57,13 @@ func (p poolPostQuery) AssociatePosts(ctx context.Context, db database.DBClient,
 	return nil
 }
 
-func (p poolPostQuery) DisassociatePostsByID(ctx context.Context, db database.DBClient, poolID int, postIDs []int) error {
+func (p poolPostQuery) DisassociatePosts(ctx context.Context, db database.DBClient, pool models.Pool, posts []models.Post) error {
+	postIDs := make([]int, len(posts))
+
+	for i, post := range posts {
+		postIDs[i] = post.ID
+	}
+
 	_, err := db.ExecContext(
 		ctx,
 		`
@@ -67,7 +73,7 @@ func (p poolPostQuery) DisassociatePostsByID(ctx context.Context, db database.DB
 				"pool_id" = $1
 				AND "post_id" = ANY($2)
 		`,
-		poolID,
+		pool.ID,
 		pq.Array(postIDs),
 	)
 

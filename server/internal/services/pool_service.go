@@ -47,12 +47,7 @@ func (s poolService) Create(ctx context.Context, dto dtos.CreatePoolDTO) (dtos.C
 }
 
 func (s poolService) Delete(ctx context.Context, dto dtos.DeletePoolDTO) (dtos.DeletePoolResponseDTO, error) {
-	pool, err := s.poolRepository.GetFull(ctx, dto.ID)
-	if err != nil {
-		return dtos.DeletePoolResponseDTO{}, fmt.Errorf("poolRepository.GetFull: %w", err)
-	}
-
-	err = s.poolRepository.Delete(ctx, pool.ID)
+	pool, err := s.poolRepository.Delete(ctx, dto.ID)
 	if err != nil {
 		return dtos.DeletePoolResponseDTO{}, fmt.Errorf("poolRepository.Delete: %w", err)
 	}

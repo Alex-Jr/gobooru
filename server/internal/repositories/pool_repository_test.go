@@ -206,14 +206,14 @@ func (s *PoolTestSuite) TestPoolRepositoryDelete() {
 				poolID: 9999,
 			},
 			want: want{
-				err: nil,
+				err: database.ErrNotFound,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		s.T().Run(tc.name, func(t *testing.T) {
-			err := s.poolRepository.Delete(tc.ctx, tc.args.poolID)
+			_, err := s.poolRepository.Delete(tc.ctx, tc.args.poolID)
 			require.ErrorIs(t, err, tc.want.err)
 
 			_, err = s.poolRepository.GetFull(tc.ctx, tc.args.poolID)

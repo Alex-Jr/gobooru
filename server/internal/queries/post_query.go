@@ -6,12 +6,15 @@ import (
 	"gobooru/internal/database"
 	"gobooru/internal/models"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type PostQuery interface {
 	Create(ctx context.Context, db database.DBClient, post *models.Post) error
 	Delete(ctx context.Context, db database.DBClient, post *models.Post) error
 	GetFull(ctx context.Context, db database.DBClient, post *models.Post) error
+	UpdatePoolCount(ctx context.Context, db database.DBClient, post []models.Post, increment int) error
 }
 
 type postQuery struct {
@@ -124,6 +127,34 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 
 	if err != nil {
 		return fmt.Errorf("db.GetContext: %w", err)
+	}
+
+	return nil
+}
+
+func (q *postQuery) UpdatePoolCount(ctx context.Context, db database.DBClient, posts []models.Post, increment int) error {
+	postIDs := make([]int, len(posts))
+
+	for i, post := range posts {
+		postIDs[i] = post.ID
+	}
+
+	_, err := db.ExecContext(
+		ctx,
+		`
+			UPDATE
+				"posts"
+			SET
+				"pool_count" = "pool_count" + $1
+			WHERE
+				"id" = ANY($2)
+		`,
+		increment,
+		pq.Array(postIDs),
+	)
+
+	if err != nil {
+		return fmt.Errorf("db.ExecContext: %w", err)
 	}
 
 	return nil

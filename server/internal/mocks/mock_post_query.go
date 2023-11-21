@@ -156,6 +156,51 @@ func (_c *MockPostQuery_GetFull_Call) RunAndReturn(run func(context.Context, dat
 	return _c
 }
 
+// UpdatePoolCount provides a mock function with given fields: ctx, db, post, increment
+func (_m *MockPostQuery) UpdatePoolCount(ctx context.Context, db database.DBClient, post []models.Post, increment int) error {
+	ret := _m.Called(ctx, db, post, increment)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.DBClient, []models.Post, int) error); ok {
+		r0 = rf(ctx, db, post, increment)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockPostQuery_UpdatePoolCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdatePoolCount'
+type MockPostQuery_UpdatePoolCount_Call struct {
+	*mock.Call
+}
+
+// UpdatePoolCount is a helper method to define mock.On call
+//   - ctx context.Context
+//   - db database.DBClient
+//   - post []models.Post
+//   - increment int
+func (_e *MockPostQuery_Expecter) UpdatePoolCount(ctx interface{}, db interface{}, post interface{}, increment interface{}) *MockPostQuery_UpdatePoolCount_Call {
+	return &MockPostQuery_UpdatePoolCount_Call{Call: _e.mock.On("UpdatePoolCount", ctx, db, post, increment)}
+}
+
+func (_c *MockPostQuery_UpdatePoolCount_Call) Run(run func(ctx context.Context, db database.DBClient, post []models.Post, increment int)) *MockPostQuery_UpdatePoolCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.DBClient), args[2].([]models.Post), args[3].(int))
+	})
+	return _c
+}
+
+func (_c *MockPostQuery_UpdatePoolCount_Call) Return(_a0 error) *MockPostQuery_UpdatePoolCount_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockPostQuery_UpdatePoolCount_Call) RunAndReturn(run func(context.Context, database.DBClient, []models.Post, int) error) *MockPostQuery_UpdatePoolCount_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockPostQuery creates a new instance of MockPostQuery. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockPostQuery(t interface {

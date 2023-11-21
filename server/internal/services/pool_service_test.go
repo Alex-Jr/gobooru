@@ -85,19 +85,11 @@ func TestPoolServiceDelete(t *testing.T) {
 	})
 
 	poolRepository.On(
-		"GetFull",
-		context.TODO(),
-		1,
-	).Return(
-		fakes.LoadPoolRelations(fakes.Pool1),
-		nil,
-	)
-
-	poolRepository.On(
 		"Delete",
 		context.TODO(),
 		1,
 	).Return(
+		fakes.LoadPoolRelations(fakes.Pool1),
 		nil,
 	)
 
