@@ -12,5 +12,6 @@ func RegisterPostRoutes(e *echo.Echo, postController controllers.PostController)
 	g.DELETE("/:id", postController.Delete)
 	g.GET("", postController.List)
 	g.GET("/:id", postController.Fetch)
+	g.PATCH("/:id", postController.Update)
 	g.POST("", postController.Create)
 }

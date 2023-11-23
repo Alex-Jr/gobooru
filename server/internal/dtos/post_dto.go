@@ -38,3 +38,14 @@ type ListPostResponseDTO struct {
 	Posts []models.Post `json:"posts"`
 	Count int           `json:"count"`
 }
+
+type UpdatePostDTO struct {
+	ID          int       `param:"id"`
+	Description *string   `json:"description"`
+	Rating      *string   `json:"rating"`
+	Tags        *[]string `json:"tags"`
+}
+
+type UpdatePostResponseDTO struct {
+	Post models.Post `json:"post"`
+}

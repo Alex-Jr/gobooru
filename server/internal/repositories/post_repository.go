@@ -6,6 +6,7 @@ import (
 	"gobooru/internal/database"
 	"gobooru/internal/models"
 	"gobooru/internal/queries"
+	"gobooru/internal/slice_utils"
 	"time"
 )
 
@@ -14,6 +15,7 @@ type PostRepository interface {
 	Delete(ctx context.Context, postID int) error
 	GetFull(ctx context.Context, postID int) (models.Post, error)
 	List(ctx context.Context, args ListPostsArgs) ([]models.Post, int, error)
+	Update(ctx context.Context, args UpdatePostArgs) (models.Post, error)
 }
 
 type postRepository struct {
@@ -103,7 +105,7 @@ func (r *postRepository) Delete(ctx context.Context, postID int) error {
 	err := r.postQuery.Delete(ctx, r.sqlClient, &post)
 
 	if err != nil {
-		return err
+		return fmt.Errorf("postQuery.Delete: %w", err)
 	}
 
 	return nil
@@ -117,7 +119,7 @@ func (r *postRepository) GetFull(ctx context.Context, postID int) (models.Post, 
 	err := r.postQuery.GetFull(ctx, r.sqlClient, &post)
 
 	if err != nil {
-		return models.Post{}, err
+		return models.Post{}, fmt.Errorf("postQuery.GetFull: %w", err)
 	}
 
 	return post, nil
@@ -146,8 +148,100 @@ func (r *postRepository) List(ctx context.Context, args ListPostsArgs) ([]models
 	)
 
 	if err != nil {
-		return nil, 0, err
+		return nil, 0, fmt.Errorf("postQuery.List: %w", err)
 	}
 
 	return posts, count, nil
+}
+
+type UpdatePostArgs struct {
+	ID          int
+	Description *string
+	Rating      *string
+	Tags        *[]string
+}
+
+func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (models.Post, error) {
+	tx, err := r.sqlClient.BeginTxx(ctx, nil)
+	if err != nil {
+		return models.Post{}, fmt.Errorf("sqlClient.BeginTxx: %w", err)
+	}
+
+	post := models.Post{
+		ID: args.ID,
+	}
+
+	err = r.postQuery.GetFull(ctx, tx, &post)
+	if err != nil {
+		return models.Post{}, fmt.Errorf("postQuery.GetFull: %w", err)
+	}
+
+	if args.Description != nil {
+		post.Description = *args.Description
+	}
+
+	if args.Rating != nil {
+		post.Rating = *args.Rating
+	}
+
+	if args.Tags != nil {
+		// TODO: resolve implications and alias
+
+		toRemove := slice_utils.Difference(post.TagIDs, *args.Tags)
+		toAdd := slice_utils.Difference(*args.Tags, post.TagIDs)
+
+		if len(toRemove) > 0 {
+			err = r.postTag.DisassociatePostsByID(ctx, tx, post, toRemove)
+			if err != nil {
+				return models.Post{}, fmt.Errorf("postTag.DisassociatePosts: %w", err)
+			}
+
+			err = r.tagQuery.UpdatePostCount(ctx, tx, toRemove, -1)
+			if err != nil {
+				return models.Post{}, fmt.Errorf("tagQuery.UpdatePostCount: %w", err)
+			}
+		}
+
+		if len(toAdd) > 0 {
+			tags := make([]models.Tag, len(toAdd))
+
+			now := time.Now()
+			for i, tag := range toAdd {
+				tags[i] = models.Tag{
+					ID:        tag,
+					PostCount: 1,
+					CreatedAt: now,
+					UpdatedAt: now,
+				}
+			}
+
+			err = r.tagQuery.CreateMany(ctx, tx, &tags)
+			if err != nil {
+				return models.Post{}, fmt.Errorf("tagQuery.CreateMany: %w", err)
+			}
+
+			err = r.postTag.AssociatePosts(ctx, tx, post, tags)
+			if err != nil {
+				return models.Post{}, fmt.Errorf("postTag.AssociatePosts: %w", err)
+			}
+		}
+
+		post.TagIDs = *args.Tags
+
+		post.TagCount = len(*args.Tags)
+	}
+
+	err = r.postQuery.Update(ctx, tx, post)
+	if err != nil {
+		return models.Post{}, fmt.Errorf("postQuery.Update: %w", err)
+	}
+
+	tx.Commit()
+
+	err = r.postQuery.GetFull(ctx, r.sqlClient, &post)
+	if err != nil {
+		return models.Post{}, fmt.Errorf("postQuery.GetFull: %w", err)
+	}
+
+	return post, nil
 }

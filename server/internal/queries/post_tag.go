@@ -6,13 +6,15 @@ import (
 	"gobooru/internal/database"
 	"gobooru/internal/models"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 type PostTagQuery interface {
 	// AssociatePosts associates tags to a post.
 	AssociatePosts(ctx context.Context, db database.DBClient, post models.Post, tags []models.Tag) error
 	// DisassociatePosts disassociates posts from a pool.
-	// DisassociatePostsByID(ctx context.Context, db database.DBClient, poolID int, postIDs []int) error
+	DisassociatePostsByID(ctx context.Context, db database.DBClient, post models.Post, tagIDs []string) error
 }
 
 type postTagQuery struct {
@@ -52,4 +54,24 @@ func (q postTagQuery) AssociatePosts(ctx context.Context, db database.DBClient, 
 
 	return nil
 
+}
+
+func (q postTagQuery) DisassociatePostsByID(ctx context.Context, db database.DBClient, post models.Post, tagIDs []string) error {
+	_, err := db.ExecContext(
+		ctx,
+		`
+			DELETE FROM "post_tags"
+			WHERE 
+				"post_id" = $1
+				AND "tag_id" = ANY($2)
+		`,
+		post.ID,
+		pq.Array(tagIDs),
+	)
+
+	if err != nil {
+		return fmt.Errorf("db.ExecContext: %w", err)
+	}
+
+	return nil
 }

@@ -13,6 +13,7 @@ type PostController interface {
 	Delete(c echo.Context) error
 	Fetch(c echo.Context) error
 	List(c echo.Context) error
+	Update(c echo.Context) error
 }
 
 type postController struct {
@@ -100,6 +101,25 @@ func (cl postController) List(c echo.Context) error {
 
 	if err != nil {
 		return fmt.Errorf("postService.List: %w", err)
+	}
+
+	return c.JSON(200, response)
+}
+
+func (cl postController) Update(c echo.Context) error {
+	dto := dtos.UpdatePostDTO{}
+
+	if err := c.Bind(&dto); err != nil {
+		return fmt.Errorf("c.Bind: %w", err)
+	}
+
+	response, err := cl.postService.Update(
+		c.Request().Context(),
+		dto,
+	)
+
+	if err != nil {
+		return fmt.Errorf("postService.Update: %w", err)
 	}
 
 	return c.JSON(200, response)

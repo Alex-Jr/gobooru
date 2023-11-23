@@ -235,6 +235,59 @@ func (_c *MockPostRepository_List_Call) RunAndReturn(run func(context.Context, r
 	return _c
 }
 
+// Update provides a mock function with given fields: ctx, args
+func (_m *MockPostRepository) Update(ctx context.Context, args repositories.UpdatePostArgs) (models.Post, error) {
+	ret := _m.Called(ctx, args)
+
+	var r0 models.Post
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, repositories.UpdatePostArgs) (models.Post, error)); ok {
+		return rf(ctx, args)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, repositories.UpdatePostArgs) models.Post); ok {
+		r0 = rf(ctx, args)
+	} else {
+		r0 = ret.Get(0).(models.Post)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, repositories.UpdatePostArgs) error); ok {
+		r1 = rf(ctx, args)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockPostRepository_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
+type MockPostRepository_Update_Call struct {
+	*mock.Call
+}
+
+// Update is a helper method to define mock.On call
+//   - ctx context.Context
+//   - args repositories.UpdatePostArgs
+func (_e *MockPostRepository_Expecter) Update(ctx interface{}, args interface{}) *MockPostRepository_Update_Call {
+	return &MockPostRepository_Update_Call{Call: _e.mock.On("Update", ctx, args)}
+}
+
+func (_c *MockPostRepository_Update_Call) Run(run func(ctx context.Context, args repositories.UpdatePostArgs)) *MockPostRepository_Update_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(repositories.UpdatePostArgs))
+	})
+	return _c
+}
+
+func (_c *MockPostRepository_Update_Call) Return(_a0 models.Post, _a1 error) *MockPostRepository_Update_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockPostRepository_Update_Call) RunAndReturn(run func(context.Context, repositories.UpdatePostArgs) (models.Post, error)) *MockPostRepository_Update_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockPostRepository creates a new instance of MockPostRepository. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockPostRepository(t interface {

@@ -12,6 +12,7 @@ type PostService interface {
 	Delete(ctx context.Context, dto dtos.DeletePostDTO) (dtos.DeletePostResponseDTO, error)
 	Fetch(ctx context.Context, dto dtos.FetchPostDTO) (dtos.FetchPostResponseDTO, error)
 	List(ctx context.Context, dto dtos.ListPostDTO) (dtos.ListPostResponseDTO, error)
+	Update(ctx context.Context, dto dtos.UpdatePostDTO) (dtos.UpdatePostResponseDTO, error)
 }
 
 type postService struct {
@@ -85,5 +86,22 @@ func (s postService) List(ctx context.Context, dto dtos.ListPostDTO) (dtos.ListP
 	return dtos.ListPostResponseDTO{
 		Posts: posts,
 		Count: count,
+	}, nil
+}
+
+func (s postService) Update(ctx context.Context, dto dtos.UpdatePostDTO) (dtos.UpdatePostResponseDTO, error) {
+	post, err := s.postRepository.Update(ctx, repositories.UpdatePostArgs{
+		ID:          dto.ID,
+		Description: dto.Description,
+		Rating:      dto.Rating,
+		Tags:        dto.Tags,
+	})
+
+	if err != nil {
+		return dtos.UpdatePostResponseDTO{}, fmt.Errorf("postRepository.Update: %w", err)
+	}
+
+	return dtos.UpdatePostResponseDTO{
+		Post: post,
 	}, nil
 }

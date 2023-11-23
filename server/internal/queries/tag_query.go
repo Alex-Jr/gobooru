@@ -5,10 +5,13 @@ import (
 	"fmt"
 	"gobooru/internal/database"
 	"gobooru/internal/models"
+
+	"github.com/lib/pq"
 )
 
 type TagQuery interface {
 	CreateMany(ctx context.Context, db database.DBClient, tags *[]models.Tag) error
+	UpdatePostCount(ctx context.Context, db database.DBClient, tags []string, increment int) error
 }
 
 type tagQuery struct {
@@ -61,6 +64,33 @@ func (q *tagQuery) CreateMany(ctx context.Context, db database.DBClient, tags *[
 		}
 
 		i++
+	}
+
+	return nil
+}
+
+func (q *tagQuery) UpdatePostCount(ctx context.Context, db database.DBClient, tags []string, increment int) error {
+	if len(tags) == 0 {
+		return nil
+	}
+
+	_, err := db.ExecContext(
+		ctx,
+		`
+			UPDATE "tags"
+			SET
+				post_count = post_count + $2
+			WHERE
+				id = ANY($1)
+			RETURNING
+				"post_count"
+		`,
+		pq.Array(tags),
+		increment,
+	)
+
+	if err != nil {
+		return fmt.Errorf("db.ExecContext: %w", err)
 	}
 
 	return nil

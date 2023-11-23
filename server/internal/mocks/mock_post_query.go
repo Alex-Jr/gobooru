@@ -202,6 +202,50 @@ func (_c *MockPostQuery_List_Call) RunAndReturn(run func(context.Context, databa
 	return _c
 }
 
+// Update provides a mock function with given fields: ctx, db, post
+func (_m *MockPostQuery) Update(ctx context.Context, db database.DBClient, post models.Post) error {
+	ret := _m.Called(ctx, db, post)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.DBClient, models.Post) error); ok {
+		r0 = rf(ctx, db, post)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockPostQuery_Update_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Update'
+type MockPostQuery_Update_Call struct {
+	*mock.Call
+}
+
+// Update is a helper method to define mock.On call
+//   - ctx context.Context
+//   - db database.DBClient
+//   - post models.Post
+func (_e *MockPostQuery_Expecter) Update(ctx interface{}, db interface{}, post interface{}) *MockPostQuery_Update_Call {
+	return &MockPostQuery_Update_Call{Call: _e.mock.On("Update", ctx, db, post)}
+}
+
+func (_c *MockPostQuery_Update_Call) Run(run func(ctx context.Context, db database.DBClient, post models.Post)) *MockPostQuery_Update_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.DBClient), args[2].(models.Post))
+	})
+	return _c
+}
+
+func (_c *MockPostQuery_Update_Call) Return(_a0 error) *MockPostQuery_Update_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockPostQuery_Update_Call) RunAndReturn(run func(context.Context, database.DBClient, models.Post) error) *MockPostQuery_Update_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // UpdatePoolCount provides a mock function with given fields: ctx, db, post, increment
 func (_m *MockPostQuery) UpdatePoolCount(ctx context.Context, db database.DBClient, post []models.Post, increment int) error {
 	ret := _m.Called(ctx, db, post, increment)

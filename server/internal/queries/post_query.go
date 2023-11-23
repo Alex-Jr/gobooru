@@ -16,6 +16,7 @@ type PostQuery interface {
 	Delete(ctx context.Context, db database.DBClient, post *models.Post) error
 	GetFull(ctx context.Context, db database.DBClient, post *models.Post) error
 	List(ctx context.Context, db database.DBClient, search models.Search, posts *[]models.Post, count *int) error
+	Update(ctx context.Context, db database.DBClient, post models.Post) error
 	UpdatePoolCount(ctx context.Context, db database.DBClient, post []models.Post, increment int) error
 }
 
@@ -135,6 +136,10 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 				p."description",
 				p."id",
 				p."updated_at",
+				p."rating",
+				p."tag_count",
+				p."tag_ids",
+				p."pool_count",
 				pl."pools"
 			FROM
 				"posts" as "p"
@@ -214,6 +219,34 @@ func (q *postQuery) List(ctx context.Context, db database.DBClient, search model
 
 	if err != nil {
 		return fmt.Errorf("db.SelectContext: %w", err)
+	}
+
+	return nil
+}
+
+func (q *postQuery) Update(ctx context.Context, db database.DBClient, post models.Post) error {
+	post.UpdatedAt = time.Now()
+
+	_, err := db.NamedExecContext(
+		ctx,
+		`
+			UPDATE
+				"posts"
+			SET
+				"rating" = :rating,
+				"description" = :description,
+				"tag_ids" = :tag_ids,
+				"tag_count" = :tag_count,
+				"pool_count" = :pool_count,
+				"updated_at" = :updated_at
+			WHERE
+				"id" = :id
+		`,
+		post,
+	)
+
+	if err != nil {
+		return fmt.Errorf("db.NamedExecContext: %w", err)
 	}
 
 	return nil
