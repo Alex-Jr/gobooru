@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"database/sql"
 	"fmt"
 	"gobooru/internal/database"
 	"gobooru/internal/models"
@@ -118,19 +119,33 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 		ctx,
 		post,
 		`
-			WITH "pools" AS (
-				SELECT
-					$1::int as "post_id",
-					JSONB_AGG(to_jsonb(pl.*)) as "pools"
-				FROM
-					"pools" "pl"
-				INNER JOIN "pool_posts" "pp" ON
-					"pp"."pool_id" = "pl"."id"
-				WHERE
-					"pp"."post_id" = $1::int
-				GROUP BY
-					"pp"."post_id"
-			)
+			WITH 
+				"pools" AS (
+					SELECT
+						$1::int as "post_id",
+						JSONB_AGG(to_jsonb(pl.*)) as "pools"
+					FROM
+						"pools" "pl"
+					INNER JOIN "pool_posts" "pp" ON
+						"pp"."pool_id" = "pl"."id"
+					WHERE
+						"pp"."post_id" = $1::int
+					GROUP BY
+						"pp"."post_id"
+				),
+				"tags" AS (
+					SELECT
+						$1::int as "post_id",
+						JSONB_AGG(to_jsonb(t.*)) as "tags"
+					FROM
+						"tags" "t"
+					INNER JOIN "post_tags" "pt" ON
+						"pt"."tag_id" = "t"."id"
+					WHERE
+						"pt"."post_id" = $1::int
+					GROUP BY
+						"pt"."post_id"
+				)
 			SELECT
 				p."created_at",
 				p."description",
@@ -140,11 +155,14 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 				p."tag_count",
 				p."tag_ids",
 				p."pool_count",
-				pl."pools"
+				pl."pools",
+				t."tags"
 			FROM
 				"posts" as "p"
 			LEFT JOIN "pools" as "pl" ON
 				"pl"."post_id" = "p"."id"
+			LEFT JOIN "tags" as "t" ON
+				"t"."post_id" = "p"."id"
 			WHERE
 				p."id" = $1::int
 		`,
@@ -152,6 +170,9 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 	)
 
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return database.ErrNotFound
+		}
 		return fmt.Errorf("db.GetContext: %w", err)
 	}
 
@@ -166,7 +187,7 @@ func (q *postQuery) List(ctx context.Context, db database.DBClient, search model
 
 	err = db.GetContext(
 		ctx,
-		&count,
+		count,
 		`
 			SELECT
 				count(*)

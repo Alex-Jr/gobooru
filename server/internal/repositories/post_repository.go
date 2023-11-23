@@ -236,12 +236,12 @@ func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (model
 		return models.Post{}, fmt.Errorf("postQuery.Update: %w", err)
 	}
 
-	tx.Commit()
-
-	err = r.postQuery.GetFull(ctx, r.sqlClient, &post)
+	err = r.postQuery.GetFull(ctx, tx, &post)
 	if err != nil {
 		return models.Post{}, fmt.Errorf("postQuery.GetFull: %w", err)
 	}
+
+	tx.Commit()
 
 	return post, nil
 }
