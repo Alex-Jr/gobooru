@@ -112,6 +112,7 @@ var Posts = []models.Post{
 func LoadPostRelations(p models.Post) models.Post {
 	for i := range p.Pools {
 		p.Pools[i] = Pools[p.Pools[i].ID-1]
+		p.Pools[i].Posts = nil
 	}
 
 	for i := range p.Tags {
