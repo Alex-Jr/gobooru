@@ -78,17 +78,27 @@ func (_c *MockPoolRepository_Create_Call) RunAndReturn(run func(context.Context,
 }
 
 // Delete provides a mock function with given fields: ctx, id
-func (_m *MockPoolRepository) Delete(ctx context.Context, id int) error {
+func (_m *MockPoolRepository) Delete(ctx context.Context, id int) (models.Pool, error) {
 	ret := _m.Called(ctx, id)
 
-	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, int) error); ok {
+	var r0 models.Pool
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, int) (models.Pool, error)); ok {
+		return rf(ctx, id)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, int) models.Pool); ok {
 		r0 = rf(ctx, id)
 	} else {
-		r0 = ret.Error(0)
+		r0 = ret.Get(0).(models.Pool)
 	}
 
-	return r0
+	if rf, ok := ret.Get(1).(func(context.Context, int) error); ok {
+		r1 = rf(ctx, id)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
 }
 
 // MockPoolRepository_Delete_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'Delete'
@@ -110,12 +120,12 @@ func (_c *MockPoolRepository_Delete_Call) Run(run func(ctx context.Context, id i
 	return _c
 }
 
-func (_c *MockPoolRepository_Delete_Call) Return(_a0 error) *MockPoolRepository_Delete_Call {
-	_c.Call.Return(_a0)
+func (_c *MockPoolRepository_Delete_Call) Return(_a0 models.Pool, _a1 error) *MockPoolRepository_Delete_Call {
+	_c.Call.Return(_a0, _a1)
 	return _c
 }
 
-func (_c *MockPoolRepository_Delete_Call) RunAndReturn(run func(context.Context, int) error) *MockPoolRepository_Delete_Call {
+func (_c *MockPoolRepository_Delete_Call) RunAndReturn(run func(context.Context, int) (models.Pool, error)) *MockPoolRepository_Delete_Call {
 	_c.Call.Return(run)
 	return _c
 }

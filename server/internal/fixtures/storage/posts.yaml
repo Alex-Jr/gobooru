@@ -1,24 +1,44 @@
 - id: 1
+  rating: "S"
   description: "post 1 description"
+  tag_ids: '{"tag_one"}'
+  tag_count: 1
+  pool_count: 4
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z
 
 - id: 2
+  rating: "S"
   description: "post 2 description"
+  tag_ids: '{}'
+  tag_count: 0
+  pool_count: 3
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z
 
 - id: 3
+  rating: "S"
   description: "post 3 description"
+  tag_ids: '{}'
+  tag_count: 0
+  pool_count: 2
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z
 
 - id: 4
+  rating: "Q"
   description: "post 4 description"
+  tag_ids: '{}'
+  tag_count: 0
+  pool_count: 0
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z
 
 - id: 5
+  rating: "E"
   description: "post 5 description"
+  tag_ids: '{}'
+  tag_count: 0
+  pool_count: 0
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z

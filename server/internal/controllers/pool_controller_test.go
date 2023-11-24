@@ -45,7 +45,7 @@ func TestPoolControllerCreate(t *testing.T) {
 	}{
 		statusCode: http.StatusOK,
 		dto: dtos.CreatePoolResponseDTO{
-			Pool: fakes.LoadPool(fakes.Pool1),
+			Pool: fakes.LoadPoolRelations(fakes.Pool1),
 		},
 	}
 
@@ -63,23 +63,24 @@ func TestPoolControllerCreate(t *testing.T) {
 		nil,
 	)
 
-	e := echo.New()
 	requestData, err := json.Marshal(args)
 	require.NoError(t, err)
 
 	req, err := http.NewRequest(
 		http.MethodPost,
-		"/post",
+		"/pools",
 		bytes.NewBuffer(requestData),
 	)
 	require.NoError(t, err)
 
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 
 	rec := httptest.NewRecorder()
+	e := echo.New()
 	c := e.NewContext(req, rec)
 
-	require.NoError(t, poolController.Create(c))
+	err = poolController.Create(c)
+	require.NoError(t, err)
 
 	var responseDTO dtos.CreatePoolResponseDTO
 
@@ -103,7 +104,7 @@ func TestPoolControllerDelete(t *testing.T) {
 	}{
 		statusCode: http.StatusOK,
 		dto: dtos.DeletePoolResponseDTO{
-			Pool: fakes.LoadPool(fakes.Pool1),
+			Pool: fakes.LoadPoolRelations(fakes.Pool1),
 		},
 	}
 
@@ -163,7 +164,7 @@ func TestPoolControllerFetch(t *testing.T) {
 	}{
 		statusCode: http.StatusOK,
 		dto: dtos.FetchPoolResponseDTO{
-			Pool: fakes.LoadPool(fakes.Pool1),
+			Pool: fakes.LoadPoolRelations(fakes.Pool1),
 		},
 	}
 
@@ -228,8 +229,8 @@ func TestPoolControllerList(t *testing.T) {
 		statusCode: http.StatusOK,
 		dto: dtos.ListPoolResponseDTO{
 			Pools: []models.Pool{
-				fakes.LoadPool(fakes.Pool1),
-				fakes.LoadPool(fakes.Pool2),
+				fakes.LoadPoolRelations(fakes.Pool1),
+				fakes.LoadPoolRelations(fakes.Pool2),
 			},
 		},
 	}
@@ -301,7 +302,7 @@ func TestPoolControllerUpdate(t *testing.T) {
 	}{
 		statusCode: http.StatusOK,
 		dto: dtos.UpdatePoolResponseDTO{
-			Pool: fakes.LoadPool(fakes.Pool1),
+			Pool: fakes.LoadPoolRelations(fakes.Pool1),
 		},
 	}
 

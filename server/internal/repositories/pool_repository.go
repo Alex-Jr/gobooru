@@ -13,7 +13,7 @@ import (
 
 type PoolRepository interface {
 	Create(ctx context.Context, args PoolCreateArgs) (models.Pool, error)
-	Delete(ctx context.Context, id int) error
+	Delete(ctx context.Context, id int) (models.Pool, error)
 	GetFull(ctx context.Context, id int) (models.Pool, error)
 	ListFull(ctx context.Context, args PoolListFullArgs) ([]models.Pool, int, error)
 	Update(ctx context.Context, args PoolUpdateArgs) (models.Pool, error)
@@ -23,6 +23,7 @@ type poolRepository struct {
 	sqlClient     database.SQLClient
 	poolQuery     queries.PoolQuery
 	poolPostQuery queries.PoolPostQuery
+	postQuery     queries.PostQuery
 }
 
 func NewPoolRepository(dbClient database.SQLClient) PoolRepository {
@@ -30,6 +31,7 @@ func NewPoolRepository(dbClient database.SQLClient) PoolRepository {
 		sqlClient:     dbClient,
 		poolQuery:     queries.NewPoolQuery(),
 		poolPostQuery: queries.NewPoolPostQuery(),
+		postQuery:     queries.NewPostQuery(),
 	}
 }
 
@@ -62,23 +64,28 @@ func (r poolRepository) Create(ctx context.Context, args PoolCreateArgs) (models
 
 	tx, err := r.sqlClient.BeginTxx(ctx, nil)
 	if err != nil {
-		return pool, fmt.Errorf("beginning transaction: %w", err)
+		return pool, fmt.Errorf("sqlClient.BeginTx: %w", err)
 	}
 	defer tx.Rollback()
 
 	err = r.poolQuery.Create(ctx, tx, &pool)
 	if err != nil {
-		return pool, fmt.Errorf("creating pool: %w", err)
+		return pool, fmt.Errorf("poolQuery.Create: %w", err)
 	}
 
-	err = r.poolPostQuery.AssociatePosts(ctx, tx, pool.ID, pool.Posts)
+	err = r.poolPostQuery.AssociatePosts(ctx, tx, pool, pool.Posts)
 	if err != nil {
-		return pool, fmt.Errorf("creating pool posts: %w", err)
+		return pool, fmt.Errorf("poolPostQuery.AssociatePosts: %w", err)
+	}
+
+	err = r.postQuery.UpdatePoolCount(ctx, tx, pool.Posts, 1)
+	if err != nil {
+		return pool, fmt.Errorf("postQuery.UpdatePoolCount: %w", err)
 	}
 
 	err = r.poolQuery.GetFull(ctx, tx, &pool)
 	if err != nil {
-		return pool, fmt.Errorf("finding posts: %w", err)
+		return pool, fmt.Errorf("poolQuery.GetFull: %w", err)
 	}
 
 	tx.Commit()
@@ -86,16 +93,42 @@ func (r poolRepository) Create(ctx context.Context, args PoolCreateArgs) (models
 	return pool, nil
 }
 
-func (r poolRepository) Delete(ctx context.Context, id int) error {
-	err := r.poolQuery.Delete(ctx, r.sqlClient, &models.Pool{
+func (r poolRepository) Delete(ctx context.Context, id int) (models.Pool, error) {
+	pool := models.Pool{
 		ID: id,
-	})
-
-	if err != nil {
-		return fmt.Errorf("deleting pool: %w", err)
 	}
 
-	return nil
+	err := r.poolQuery.GetFull(ctx, r.sqlClient, &pool)
+	if err != nil {
+		return models.Pool{}, fmt.Errorf("poolRepository.GetFull: %w", err)
+	}
+
+	tx, err := r.sqlClient.BeginTxx(ctx, nil)
+	if err != nil {
+		return models.Pool{}, fmt.Errorf("sqlClient.BeginTx: %w", err)
+	}
+	defer tx.Rollback()
+
+	err = r.poolQuery.Delete(
+		ctx,
+		tx,
+		&models.Pool{
+			ID: id,
+		},
+	)
+
+	if err != nil {
+		return models.Pool{}, fmt.Errorf("poolQuery.Delete: %w", err)
+	}
+
+	err = r.postQuery.UpdatePoolCount(ctx, tx, pool.Posts, -1)
+	if err != nil {
+		return models.Pool{}, fmt.Errorf("postQuery.UpdatePoolCount: %w", err)
+	}
+
+	tx.Commit()
+
+	return pool, nil
 }
 
 func (r poolRepository) GetFull(ctx context.Context, id int) (models.Pool, error) {
@@ -105,7 +138,7 @@ func (r poolRepository) GetFull(ctx context.Context, id int) (models.Pool, error
 
 	err := r.poolQuery.GetFull(ctx, r.sqlClient, &pool)
 	if err != nil {
-		return models.Pool{}, fmt.Errorf("finding pool: %w", err)
+		return models.Pool{}, fmt.Errorf("poolQuery.GetFull: %w", err)
 	}
 
 	return pool, nil
@@ -134,7 +167,7 @@ func (r poolRepository) ListFull(ctx context.Context, args PoolListFullArgs) ([]
 	)
 
 	if err != nil {
-		return pools, count, fmt.Errorf("listing pools: %w", err)
+		return pools, count, fmt.Errorf("poolQuery.ListFull: %w", err)
 	}
 
 	return pools, count, nil
@@ -155,13 +188,13 @@ func (r poolRepository) Update(ctx context.Context, args PoolUpdateArgs) (models
 
 	tx, err := r.sqlClient.BeginTxx(ctx, nil)
 	if err != nil {
-		return pool, fmt.Errorf("beginning transaction: %w", err)
+		return pool, fmt.Errorf("sqlClient.BeginTx: %w", err)
 	}
 	defer tx.Rollback()
 
 	err = r.poolQuery.GetFull(ctx, tx, &pool)
 	if err != nil {
-		return pool, fmt.Errorf("finding pool: %w", err)
+		return pool, fmt.Errorf("poolQuery.GetFull: %w", err)
 	}
 
 	if args.Custom != nil {
@@ -184,6 +217,7 @@ func (r poolRepository) Update(ctx context.Context, args PoolUpdateArgs) (models
 		}
 
 		toRemove := slice_utils.Difference(oldPostIDs, *args.Posts)
+		toAdd := slice_utils.Difference(*args.Posts, oldPostIDs)
 
 		pool.PostCount = len(*args.Posts)
 		pool.Posts = make([]models.Post, pool.PostCount)
@@ -195,16 +229,43 @@ func (r poolRepository) Update(ctx context.Context, args PoolUpdateArgs) (models
 		}
 
 		if len(toRemove) > 0 {
-			err = r.poolPostQuery.DisassociatePostsByID(ctx, tx, pool.ID, toRemove)
+			postsToRemove := make([]models.Post, len(toRemove))
+			for i, postID := range toRemove {
+				postsToRemove[i].ID = postID
+			}
+
+			err = r.poolPostQuery.DisassociatePosts(ctx, tx, pool, postsToRemove)
 			if err != nil {
-				return pool, fmt.Errorf("deleting pool posts: %w", err)
+				return pool, fmt.Errorf("poolPostQuery.DisassociatePostsByID %w", err)
+			}
+
+			err = r.postQuery.UpdatePoolCount(ctx, tx, postsToRemove, -1)
+			if err != nil {
+				return pool, fmt.Errorf("postQuery.UpdatePoolCount: %w", err)
+			}
+		}
+
+		if len(toAdd) > 0 {
+			postsToAdd := make([]models.Post, len(toAdd))
+			for i, postID := range toAdd {
+				postsToAdd[i].ID = postID
+			}
+
+			err = r.poolPostQuery.AssociatePosts(ctx, tx, pool, postsToAdd)
+			if err != nil {
+				return pool, fmt.Errorf("poolPostQuery.AssociatePostsByID %w", err)
+			}
+
+			err = r.postQuery.UpdatePoolCount(ctx, tx, postsToAdd, 1)
+			if err != nil {
+				return pool, fmt.Errorf("postQuery.UpdatePoolCount: %w", err)
 			}
 		}
 
 		//? always associate because the post position could have change
-		err = r.poolPostQuery.AssociatePosts(ctx, tx, pool.ID, pool.Posts)
+		err = r.poolPostQuery.AssociatePosts(ctx, tx, pool, pool.Posts)
 		if err != nil {
-			return pool, fmt.Errorf("creating pool posts: %w", err)
+			return pool, fmt.Errorf("poolPostQuery.AssociatePosts %w", err)
 		}
 
 		for i, postID := range *args.Posts {
@@ -216,12 +277,12 @@ func (r poolRepository) Update(ctx context.Context, args PoolUpdateArgs) (models
 
 	err = r.poolQuery.Update(ctx, tx, &pool)
 	if err != nil {
-		return pool, fmt.Errorf("updating pool: %w", err)
+		return pool, fmt.Errorf("poolQuery.Update: %w", err)
 	}
 
 	err = r.poolQuery.GetFull(ctx, tx, &pool)
 	if err != nil {
-		return pool, fmt.Errorf("finding posts: %w", err)
+		return pool, fmt.Errorf("poolQuery.GetFull: %w", err)
 	}
 
 	tx.Commit()

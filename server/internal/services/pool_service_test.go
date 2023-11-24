@@ -17,7 +17,7 @@ import (
 func TestPoolServiceCreate(t *testing.T) {
 	poolRepository := mocks.NewMockPoolRepository(t)
 
-	poolService := services.NewPoolService(services.PoolRepositoryConfig{
+	poolService := services.NewPoolService(services.PoolServiceConfig{
 		PoolRepository: poolRepository,
 	})
 
@@ -31,7 +31,7 @@ func TestPoolServiceCreate(t *testing.T) {
 			PostIDs:     []int{1},
 		},
 	).Return(
-		fakes.LoadPool(fakes.Pool1),
+		fakes.LoadPoolRelations(fakes.Pool1),
 		nil,
 	)
 
@@ -61,7 +61,12 @@ func TestPoolServiceCreate(t *testing.T) {
 						"created_at": "2020-01-01T00:00:00Z",
 						"description": "post 1 description",
 						"id": 1,
+						"pool_count": 4,
 						"pools": null,
+						"rating": "S",
+						"tag_count": 1,
+						"tag_ids": ["tag_one"],
+						"tags": null,
 						"updated_at": "2020-01-01T00:00:00Z"
 					}
 				]
@@ -75,24 +80,16 @@ func TestPoolServiceCreate(t *testing.T) {
 func TestPoolServiceDelete(t *testing.T) {
 	poolRepository := mocks.NewMockPoolRepository(t)
 
-	poolService := services.NewPoolService(services.PoolRepositoryConfig{
+	poolService := services.NewPoolService(services.PoolServiceConfig{
 		PoolRepository: poolRepository,
 	})
-
-	poolRepository.On(
-		"GetFull",
-		context.TODO(),
-		1,
-	).Return(
-		fakes.LoadPool(fakes.Pool1),
-		nil,
-	)
 
 	poolRepository.On(
 		"Delete",
 		context.TODO(),
 		1,
 	).Return(
+		fakes.LoadPoolRelations(fakes.Pool1),
 		nil,
 	)
 
@@ -122,7 +119,12 @@ func TestPoolServiceDelete(t *testing.T) {
 						"created_at": "2020-01-01T00:00:00Z",
 						"description": "post 1 description",
 						"id": 1,
+						"pool_count": 4,
 						"pools": null,
+						"rating": "S",
+						"tag_count": 1,
+						"tag_ids": ["tag_one"],
+						"tags": null,
 						"updated_at": "2020-01-01T00:00:00Z"
 					}
 				]
@@ -134,7 +136,7 @@ func TestPoolServiceDelete(t *testing.T) {
 func TestPoolServiceFetch(t *testing.T) {
 	poolRepository := mocks.NewMockPoolRepository(t)
 
-	poolService := services.NewPoolService(services.PoolRepositoryConfig{
+	poolService := services.NewPoolService(services.PoolServiceConfig{
 		PoolRepository: poolRepository,
 	})
 
@@ -143,7 +145,7 @@ func TestPoolServiceFetch(t *testing.T) {
 		context.TODO(),
 		1,
 	).Return(
-		fakes.LoadPool(fakes.Pool1),
+		fakes.LoadPoolRelations(fakes.Pool1),
 		nil,
 	)
 
@@ -173,7 +175,12 @@ func TestPoolServiceFetch(t *testing.T) {
 						"created_at": "2020-01-01T00:00:00Z",
 						"description": "post 1 description",
 						"id": 1,
+						"pool_count": 4,
 						"pools": null,
+						"rating": "S",
+						"tag_count": 1,
+						"tag_ids": ["tag_one"],
+						"tags": null,
 						"updated_at": "2020-01-01T00:00:00Z"
 					}
 				]
@@ -185,7 +192,7 @@ func TestPoolServiceFetch(t *testing.T) {
 func TestPoolServiceList(t *testing.T) {
 	poolRepository := mocks.NewMockPoolRepository(t)
 
-	poolService := services.NewPoolService(services.PoolRepositoryConfig{
+	poolService := services.NewPoolService(services.PoolServiceConfig{
 		PoolRepository: poolRepository,
 	})
 
@@ -199,7 +206,7 @@ func TestPoolServiceList(t *testing.T) {
 		},
 	).Return(
 		[]models.Pool{
-			fakes.LoadPool(fakes.Pool1),
+			fakes.LoadPoolRelations(fakes.Pool1),
 		},
 		1,
 		nil,
@@ -235,7 +242,12 @@ func TestPoolServiceList(t *testing.T) {
 							"created_at": "2020-01-01T00:00:00Z",
 							"description": "post 1 description",
 							"id": 1,
+							"pool_count": 4,
 							"pools": null,
+							"rating": "S",
+							"tag_count": 1,
+							"tag_ids": ["tag_one"],
+							"tags": null,
 							"updated_at": "2020-01-01T00:00:00Z"
 						}
 					]

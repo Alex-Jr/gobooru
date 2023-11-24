@@ -17,13 +17,13 @@ import (
 	"github.com/stretchr/testify/suite"
 )
 
-type TestSuite struct {
+type PoolTestSuite struct {
 	suite.Suite
 	psqlContainer  *database.PostgresContainer
 	poolRepository repositories.PoolRepository
 }
 
-func (s *TestSuite) SetupTest() {
+func (s *PoolTestSuite) SetupTest() {
 	ctx, ctxCancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer ctxCancel()
 
@@ -52,7 +52,7 @@ func (s *TestSuite) SetupTest() {
 	s.psqlContainer = sqlContainer
 }
 
-func (s *TestSuite) TearDownTest() {
+func (s *PoolTestSuite) TearDownTest() {
 	ctx, ctxCancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer ctxCancel()
 
@@ -60,11 +60,12 @@ func (s *TestSuite) TearDownTest() {
 	s.Require().NoError(err)
 }
 
-func TestSuite_Run(t *testing.T) {
-	suite.Run(t, new(TestSuite))
+func TestPoolSuite_Run(t *testing.T) {
+	suite.Run(t, new(PoolTestSuite))
 }
 
-func (s *TestSuite) TestPoolRepositoryCreate() {
+// TODO: should check if pool_count inside post was updated
+func (s *PoolTestSuite) TestPoolRepositoryCreate() {
 	type args struct {
 		Custom      []string
 		Description string
@@ -174,7 +175,8 @@ func (s *TestSuite) TestPoolRepositoryCreate() {
 	}
 }
 
-func (s *TestSuite) TestPoolRepositoryDelete() {
+// TODO: should check if pool_count inside post was updated
+func (s *PoolTestSuite) TestPoolRepositoryDelete() {
 	type args struct {
 		poolID int
 	}
@@ -206,14 +208,14 @@ func (s *TestSuite) TestPoolRepositoryDelete() {
 				poolID: 9999,
 			},
 			want: want{
-				err: nil,
+				err: database.ErrNotFound,
 			},
 		},
 	}
 
 	for _, tc := range testCases {
 		s.T().Run(tc.name, func(t *testing.T) {
-			err := s.poolRepository.Delete(tc.ctx, tc.args.poolID)
+			_, err := s.poolRepository.Delete(tc.ctx, tc.args.poolID)
 			require.ErrorIs(t, err, tc.want.err)
 
 			_, err = s.poolRepository.GetFull(tc.ctx, tc.args.poolID)
@@ -222,7 +224,7 @@ func (s *TestSuite) TestPoolRepositoryDelete() {
 	}
 }
 
-func (s *TestSuite) TestPoolRepositoryGetFull() {
+func (s *PoolTestSuite) TestPoolRepositoryGetFull() {
 	type args struct {
 		poolID int
 	}
@@ -246,7 +248,7 @@ func (s *TestSuite) TestPoolRepositoryGetFull() {
 			},
 			want: want{
 				err:  nil,
-				pool: fakes.LoadPool(fakes.Pool3),
+				pool: fakes.LoadPoolRelations(fakes.Pool3),
 			},
 		},
 		{
@@ -288,7 +290,7 @@ func (s *TestSuite) TestPoolRepositoryGetFull() {
 	}
 }
 
-func (s *TestSuite) TestPoolRepositoryListFull() {
+func (s *PoolTestSuite) TestPoolRepositoryListFull() {
 	type args struct {
 		text     string
 		page     int
@@ -319,8 +321,8 @@ func (s *TestSuite) TestPoolRepositoryListFull() {
 				err:   nil,
 				count: 3,
 				pools: []models.Pool{
-					fakes.LoadPool(fakes.Pool6),
-					fakes.LoadPool(fakes.Pool5),
+					fakes.LoadPoolRelations(fakes.Pool6),
+					fakes.LoadPoolRelations(fakes.Pool5),
 				},
 			},
 		},
@@ -336,7 +338,7 @@ func (s *TestSuite) TestPoolRepositoryListFull() {
 				err:   nil,
 				count: 3,
 				pools: []models.Pool{
-					fakes.LoadPool(fakes.Pool4),
+					fakes.LoadPoolRelations(fakes.Pool4),
 				},
 			},
 		},
@@ -352,7 +354,7 @@ func (s *TestSuite) TestPoolRepositoryListFull() {
 				err:   nil,
 				count: 6,
 				pools: []models.Pool{
-					fakes.LoadPool(fakes.Pool6),
+					fakes.LoadPoolRelations(fakes.Pool6),
 				},
 			},
 		},
@@ -368,8 +370,8 @@ func (s *TestSuite) TestPoolRepositoryListFull() {
 				err:   nil,
 				count: 4,
 				pools: []models.Pool{
-					fakes.LoadPool(fakes.Pool6),
-					fakes.LoadPool(fakes.Pool5),
+					fakes.LoadPoolRelations(fakes.Pool6),
+					fakes.LoadPoolRelations(fakes.Pool5),
 				},
 			},
 		},
@@ -385,8 +387,8 @@ func (s *TestSuite) TestPoolRepositoryListFull() {
 				err:   nil,
 				count: 2,
 				pools: []models.Pool{
-					fakes.LoadPool(fakes.Pool2),
-					fakes.LoadPool(fakes.Pool1),
+					fakes.LoadPoolRelations(fakes.Pool2),
+					fakes.LoadPoolRelations(fakes.Pool1),
 				},
 			},
 		},
@@ -431,7 +433,9 @@ func (s *TestSuite) TestPoolRepositoryListFull() {
 	}
 
 }
-func (s *TestSuite) TestPoolRepositoryUpdate() {
+
+// TODO: should check if pool_count inside post was updated
+func (s *PoolTestSuite) TestPoolRepositoryUpdate() {
 	makeStringPointer := func(s string) *string {
 		return &s
 	}

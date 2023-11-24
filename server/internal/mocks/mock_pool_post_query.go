@@ -24,13 +24,13 @@ func (_m *MockPoolPostQuery) EXPECT() *MockPoolPostQuery_Expecter {
 	return &MockPoolPostQuery_Expecter{mock: &_m.Mock}
 }
 
-// AssociatePosts provides a mock function with given fields: ctx, db, poolID, posts
-func (_m *MockPoolPostQuery) AssociatePosts(ctx context.Context, db database.DBClient, poolID int, posts []models.Post) error {
-	ret := _m.Called(ctx, db, poolID, posts)
+// AssociatePosts provides a mock function with given fields: ctx, db, pool, posts
+func (_m *MockPoolPostQuery) AssociatePosts(ctx context.Context, db database.DBClient, pool models.Pool, posts []models.Post) error {
+	ret := _m.Called(ctx, db, pool, posts)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, database.DBClient, int, []models.Post) error); ok {
-		r0 = rf(ctx, db, poolID, posts)
+	if rf, ok := ret.Get(0).(func(context.Context, database.DBClient, models.Pool, []models.Post) error); ok {
+		r0 = rf(ctx, db, pool, posts)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -46,15 +46,15 @@ type MockPoolPostQuery_AssociatePosts_Call struct {
 // AssociatePosts is a helper method to define mock.On call
 //   - ctx context.Context
 //   - db database.DBClient
-//   - poolID int
+//   - pool models.Pool
 //   - posts []models.Post
-func (_e *MockPoolPostQuery_Expecter) AssociatePosts(ctx interface{}, db interface{}, poolID interface{}, posts interface{}) *MockPoolPostQuery_AssociatePosts_Call {
-	return &MockPoolPostQuery_AssociatePosts_Call{Call: _e.mock.On("AssociatePosts", ctx, db, poolID, posts)}
+func (_e *MockPoolPostQuery_Expecter) AssociatePosts(ctx interface{}, db interface{}, pool interface{}, posts interface{}) *MockPoolPostQuery_AssociatePosts_Call {
+	return &MockPoolPostQuery_AssociatePosts_Call{Call: _e.mock.On("AssociatePosts", ctx, db, pool, posts)}
 }
 
-func (_c *MockPoolPostQuery_AssociatePosts_Call) Run(run func(ctx context.Context, db database.DBClient, poolID int, posts []models.Post)) *MockPoolPostQuery_AssociatePosts_Call {
+func (_c *MockPoolPostQuery_AssociatePosts_Call) Run(run func(ctx context.Context, db database.DBClient, pool models.Pool, posts []models.Post)) *MockPoolPostQuery_AssociatePosts_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(database.DBClient), args[2].(int), args[3].([]models.Post))
+		run(args[0].(context.Context), args[1].(database.DBClient), args[2].(models.Pool), args[3].([]models.Post))
 	})
 	return _c
 }
@@ -64,18 +64,18 @@ func (_c *MockPoolPostQuery_AssociatePosts_Call) Return(_a0 error) *MockPoolPost
 	return _c
 }
 
-func (_c *MockPoolPostQuery_AssociatePosts_Call) RunAndReturn(run func(context.Context, database.DBClient, int, []models.Post) error) *MockPoolPostQuery_AssociatePosts_Call {
+func (_c *MockPoolPostQuery_AssociatePosts_Call) RunAndReturn(run func(context.Context, database.DBClient, models.Pool, []models.Post) error) *MockPoolPostQuery_AssociatePosts_Call {
 	_c.Call.Return(run)
 	return _c
 }
 
-// DisassociatePostsByID provides a mock function with given fields: ctx, db, poolID, postIDs
-func (_m *MockPoolPostQuery) DisassociatePostsByID(ctx context.Context, db database.DBClient, poolID int, postIDs []int) error {
-	ret := _m.Called(ctx, db, poolID, postIDs)
+// DisassociatePosts provides a mock function with given fields: ctx, db, pool, posts
+func (_m *MockPoolPostQuery) DisassociatePosts(ctx context.Context, db database.DBClient, pool models.Pool, posts []models.Post) error {
+	ret := _m.Called(ctx, db, pool, posts)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, database.DBClient, int, []int) error); ok {
-		r0 = rf(ctx, db, poolID, postIDs)
+	if rf, ok := ret.Get(0).(func(context.Context, database.DBClient, models.Pool, []models.Post) error); ok {
+		r0 = rf(ctx, db, pool, posts)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -83,33 +83,33 @@ func (_m *MockPoolPostQuery) DisassociatePostsByID(ctx context.Context, db datab
 	return r0
 }
 
-// MockPoolPostQuery_DisassociatePostsByID_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DisassociatePostsByID'
-type MockPoolPostQuery_DisassociatePostsByID_Call struct {
+// MockPoolPostQuery_DisassociatePosts_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'DisassociatePosts'
+type MockPoolPostQuery_DisassociatePosts_Call struct {
 	*mock.Call
 }
 
-// DisassociatePostsByID is a helper method to define mock.On call
+// DisassociatePosts is a helper method to define mock.On call
 //   - ctx context.Context
 //   - db database.DBClient
-//   - poolID int
-//   - postIDs []int
-func (_e *MockPoolPostQuery_Expecter) DisassociatePostsByID(ctx interface{}, db interface{}, poolID interface{}, postIDs interface{}) *MockPoolPostQuery_DisassociatePostsByID_Call {
-	return &MockPoolPostQuery_DisassociatePostsByID_Call{Call: _e.mock.On("DisassociatePostsByID", ctx, db, poolID, postIDs)}
+//   - pool models.Pool
+//   - posts []models.Post
+func (_e *MockPoolPostQuery_Expecter) DisassociatePosts(ctx interface{}, db interface{}, pool interface{}, posts interface{}) *MockPoolPostQuery_DisassociatePosts_Call {
+	return &MockPoolPostQuery_DisassociatePosts_Call{Call: _e.mock.On("DisassociatePosts", ctx, db, pool, posts)}
 }
 
-func (_c *MockPoolPostQuery_DisassociatePostsByID_Call) Run(run func(ctx context.Context, db database.DBClient, poolID int, postIDs []int)) *MockPoolPostQuery_DisassociatePostsByID_Call {
+func (_c *MockPoolPostQuery_DisassociatePosts_Call) Run(run func(ctx context.Context, db database.DBClient, pool models.Pool, posts []models.Post)) *MockPoolPostQuery_DisassociatePosts_Call {
 	_c.Call.Run(func(args mock.Arguments) {
-		run(args[0].(context.Context), args[1].(database.DBClient), args[2].(int), args[3].([]int))
+		run(args[0].(context.Context), args[1].(database.DBClient), args[2].(models.Pool), args[3].([]models.Post))
 	})
 	return _c
 }
 
-func (_c *MockPoolPostQuery_DisassociatePostsByID_Call) Return(_a0 error) *MockPoolPostQuery_DisassociatePostsByID_Call {
+func (_c *MockPoolPostQuery_DisassociatePosts_Call) Return(_a0 error) *MockPoolPostQuery_DisassociatePosts_Call {
 	_c.Call.Return(_a0)
 	return _c
 }
 
-func (_c *MockPoolPostQuery_DisassociatePostsByID_Call) RunAndReturn(run func(context.Context, database.DBClient, int, []int) error) *MockPoolPostQuery_DisassociatePostsByID_Call {
+func (_c *MockPoolPostQuery_DisassociatePosts_Call) RunAndReturn(run func(context.Context, database.DBClient, models.Pool, []models.Post) error) *MockPoolPostQuery_DisassociatePosts_Call {
 	_c.Call.Return(run)
 	return _c
 }
