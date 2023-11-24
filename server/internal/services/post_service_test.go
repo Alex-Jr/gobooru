@@ -271,3 +271,59 @@ func TestPostServiceFetch(t *testing.T) {
 		string(b),
 	)
 }
+
+func TestPostServiceList(t *testing.T) {
+	postRepository := mocks.NewMockPostRepository(t)
+
+	postService := services.NewPostService(services.PostServiceConfig{
+		PostRepository: postRepository,
+	})
+
+	postRepository.On(
+		"List",
+		context.TODO(),
+		repositories.ListPostsArgs{
+			Search:   "post",
+			Page:     1,
+			PageSize: 1,
+		},
+	).Return(
+		[]models.Post{
+			fakes.LoadPostNoRelations(fakes.Post1),
+		},
+		1,
+		nil,
+	)
+
+	response, err := postService.List(context.TODO(), dtos.ListPostDTO{
+		Search:   "post",
+		Page:     1,
+		PageSize: 1,
+	})
+	require.NoError(t, err)
+
+	b, err := json.Marshal(response)
+	require.NoError(t, err)
+
+	require.JSONEq(t, `
+		{
+			"count": 1,
+			"posts": [
+				{
+					"created_at": "2020-01-01T00:00:00Z",
+					"description": "post 1 description",
+					"id": 1,
+					"pool_count": 4,
+					"pools": null,
+					"rating": "S",
+					"tag_count": 1,
+					"tag_ids": ["tag_one"],
+					"tags": null, 
+					"updated_at": "2020-01-01T00:00:00Z"
+				}
+			]
+		}
+		`,
+		string(b),
+	)
+}
