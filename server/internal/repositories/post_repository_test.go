@@ -130,11 +130,13 @@ func (s *PostTestSuit) TestPostCreate() {
 			s.Assert().Equal(tc.want.post.Pools, post.Pools)
 
 			for i, tag := range post.Tags {
-				s.Assert().Equal(tc.want.post.Tags[i].ID, tag.ID)
-				s.Assert().Equal(tc.want.post.Tags[i].PostCount, tag.PostCount)
-				s.Assert().Zero(tag.Description)
-				s.Assert().NotZero(tag.CreatedAt)
-				s.Assert().NotZero(tag.UpdatedAt)
+				s.Run(fmt.Sprintf("post tag:%s", tag.ID), func() {
+					s.Assert().Equal(tc.want.post.Tags[i].ID, tag.ID)
+					s.Assert().Equal(tc.want.post.Tags[i].PostCount, tag.PostCount)
+					s.Assert().Zero(tag.Description)
+					s.Assert().NotZero(tag.CreatedAt)
+					s.Assert().NotZero(tag.UpdatedAt)
+				})
 			}
 		})
 	}

@@ -6,6 +6,6 @@
 
 - id: "tag_two"
   description: "tag two description"
-  post_count: 2
+  post_count: 0
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z

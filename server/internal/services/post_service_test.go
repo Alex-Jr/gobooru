@@ -56,7 +56,7 @@ func TestPostServiceCreate(t *testing.T) {
 				"created_at": "2020-01-01T00:00:00Z",
 				"description": "post 1 description",
 				"id": 1,
-				"pool_count": 0,
+				"pool_count": 4,
 				"pools": null,
 				"rating": "S",
 				"tag_count": 1,
