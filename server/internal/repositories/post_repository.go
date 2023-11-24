@@ -49,16 +49,20 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 
 	now := time.Now()
 
+	tagsDeduped := slice_utils.Deduplicate(args.Tags)
+
+	tags := make([]models.Tag, len(tagsDeduped))
+
 	post := models.Post{
 		Rating:      args.Rating,
 		Description: args.Description,
-		TagIDs:      make([]string, len(args.Tags)),
-		TagCount:    len(args.Tags),
+		TagIDs:      make([]string, len(tags)),
+		TagCount:    len(tags),
 		PoolCount:   0,
 		CreatedAt:   now,
 		UpdatedAt:   now,
 		Pools:       make(models.PoolList, 0),
-		Tags:        make(models.TagList, len(args.Tags)),
+		Tags:        make(models.TagList, len(tags)),
 	}
 
 	err = r.postQuery.Create(ctx, tx, &post)
@@ -67,9 +71,7 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 		return models.Post{}, fmt.Errorf("postQuery.Create: %w", err)
 	}
 
-	tags := make([]models.Tag, len(args.Tags))
-
-	for i, tag := range args.Tags {
+	for i, tag := range tagsDeduped {
 		tags[i] = models.Tag{
 			ID:        tag,
 			PostCount: 1,

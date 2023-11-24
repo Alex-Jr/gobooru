@@ -105,6 +105,30 @@ func (s *PostTestSuit) TestPostCreate() {
 				},
 			},
 		},
+		{
+			name: "create post with duplicate tags",
+			args: args{
+				description: "test description",
+				rating:      "s",
+				tags:        []string{"tag_three", "tag_three"},
+			},
+			want: want{
+				post: models.Post{
+					Description: "test description",
+					Rating:      "s",
+					TagIDs:      []string{"tag_three"},
+					TagCount:    1,
+					PoolCount:   0,
+					Pools:       make(models.PoolList, 0),
+					Tags: models.TagList{
+						{
+							ID:        "tag_three",
+							PostCount: 1,
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tc := range testCases {
