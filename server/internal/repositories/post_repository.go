@@ -27,8 +27,13 @@ type postRepository struct {
 
 type CreatePostArgs struct {
 	Description string
+	FileExt     string
+	FilePath    string
+	FileSize    int
+	MD5         string
 	Rating      string
 	Tags        []string
+	ThumbPath   string
 }
 
 func NewPostRepository(sqlClient database.SQLClient) PostRepository {
@@ -63,12 +68,11 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 		UpdatedAt:   now,
 		Pools:       make(models.PoolList, 0),
 		Tags:        make(models.TagList, len(tags)),
-	}
-
-	err = r.postQuery.Create(ctx, tx, &post)
-
-	if err != nil {
-		return models.Post{}, fmt.Errorf("postQuery.Create: %w", err)
+		MD5:         args.MD5,
+		FileExt:     args.FileExt,
+		FilePath:    args.FilePath,
+		FileSize:    args.FileSize,
+		ThumbPath:   args.ThumbPath,
 	}
 
 	for i, tag := range tagsDeduped {
@@ -82,6 +86,12 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 		post.TagIDs[i] = tag
 	}
 	post.Tags = tags
+
+	err = r.postQuery.Create(ctx, tx, &post)
+
+	if err != nil {
+		return models.Post{}, fmt.Errorf("postQuery.Create: %w", err)
+	}
 
 	err = r.tagQuery.CreateMany(ctx, tx, &tags)
 

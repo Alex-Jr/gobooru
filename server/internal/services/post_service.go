@@ -17,23 +17,36 @@ type PostService interface {
 
 type postService struct {
 	postRepository repositories.PostRepository
+	fileService    FileService
 }
 
 type PostServiceConfig struct {
 	PostRepository repositories.PostRepository
+	FileService    FileService
 }
 
 func NewPostService(c PostServiceConfig) PostService {
 	return &postService{
 		postRepository: c.PostRepository,
+		fileService:    c.FileService,
 	}
 }
 
 func (s postService) Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.CreatePostResponseDTO, error) {
+	file, err := s.fileService.HandleFileUpload(dto.File)
+	if err != nil {
+		return dtos.CreatePostResponseDTO{}, fmt.Errorf("fileService.HandleFileUpload: %w", err)
+	}
+
 	post, err := s.postRepository.Create(ctx, repositories.CreatePostArgs{
 		Description: dto.Description,
 		Rating:      dto.Rating,
 		Tags:        dto.Tags,
+		FileExt:     file.FileExt,
+		FileSize:    file.FileSize,
+		FilePath:    file.FilePath,
+		ThumbPath:   file.ThumbPath,
+		MD5:         file.MD5,
 	})
 
 	if err != nil {

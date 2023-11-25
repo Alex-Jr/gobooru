@@ -37,6 +37,13 @@ func (cl postController) Create(c echo.Context) error {
 		return fmt.Errorf("c.Bind: %w", err)
 	}
 
+	file, err := c.FormFile("file")
+	if err != nil {
+		return err
+	}
+
+	dto.File = file
+
 	response, err := cl.postService.Create(
 		c.Request().Context(),
 		dto,

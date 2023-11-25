@@ -62,6 +62,11 @@ func (q *postQuery) Create(ctx context.Context, db database.DBClient, post *mode
 				"tag_ids",
 				"tag_count",
 				"pool_count",
+				"md5",
+				"file_ext",
+				"file_size",
+				"file_path",
+				"thumb_path",
 				"created_at",
 				"updated_at"
 			) VALUES (
@@ -70,6 +75,11 @@ func (q *postQuery) Create(ctx context.Context, db database.DBClient, post *mode
 				:tag_ids,
 				:tag_count,
 				:pool_count,
+				:md5,
+				:file_ext,
+				:file_size,
+				:file_path,
+				:thumb_path,
 				:created_at,
 				:updated_at
 			) RETURNING 

@@ -3,11 +3,13 @@ package main
 import (
 	"gobooru/internal/controllers"
 	"gobooru/internal/database"
+	"gobooru/internal/ffmpeg"
 	"gobooru/internal/middlewares"
 	"gobooru/internal/repositories"
 	"gobooru/internal/routes"
 	"gobooru/internal/services"
 	"log"
+	"os"
 
 	"github.com/labstack/echo/v4"
 )
@@ -23,14 +25,21 @@ func main() {
 		sqlx,
 	)
 
+	ffmpegModule := ffmpeg.NewFfmpegModule()
+
 	poolRepository := repositories.NewPoolRepository(db)
 	postRepository := repositories.NewPostRepository(db)
 
+	fileService := services.NewFileService(services.FileServiceConfig{
+		FFMPEGModule: ffmpegModule,
+		BASE_PATH:    os.Getenv("STATIC_PATH"),
+	})
 	poolService := services.NewPoolService(services.PoolServiceConfig{
 		PoolRepository: poolRepository,
 	})
 	postService := services.NewPostService(services.PostServiceConfig{
 		PostRepository: postRepository,
+		FileService:    fileService,
 	})
 
 	healthCheckController := controllers.NewHealthCheckController()
@@ -41,17 +50,19 @@ func main() {
 		PostService: postService,
 	})
 
-	r := echo.New()
+	e := echo.New()
 
-	r.Use(middlewares.NewLoggerMiddleware())
+	e.Use(middlewares.NewLoggerMiddleware())
 
-	routes.RegisterHealthCheckRoutes(r, healthCheckController)
-	routes.RegisterPoolRoutes(r, poolController)
-	routes.RegisterPostRoutes(r, postController)
+	e.Static("/static", os.Getenv("STATIC_PATH"))
 
-	for _, route := range r.Routes() {
+	routes.RegisterHealthCheckRoutes(e, healthCheckController)
+	routes.RegisterPoolRoutes(e, poolController)
+	routes.RegisterPostRoutes(e, postController)
+
+	for _, route := range e.Routes() {
 		log.Printf("%s %s %s", route.Method, route.Path, route.Name)
 	}
 
-	r.Start(":8080")
+	e.Start(":8080")
 }

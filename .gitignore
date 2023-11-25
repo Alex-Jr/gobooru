@@ -28,3 +28,6 @@ docker-data/
 
 # envs
 .env
+
+# dev
+dev-data

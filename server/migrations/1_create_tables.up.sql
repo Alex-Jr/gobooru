@@ -5,6 +5,11 @@ CREATE TABLE "posts" (
   "tag_ids" TEXT[] NOT NULL,
   "tag_count" INTEGER NOT NULL,
   "pool_count" INTEGER NOT NULL,
+  "md5" TEXT NOT NULL,
+  "file_ext" TEXT NOT NULL,
+  "file_size" INTEGER NOT NULL,
+  "file_path" TEXT NOT NULL,
+  "thumb_path" TEXT NOT NULL,
   "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
   "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
   PRIMARY KEY ("id")
