@@ -68,6 +68,51 @@ func (_c *MockTagQuery_CreateMany_Call) RunAndReturn(run func(context.Context, d
 	return _c
 }
 
+// UpdatePostCount provides a mock function with given fields: ctx, db, tags, increment
+func (_m *MockTagQuery) UpdatePostCount(ctx context.Context, db database.DBClient, tags []string, increment int) error {
+	ret := _m.Called(ctx, db, tags, increment)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.DBClient, []string, int) error); ok {
+		r0 = rf(ctx, db, tags, increment)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockTagQuery_UpdatePostCount_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'UpdatePostCount'
+type MockTagQuery_UpdatePostCount_Call struct {
+	*mock.Call
+}
+
+// UpdatePostCount is a helper method to define mock.On call
+//   - ctx context.Context
+//   - db database.DBClient
+//   - tags []string
+//   - increment int
+func (_e *MockTagQuery_Expecter) UpdatePostCount(ctx interface{}, db interface{}, tags interface{}, increment interface{}) *MockTagQuery_UpdatePostCount_Call {
+	return &MockTagQuery_UpdatePostCount_Call{Call: _e.mock.On("UpdatePostCount", ctx, db, tags, increment)}
+}
+
+func (_c *MockTagQuery_UpdatePostCount_Call) Run(run func(ctx context.Context, db database.DBClient, tags []string, increment int)) *MockTagQuery_UpdatePostCount_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.DBClient), args[2].([]string), args[3].(int))
+	})
+	return _c
+}
+
+func (_c *MockTagQuery_UpdatePostCount_Call) Return(_a0 error) *MockTagQuery_UpdatePostCount_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockTagQuery_UpdatePostCount_Call) RunAndReturn(run func(context.Context, database.DBClient, []string, int) error) *MockTagQuery_UpdatePostCount_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // NewMockTagQuery creates a new instance of MockTagQuery. It also registers a testing interface on the mock and a cleanup function to assert the mocks expectations.
 // The first argument is typically a *testing.T value.
 func NewMockTagQuery(t interface {

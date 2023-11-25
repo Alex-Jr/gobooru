@@ -165,6 +165,11 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 				p."tag_count",
 				p."tag_ids",
 				p."pool_count",
+				p."md5",
+				p."file_ext",
+				p."file_size",
+				p."file_path",
+				p."thumb_path",
 				pl."pools",
 				t."tags"
 			FROM
@@ -226,12 +231,14 @@ func (q *postQuery) List(ctx context.Context, db database.DBClient, search model
 				pt."description",
 				pt."id",
 				pt."pool_count",
-				pt."pool_count",
 				pt."rating",
 				pt."tag_count",
-				pt."tag_count",
 				pt."tag_ids",
-				pt."updated_at",
+				pt."md5",
+				pt."file_ext",
+				pt."file_size",
+				pt."file_path",
+				pt."thumb_path",
 				pt."updated_at"
 			FROM
 				"posts" pt

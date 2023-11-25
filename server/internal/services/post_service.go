@@ -33,7 +33,7 @@ func NewPostService(c PostServiceConfig) PostService {
 }
 
 func (s postService) Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.CreatePostResponseDTO, error) {
-	file, err := s.fileService.HandleFileUpload(dto.File)
+	file, err := s.fileService.HandleUpload(dto.File)
 	if err != nil {
 		return dtos.CreatePostResponseDTO{}, fmt.Errorf("fileService.HandleFileUpload: %w", err)
 	}

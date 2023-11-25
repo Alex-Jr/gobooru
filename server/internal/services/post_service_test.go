@@ -9,6 +9,7 @@ import (
 	"gobooru/internal/models"
 	"gobooru/internal/repositories"
 	"gobooru/internal/services"
+	"mime/multipart"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -16,9 +17,11 @@ import (
 
 func TestPostServiceCreate(t *testing.T) {
 	postRepository := mocks.NewMockPostRepository(t)
+	fileService := mocks.NewMockFileService(t)
 
 	postService := services.NewPostService(services.PostServiceConfig{
 		PostRepository: postRepository,
+		FileService:    fileService,
 	})
 
 	mockedPost := fakes.Post1
@@ -27,6 +30,22 @@ func TestPostServiceCreate(t *testing.T) {
 		fakes.Tag1,
 	}
 
+	mockedFileHeader := &multipart.FileHeader{}
+
+	fileService.On(
+		"HandleUpload",
+		mockedFileHeader,
+	).Return(
+		models.File{
+			MD5:       "1",
+			FileSize:  100,
+			FileExt:   "jpg",
+			FilePath:  "1.jpg",
+			ThumbPath: "1-thumb.webp",
+		},
+		nil,
+	)
+
 	postRepository.On(
 		"Create",
 		context.TODO(),
@@ -34,6 +53,11 @@ func TestPostServiceCreate(t *testing.T) {
 			Description: "post 1 description",
 			Rating:      "S",
 			Tags:        []string{"tag_one"},
+			FileExt:     "jpg",
+			FileSize:    100,
+			FilePath:    "1.jpg",
+			MD5:         "1",
+			ThumbPath:   "1-thumb.webp",
 		},
 	).Return(
 		mockedPost,
@@ -44,6 +68,7 @@ func TestPostServiceCreate(t *testing.T) {
 		Description: "post 1 description",
 		Rating:      "S",
 		Tags:        []string{"tag_one"},
+		File:        mockedFileHeader,
 	})
 	require.NoError(t, err)
 
@@ -61,6 +86,11 @@ func TestPostServiceCreate(t *testing.T) {
 				"rating": "S",
 				"tag_count": 1,
 				"tag_ids": ["tag_one"],
+				"md5": "1",
+				"file_size": 100,
+				"file_ext": "jpg",
+				"file_path": "1.jpg",
+				"thumb_path": "1-thumb.webp",
 				"tags": [
 					{
 						"id": "tag_one",
@@ -117,6 +147,14 @@ func TestPostServiceDelete(t *testing.T) {
 				"description": "post 1 description",
 				"id": 1,
 				"pool_count": 4,
+				"rating": "S",
+				"tag_count": 1,
+				"tag_ids": ["tag_one"],
+				"md5": "1",
+				"file_size": 100,
+				"file_ext": "jpg",
+				"file_path": "1.jpg",
+				"thumb_path": "1-thumb.webp",
 				"pools": [
 					{
 						"created_at": "2022-01-01T00:00:00Z",
@@ -159,9 +197,6 @@ func TestPostServiceDelete(t *testing.T) {
 						"updated_at": "2020-01-01T00:00:00Z"
 					}
 				],
-				"rating": "S",
-				"tag_count": 1,
-				"tag_ids": ["tag_one"],
 				"tags": [
 					{
 						"id": "tag_one",
@@ -210,6 +245,14 @@ func TestPostServiceFetch(t *testing.T) {
 				"description": "post 1 description",
 				"id": 1,
 				"pool_count": 4,
+				"rating": "S",
+				"tag_count": 1,
+				"tag_ids": ["tag_one"],
+				"md5": "1",
+				"file_size": 100,
+				"file_ext": "jpg",
+				"file_path": "1.jpg",
+				"thumb_path": "1-thumb.webp",
 				"pools": [
 					{
 						"created_at": "2022-01-01T00:00:00Z",
@@ -252,9 +295,6 @@ func TestPostServiceFetch(t *testing.T) {
 						"updated_at": "2020-01-01T00:00:00Z"
 					}
 				],
-				"rating": "S",
-				"tag_count": 1,
-				"tag_ids": ["tag_one"],
 				"tags": [
 					{
 						"id": "tag_one",
@@ -318,6 +358,11 @@ func TestPostServiceList(t *testing.T) {
 					"rating": "S",
 					"tag_count": 1,
 					"tag_ids": ["tag_one"],
+					"md5": "1",
+					"file_size": 100,
+					"file_ext": "jpg",
+					"file_path": "1.jpg",
+					"thumb_path": "1-thumb.webp",
 					"tags": null, 
 					"updated_at": "2020-01-01T00:00:00Z"
 				}

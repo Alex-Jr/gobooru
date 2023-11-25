@@ -67,6 +67,11 @@ func TestPoolServiceCreate(t *testing.T) {
 						"tag_count": 1,
 						"tag_ids": ["tag_one"],
 						"tags": null,
+						"md5": "1",
+						"file_ext": "jpg",
+						"file_size": 100,
+						"file_path": "1.jpg",
+						"thumb_path": "1-thumb.webp",
 						"updated_at": "2020-01-01T00:00:00Z"
 					}
 				]
@@ -125,6 +130,11 @@ func TestPoolServiceDelete(t *testing.T) {
 						"tag_count": 1,
 						"tag_ids": ["tag_one"],
 						"tags": null,
+						"md5": "1",
+						"file_ext": "jpg",
+						"file_size": 100,
+						"file_path": "1.jpg",
+						"thumb_path": "1-thumb.webp",
 						"updated_at": "2020-01-01T00:00:00Z"
 					}
 				]
@@ -181,6 +191,11 @@ func TestPoolServiceFetch(t *testing.T) {
 						"tag_count": 1,
 						"tag_ids": ["tag_one"],
 						"tags": null,
+						"md5": "1",
+						"file_ext": "jpg",
+						"file_size": 100,
+						"file_path": "1.jpg",
+						"thumb_path": "1-thumb.webp",
 						"updated_at": "2020-01-01T00:00:00Z"
 					}
 				]
@@ -248,6 +263,11 @@ func TestPoolServiceList(t *testing.T) {
 							"tag_count": 1,
 							"tag_ids": ["tag_one"],
 							"tags": null,
+							"md5": "1",
+							"file_ext": "jpg",
+							"file_size": 100,
+							"file_path": "1.jpg",
+							"thumb_path": "1-thumb.webp",
 							"updated_at": "2020-01-01T00:00:00Z"
 						}
 					]

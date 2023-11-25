@@ -20,7 +20,7 @@ type FileServiceConfig struct {
 type FileService interface {
 	// DeleteDirectory(filePath string) error
 	// Exists(path string) (bool, error)
-	HandleFileUpload(fileHeader *multipart.FileHeader) (models.File, error)
+	HandleUpload(fileHeader *multipart.FileHeader) (models.File, error)
 	// HandleFileUpload(fileHeader *multipart.FileHeader) (*models.File, error)
 	// HandleTempFileUpload(fileHeader *multipart.FileHeader) (*models.File, error)
 	// MarkToDelete(filePath string) error
@@ -38,7 +38,7 @@ func NewFileService(c FileServiceConfig) FileService {
 	}
 }
 
-func (f fileService) HandleFileUpload(fileHeader *multipart.FileHeader) (models.File, error) {
+func (f fileService) HandleUpload(fileHeader *multipart.FileHeader) (models.File, error) {
 	src, err := fileHeader.Open()
 	if err != nil {
 		return models.File{}, fmt.Errorf("fileHeader.Open: %w", err)
