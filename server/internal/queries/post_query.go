@@ -155,6 +155,19 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 						"pt"."post_id" = $1::int
 					GROUP BY
 						"pt"."post_id"
+				),
+				"relations" AS (
+					SELECT
+						$1::int as "post_id",
+						JSONB_AGG(
+							TO_JSONB(pr.*) || JSONB_BUILD_OBJECT('other_post', TO_JSONB(op.*))
+						) AS "relations"
+					FROM
+						"posts" op
+					INNER JOIN "post_relations" "pr" ON
+						"pr"."other_post_id" = "op"."id"
+					WHERE
+						"pr"."post_id" = $1::int
 				)
 			SELECT
 				p."created_at",
@@ -171,13 +184,16 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 				p."file_path",
 				p."thumb_path",
 				pl."pools",
-				t."tags"
+				t."tags",
+				r."relations"
 			FROM
 				"posts" as "p"
 			LEFT JOIN "pools" as "pl" ON
 				"pl"."post_id" = "p"."id"
 			LEFT JOIN "tags" as "t" ON
 				"t"."post_id" = "p"."id"
+			LEFT JOIN "relations" AS "r" ON
+				"r"."post_id" = "p"."id"
 			WHERE
 				p."id" = $1::int
 		`,

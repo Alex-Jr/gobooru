@@ -254,6 +254,7 @@ func (s *PostTestSuit) TestPostGetFull() {
 			s.Assert().Equal(tc.want.post.CreatedAt.Compare(post.CreatedAt), 0)
 			s.Assert().Equal(tc.want.post.UpdatedAt.Compare(post.UpdatedAt), 0)
 
+			s.Require().Equal(len(tc.want.post.Tags), len(post.Tags))
 			for i, tag := range post.Tags {
 				s.Run(fmt.Sprintf("post tag: %s", tag.ID), func() {
 					s.Assert().Equal(tc.want.post.Tags[i].ID, tag.ID)
@@ -264,6 +265,7 @@ func (s *PostTestSuit) TestPostGetFull() {
 				})
 			}
 
+			s.Require().Equal(len(tc.want.post.Pools), len(post.Pools))
 			for i, pool := range post.Pools {
 				s.Run(fmt.Sprintf("post pool: %d", pool.ID), func() {
 					s.Assert().Equal(tc.want.post.Pools[i].ID, pool.ID)
@@ -271,6 +273,27 @@ func (s *PostTestSuit) TestPostGetFull() {
 					s.Assert().Equal(tc.want.post.Pools[i].Description, pool.Description)
 					s.Assert().Equal(tc.want.post.Pools[i].CreatedAt.Compare(pool.CreatedAt), 0)
 					s.Assert().Equal(tc.want.post.Pools[i].UpdatedAt.Compare(pool.UpdatedAt), 0)
+				})
+			}
+
+			s.Require().Equal(len(tc.want.post.Relations), len(post.Relations))
+			for i, relation := range post.Relations {
+				s.Run(fmt.Sprintf("post relation: %d", relation.OtherPostID), func() {
+					s.Assert().Equal(tc.want.post.Relations[i].PostID, relation.PostID)
+					s.Assert().Equal(tc.want.post.Relations[i].OtherPostID, relation.OtherPostID)
+					s.Assert().Equal(tc.want.post.Relations[i].CreatedAt.Compare(relation.CreatedAt), 0)
+					s.Assert().Equal(tc.want.post.Relations[i].OtherPost.CreatedAt.Compare(relation.OtherPost.CreatedAt), 0)
+					s.Assert().Equal(tc.want.post.Relations[i].OtherPost.UpdatedAt.Compare(relation.OtherPost.UpdatedAt), 0)
+					s.Assert().Equal(tc.want.post.Relations[i].OtherPost.Description, relation.OtherPost.Description)
+					s.Assert().Equal(tc.want.post.Relations[i].OtherPost.Rating, relation.OtherPost.Rating)
+					s.Assert().Equal(tc.want.post.Relations[i].OtherPost.TagIDs, relation.OtherPost.TagIDs)
+					s.Assert().Equal(tc.want.post.Relations[i].OtherPost.TagCount, relation.OtherPost.TagCount)
+					s.Assert().Equal(tc.want.post.Relations[i].OtherPost.PoolCount, relation.OtherPost.PoolCount)
+					s.Assert().Equal(tc.want.post.Relations[i].OtherPost.MD5, relation.OtherPost.MD5)
+					s.Assert().Equal(tc.want.post.Relations[i].OtherPost.FileExt, relation.OtherPost.FileExt)
+					s.Assert().Equal(tc.want.post.Relations[i].OtherPost.FileSize, relation.OtherPost.FileSize)
+					s.Assert().Equal(tc.want.post.Relations[i].OtherPost.FilePath, relation.OtherPost.FilePath)
+					s.Assert().Equal(tc.want.post.Relations[i].OtherPost.ThumbPath, relation.OtherPost.ThumbPath)
 				})
 			}
 		})
