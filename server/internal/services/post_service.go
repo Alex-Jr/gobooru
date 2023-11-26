@@ -18,17 +18,20 @@ type PostService interface {
 type postService struct {
 	postRepository repositories.PostRepository
 	fileService    FileService
+	IQDBService    IQDBService
 }
 
 type PostServiceConfig struct {
 	PostRepository repositories.PostRepository
 	FileService    FileService
+	IQDBService    IQDBService
 }
 
 func NewPostService(c PostServiceConfig) PostService {
 	return &postService{
 		postRepository: c.PostRepository,
 		fileService:    c.FileService,
+		IQDBService:    c.IQDBService,
 	}
 }
 
@@ -51,6 +54,17 @@ func (s postService) Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.C
 
 	if err != nil {
 		return dtos.CreatePostResponseDTO{}, fmt.Errorf("postRepository.Create: %w", err)
+	}
+
+	// TODO: Handle IQDB errors
+	relations, err := s.IQDBService.HandlePost(post)
+	if err != nil {
+		return dtos.CreatePostResponseDTO{}, fmt.Errorf("iqdbService.HandlePost: %w", err)
+	}
+
+	err = s.postRepository.SaveRelations(ctx, &post, &relations)
+	if err != nil {
+		return dtos.CreatePostResponseDTO{}, fmt.Errorf("postRepository.SaveRelations: %w", err)
 	}
 
 	return dtos.CreatePostResponseDTO{

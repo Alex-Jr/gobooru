@@ -30,6 +30,10 @@ func main() {
 	poolRepository := repositories.NewPoolRepository(db)
 	postRepository := repositories.NewPostRepository(db)
 
+	IQDBService := services.NewIQDBService(services.IQDBServiceConfig{
+		IQDB_URL:  os.Getenv("IQDB_URL"),
+		BASE_PATH: os.Getenv("STATIC_PATH"),
+	})
 	fileService := services.NewFileService(services.FileServiceConfig{
 		FFMPEGModule: ffmpegModule,
 		BASE_PATH:    os.Getenv("STATIC_PATH"),
@@ -40,6 +44,7 @@ func main() {
 	postService := services.NewPostService(services.PostServiceConfig{
 		PostRepository: postRepository,
 		FileService:    fileService,
+		IQDBService:    IQDBService,
 	})
 
 	healthCheckController := controllers.NewHealthCheckController()

@@ -55,3 +55,22 @@ CREATE TABLE "post_tags" (
   FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("tag_id") REFERENCES "tags" ("id") ON DELETE CASCADE
 );
+
+CREATE TABLE "post_signatures" (
+  "post_id" INTEGER NOT NULL,
+  "signature" BYTEA NOT NULL,
+  "words" TEXT[] NOT NULL,
+  PRIMARY KEY ("post_id"),
+  FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE
+);
+
+CREATE TABLE "post_relations" (
+  "post_id" INTEGER NOT NULL,
+  "other_post_id" INTEGER NOT NULL,
+  "type" TEXT NOT NULL,
+  "similarity" INTEGER NOT NULL,
+  "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  PRIMARY KEY ("post_id", "other_post_id"),
+  FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("other_post_id") REFERENCES "posts" ("id") ON DELETE CASCADE
+);
