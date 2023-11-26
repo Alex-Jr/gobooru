@@ -170,19 +170,37 @@ func (r *postRepository) List(ctx context.Context, args ListPostsArgs) ([]models
 }
 
 func (r *postRepository) SaveRelations(ctx context.Context, post *models.Post, relations *[]models.PostRelation) error {
-	err := r.postRelationQuery.InsertRelations(ctx, r.sqlClient, *post, *relations)
+	relationsToCreate := make([]models.PostRelation, 0, len(*relations)*2)
+
+	for _, relation := range *relations {
+		relationsToCreate = append(relationsToCreate, models.PostRelation{
+			PostID:      post.ID,
+			OtherPostID: relation.OtherPostID,
+			Similarity:  relation.Similarity,
+			Type:        "SIMILAR",
+		})
+
+		relationsToCreate = append(relationsToCreate, models.PostRelation{
+			PostID:      relation.OtherPostID,
+			OtherPostID: post.ID,
+			Similarity:  relation.Similarity,
+			Type:        "SIMILAR",
+		})
+	}
+
+	err := r.postRelationQuery.InsertRelations(ctx, r.sqlClient, *post, relationsToCreate)
 	if err != nil {
 		return fmt.Errorf("postQuery.InsertRelations: %w", err)
 	}
 
 	for i := range *relations {
-		p := models.Post{
+		otherPost := models.Post{
 			ID: (*relations)[i].OtherPostID,
 		}
 
-		r.postQuery.GetFull(ctx, r.sqlClient, &p)
+		r.postQuery.GetFull(ctx, r.sqlClient, &otherPost)
 
-		(*relations)[i].OtherPost = p
+		(*relations)[i].OtherPost = otherPost
 	}
 
 	post.Relations = *relations
