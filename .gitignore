@@ -31,3 +31,9 @@ docker-data/
 
 # dev
 dev-data
+
+######## PYTHON ########
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+venv/
