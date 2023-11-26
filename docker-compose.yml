@@ -21,8 +21,18 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_DATABASE=${DB_DATABASE}
       - DB_SSLMODE=${DB_SSLMODE}
+      - IQDB_URL=${IQDB_URL}
+      - STATIC_PATH=/app/data
     ports:
       - ${SERVER_PORT}:8080
+    user : "1000:1000"
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8080/ping || exit 1" ]
+      interval: 60s
+      timeout: 3s
+      retries: 3
+    volumes:
+      - server-data:/app/data
   gobooru-db:
     container_name: gobooru-db
     image: postgres
@@ -38,8 +48,34 @@ services:
       interval: 5s  
     volumes:
       - db-data:/var/lib/postgresql/data
+  gobooru-iqdb:
+    container_name: gobooru-iqdb
+    build:
+      context: ./iqdb
+      dockerfile: Dockerfile
+    restart: no
+    environment:
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_DATABASE=${DB_DATABASE}
+      - DB_SSLMODE=${DB_SSLMODE}
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -qO- http://localhost:8000 || exit 1" ]
+      interval: 60s
+      timeout: 3s
+      retries: 3
+    volumes:
+      - server-data:/app/data
 
 volumes:
+  server-data: 
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker-data/server
   db-data: 
     driver: local
     driver_opts:

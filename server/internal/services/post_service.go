@@ -17,27 +17,54 @@ type PostService interface {
 
 type postService struct {
 	postRepository repositories.PostRepository
+	fileService    FileService
+	IQDBService    IQDBService
 }
 
 type PostServiceConfig struct {
 	PostRepository repositories.PostRepository
+	FileService    FileService
+	IQDBService    IQDBService
 }
 
 func NewPostService(c PostServiceConfig) PostService {
 	return &postService{
 		postRepository: c.PostRepository,
+		fileService:    c.FileService,
+		IQDBService:    c.IQDBService,
 	}
 }
 
 func (s postService) Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.CreatePostResponseDTO, error) {
+	file, err := s.fileService.HandleUpload(dto.File)
+	if err != nil {
+		return dtos.CreatePostResponseDTO{}, fmt.Errorf("fileService.HandleFileUpload: %w", err)
+	}
+
 	post, err := s.postRepository.Create(ctx, repositories.CreatePostArgs{
 		Description: dto.Description,
 		Rating:      dto.Rating,
 		Tags:        dto.Tags,
+		FileExt:     file.FileExt,
+		FileSize:    file.FileSize,
+		FilePath:    file.FilePath,
+		ThumbPath:   file.ThumbPath,
+		MD5:         file.MD5,
 	})
 
 	if err != nil {
 		return dtos.CreatePostResponseDTO{}, fmt.Errorf("postRepository.Create: %w", err)
+	}
+
+	// TODO: Handle IQDB errors
+	relations, err := s.IQDBService.HandlePost(post)
+	if err != nil {
+		return dtos.CreatePostResponseDTO{}, fmt.Errorf("iqdbService.HandlePost: %w", err)
+	}
+
+	err = s.postRepository.SaveRelations(ctx, &post, &relations)
+	if err != nil {
+		return dtos.CreatePostResponseDTO{}, fmt.Errorf("postRepository.SaveRelations: %w", err)
 	}
 
 	return dtos.CreatePostResponseDTO{

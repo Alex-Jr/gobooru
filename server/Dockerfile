@@ -1,4 +1,4 @@
-FROM golang:1.21-alpine3.18
+FROM golang:1.21-alpine3.18 AS builder
 
 WORKDIR /app
 
@@ -10,6 +10,13 @@ RUN go build -o /app/cmd/main /app/cmd
 
 EXPOSE 8080
 
-WORKDIR /app/cmd
+FROM alpine:3.18
 
-CMD [ "./main" ]
+RUN apk update && \
+  apk add --no-cache ffmpeg
+
+COPY --from=builder ["/app/cmd/main", "/app/"]
+
+COPY --from=builder ["/app/migrations", "/app/migrations"]
+
+CMD [ "/app/main" ]

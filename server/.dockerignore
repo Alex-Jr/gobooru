@@ -1,0 +1,10 @@
+.vscode/
+dev-data/
+scripts/
+.env
+.env.example
+docker-compose.yml
+Dockerfile
+mockery.yaml
+README.md
+useless.go

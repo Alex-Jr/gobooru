@@ -11,6 +11,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
+	"net/textproto"
 	"testing"
 
 	"github.com/labstack/echo/v4"
@@ -26,7 +27,7 @@ func TestPostControllerCreate(t *testing.T) {
 	})
 
 	args := struct {
-		Description string `json:"description"`
+		Description string
 	}{
 		Description: "test description",
 	}
@@ -41,21 +42,21 @@ func TestPostControllerCreate(t *testing.T) {
 		},
 	}
 
-	postService.On(
-		"Create",
-		context.Background(),
-		dtos.CreatePostDTO{
-			Description: args.Description,
-		},
-	).Return(
-		want.dto,
-		nil,
-	)
-
 	requestBody := new(bytes.Buffer)
 	writer := multipart.NewWriter(requestBody)
+
 	err := writer.WriteField("description", args.Description)
 	require.NoError(t, err)
+
+	fileHeader := make(textproto.MIMEHeader)
+	fileHeader.Set("Content-Disposition", `form-data; name="file"; filename="example.jpg"`)
+	fileHeader.Set("Content-Type", "text/plain")
+
+	file, err := writer.CreatePart(fileHeader)
+	require.NoError(t, err)
+
+	file.Write([]byte("test file"))
+
 	writer.Close()
 
 	req, err := http.NewRequest(
@@ -70,6 +71,20 @@ func TestPostControllerCreate(t *testing.T) {
 
 	e := echo.New()
 	c := e.NewContext(req, rec)
+
+	formFile, _ := c.FormFile("file")
+
+	postService.On(
+		"Create",
+		context.Background(),
+		dtos.CreatePostDTO{
+			Description: args.Description,
+			File:        formFile,
+		},
+	).Return(
+		want.dto,
+		nil,
+	)
 
 	err = postController.Create(c)
 	require.NoError(t, err)

@@ -4,6 +4,11 @@
   tag_ids: '{"tag_one"}'
   tag_count: 1
   pool_count: 4
+  md5: "1"
+  file_ext: "jpg"
+  file_size: 100
+  file_path: "1.jpg"
+  thumb_path: "1-thumb.webp"
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z
 
@@ -13,6 +18,11 @@
   tag_ids: '{}'
   tag_count: 0
   pool_count: 3
+  md5: "2"
+  file_ext: "jpg"
+  file_size: 100
+  file_path: "2.jpg"
+  thumb_path: "2-thumb.webp"
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z
 
@@ -22,6 +32,11 @@
   tag_ids: '{}'
   tag_count: 0
   pool_count: 2
+  md5: "3"
+  file_ext: "jpg"
+  file_size: 100
+  file_path: "3.jpg"
+  thumb_path: "3-thumb.webp"
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z
 
@@ -31,6 +46,11 @@
   tag_ids: '{}'
   tag_count: 0
   pool_count: 0
+  md5: "4"
+  file_ext: "jpg"
+  file_size: 100
+  file_path: "4.jpg"
+  thumb_path: "4-thumb.webp"
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z
 
@@ -40,5 +60,10 @@
   tag_ids: '{}'
   tag_count: 0
   pool_count: 0
+  md5: "5"
+  file_ext: "png"
+  file_size: 1000
+  file_path: "5.png"
+  thumb_path: "5-thumb.webp"
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z

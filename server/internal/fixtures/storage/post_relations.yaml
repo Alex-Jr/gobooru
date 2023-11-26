@@ -1,0 +1,11 @@
+- post_id: 1
+  other_post_id: 2
+  type: "SIMILAR"
+  similarity: 10000
+  created_at: 2020-01-01T00:00:00Z
+
+- post_id: 2
+  other_post_id: 1
+  type: "SIMILAR"
+  similarity: 10000
+  created_at: 2020-01-01T00:00:00Z

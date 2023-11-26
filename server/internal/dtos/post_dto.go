@@ -1,11 +1,15 @@
 package dtos
 
-import "gobooru/internal/models"
+import (
+	"gobooru/internal/models"
+	"mime/multipart"
+)
 
 type CreatePostDTO struct {
-	Description string   `form:"description"`
-	Rating      string   `form:"rating"`
-	Tags        []string `form:"tags"`
+	Description string                `form:"description"`
+	Rating      string                `form:"rating"`
+	Tags        []string              `form:"tags"`
+	File        *multipart.FileHeader `form:"file"`
 }
 
 type CreatePostResponseDTO struct {

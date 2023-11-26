@@ -62,6 +62,11 @@ func (q *postQuery) Create(ctx context.Context, db database.DBClient, post *mode
 				"tag_ids",
 				"tag_count",
 				"pool_count",
+				"md5",
+				"file_ext",
+				"file_size",
+				"file_path",
+				"thumb_path",
 				"created_at",
 				"updated_at"
 			) VALUES (
@@ -70,6 +75,11 @@ func (q *postQuery) Create(ctx context.Context, db database.DBClient, post *mode
 				:tag_ids,
 				:tag_count,
 				:pool_count,
+				:md5,
+				:file_ext,
+				:file_size,
+				:file_path,
+				:thumb_path,
 				:created_at,
 				:updated_at
 			) RETURNING 
@@ -145,6 +155,19 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 						"pt"."post_id" = $1::int
 					GROUP BY
 						"pt"."post_id"
+				),
+				"relations" AS (
+					SELECT
+						$1::int as "post_id",
+						JSONB_AGG(
+							TO_JSONB(pr.*) || JSONB_BUILD_OBJECT('other_post', TO_JSONB(op.*))
+						) AS "relations"
+					FROM
+						"posts" op
+					INNER JOIN "post_relations" "pr" ON
+						"pr"."other_post_id" = "op"."id"
+					WHERE
+						"pr"."post_id" = $1::int
 				)
 			SELECT
 				p."created_at",
@@ -155,14 +178,22 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 				p."tag_count",
 				p."tag_ids",
 				p."pool_count",
+				p."md5",
+				p."file_ext",
+				p."file_size",
+				p."file_path",
+				p."thumb_path",
 				pl."pools",
-				t."tags"
+				t."tags",
+				r."relations"
 			FROM
 				"posts" as "p"
 			LEFT JOIN "pools" as "pl" ON
 				"pl"."post_id" = "p"."id"
 			LEFT JOIN "tags" as "t" ON
 				"t"."post_id" = "p"."id"
+			LEFT JOIN "relations" AS "r" ON
+				"r"."post_id" = "p"."id"
 			WHERE
 				p."id" = $1::int
 		`,
@@ -216,12 +247,14 @@ func (q *postQuery) List(ctx context.Context, db database.DBClient, search model
 				pt."description",
 				pt."id",
 				pt."pool_count",
-				pt."pool_count",
 				pt."rating",
 				pt."tag_count",
-				pt."tag_count",
 				pt."tag_ids",
-				pt."updated_at",
+				pt."md5",
+				pt."file_ext",
+				pt."file_size",
+				pt."file_path",
+				pt."thumb_path",
 				pt."updated_at"
 			FROM
 				"posts" pt

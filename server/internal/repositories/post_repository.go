@@ -15,28 +15,36 @@ type PostRepository interface {
 	Delete(ctx context.Context, postID int) error
 	GetFull(ctx context.Context, postID int) (models.Post, error)
 	List(ctx context.Context, args ListPostsArgs) ([]models.Post, int, error)
+	SaveRelations(ctx context.Context, post *models.Post, relations *[]models.PostRelation) error
 	Update(ctx context.Context, args UpdatePostArgs) (models.Post, error)
 }
 
 type postRepository struct {
-	sqlClient database.SQLClient
-	postQuery queries.PostQuery
-	tagQuery  queries.TagQuery
-	postTag   queries.PostTagQuery
+	sqlClient         database.SQLClient
+	postQuery         queries.PostQuery
+	tagQuery          queries.TagQuery
+	postTag           queries.PostTagQuery
+	postRelationQuery queries.PostRelationQuery
 }
 
 type CreatePostArgs struct {
 	Description string
+	FileExt     string
+	FilePath    string
+	FileSize    int
+	MD5         string
 	Rating      string
 	Tags        []string
+	ThumbPath   string
 }
 
 func NewPostRepository(sqlClient database.SQLClient) PostRepository {
 	return &postRepository{
-		sqlClient: sqlClient,
-		postQuery: queries.NewPostQuery(),
-		tagQuery:  queries.NewTagQuery(),
-		postTag:   queries.NewPostTagQuery(),
+		sqlClient:         sqlClient,
+		postQuery:         queries.NewPostQuery(),
+		tagQuery:          queries.NewTagQuery(),
+		postTag:           queries.NewPostTagQuery(),
+		postRelationQuery: queries.NewPostRelationQuery(),
 	}
 }
 
@@ -63,12 +71,11 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 		UpdatedAt:   now,
 		Pools:       make(models.PoolList, 0),
 		Tags:        make(models.TagList, len(tags)),
-	}
-
-	err = r.postQuery.Create(ctx, tx, &post)
-
-	if err != nil {
-		return models.Post{}, fmt.Errorf("postQuery.Create: %w", err)
+		MD5:         args.MD5,
+		FileExt:     args.FileExt,
+		FilePath:    args.FilePath,
+		FileSize:    args.FileSize,
+		ThumbPath:   args.ThumbPath,
 	}
 
 	for i, tag := range tagsDeduped {
@@ -82,6 +89,12 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 		post.TagIDs[i] = tag
 	}
 	post.Tags = tags
+
+	err = r.postQuery.Create(ctx, tx, &post)
+
+	if err != nil {
+		return models.Post{}, fmt.Errorf("postQuery.Create: %w", err)
+	}
 
 	err = r.tagQuery.CreateMany(ctx, tx, &tags)
 
@@ -154,6 +167,45 @@ func (r *postRepository) List(ctx context.Context, args ListPostsArgs) ([]models
 	}
 
 	return posts, count, nil
+}
+
+func (r *postRepository) SaveRelations(ctx context.Context, post *models.Post, relations *[]models.PostRelation) error {
+	relationsToCreate := make([]models.PostRelation, 0, len(*relations)*2)
+
+	for _, relation := range *relations {
+		relationsToCreate = append(relationsToCreate, models.PostRelation{
+			PostID:      post.ID,
+			OtherPostID: relation.OtherPostID,
+			Similarity:  relation.Similarity,
+			Type:        "SIMILAR",
+		})
+
+		relationsToCreate = append(relationsToCreate, models.PostRelation{
+			PostID:      relation.OtherPostID,
+			OtherPostID: post.ID,
+			Similarity:  relation.Similarity,
+			Type:        "SIMILAR",
+		})
+	}
+
+	err := r.postRelationQuery.InsertRelations(ctx, r.sqlClient, *post, relationsToCreate)
+	if err != nil {
+		return fmt.Errorf("postQuery.InsertRelations: %w", err)
+	}
+
+	for i := range *relations {
+		otherPost := models.Post{
+			ID: (*relations)[i].OtherPostID,
+		}
+
+		r.postQuery.GetFull(ctx, r.sqlClient, &otherPost)
+
+		(*relations)[i].OtherPost = otherPost
+	}
+
+	post.Relations = *relations
+
+	return nil
 }
 
 type UpdatePostArgs struct {
