@@ -122,6 +122,7 @@ func LoadPoolRelations(p models.Pool) models.Pool {
 		p.Posts[i] = Posts[p.Posts[i].ID-1]
 		p.Posts[i].Pools = nil
 		p.Posts[i].Tags = nil
+		p.Posts[i].Relations = nil
 	}
 
 	return p

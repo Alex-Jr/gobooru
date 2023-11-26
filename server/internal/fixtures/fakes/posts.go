@@ -37,7 +37,15 @@ var Post1 = models.Post{
 			ID: 4,
 		},
 	},
-
+	Relations: []models.PostRelation{
+		{
+			CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+			PostID:      1,
+			OtherPostID: 2,
+			Similarity:  9999,
+			Type:        "SIMILAR",
+		},
+	},
 	UpdatedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 }
 
@@ -64,6 +72,15 @@ var Post2 = models.Post{
 		},
 		{
 			ID: 5,
+		},
+	},
+	Relations: []models.PostRelation{
+		{
+			CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+			PostID:      2,
+			OtherPostID: 1,
+			Similarity:  9999,
+			Type:        "SIMILAR",
 		},
 	},
 	UpdatedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -144,12 +161,20 @@ func LoadPostRelations(p models.Post) models.Post {
 		p.Tags[i] = Tags[p.Tags[i].ID]
 	}
 
+	for i := range p.Relations {
+		p.Relations[i].OtherPost = Posts[p.Relations[i].OtherPostID-1]
+		p.Relations[i].OtherPost.Relations = nil
+		p.Relations[i].OtherPost.Pools = nil
+		p.Relations[i].OtherPost.Tags = nil
+	}
+
 	return p
 }
 
 func LoadPostNoRelations(p models.Post) models.Post {
 	p.Pools = nil
 	p.Tags = nil
+	p.Relations = nil
 
 	return p
 }

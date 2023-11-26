@@ -72,7 +72,8 @@ func TestPoolServiceCreate(t *testing.T) {
 						"file_size": 100,
 						"file_path": "1.jpg",
 						"thumb_path": "1-thumb.webp",
-						"updated_at": "2020-01-01T00:00:00Z"
+						"updated_at": "2020-01-01T00:00:00Z",
+						"relations": null
 					}
 				]
 			}
@@ -135,7 +136,8 @@ func TestPoolServiceDelete(t *testing.T) {
 						"file_size": 100,
 						"file_path": "1.jpg",
 						"thumb_path": "1-thumb.webp",
-						"updated_at": "2020-01-01T00:00:00Z"
+						"updated_at": "2020-01-01T00:00:00Z",
+						"relations": null
 					}
 				]
 			}
@@ -196,7 +198,8 @@ func TestPoolServiceFetch(t *testing.T) {
 						"file_size": 100,
 						"file_path": "1.jpg",
 						"thumb_path": "1-thumb.webp",
-						"updated_at": "2020-01-01T00:00:00Z"
+						"updated_at": "2020-01-01T00:00:00Z",
+						"relations": null
 					}
 				]
 			}
@@ -268,7 +271,8 @@ func TestPoolServiceList(t *testing.T) {
 							"file_size": 100,
 							"file_path": "1.jpg",
 							"thumb_path": "1-thumb.webp",
-							"updated_at": "2020-01-01T00:00:00Z"
+							"updated_at": "2020-01-01T00:00:00Z",
+							"relations": null
 						}
 					]
 				}

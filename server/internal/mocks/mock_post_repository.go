@@ -235,6 +235,50 @@ func (_c *MockPostRepository_List_Call) RunAndReturn(run func(context.Context, r
 	return _c
 }
 
+// SaveRelations provides a mock function with given fields: ctx, post, relations
+func (_m *MockPostRepository) SaveRelations(ctx context.Context, post *models.Post, relations *[]models.PostRelation) error {
+	ret := _m.Called(ctx, post, relations)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, *models.Post, *[]models.PostRelation) error); ok {
+		r0 = rf(ctx, post, relations)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockPostRepository_SaveRelations_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'SaveRelations'
+type MockPostRepository_SaveRelations_Call struct {
+	*mock.Call
+}
+
+// SaveRelations is a helper method to define mock.On call
+//   - ctx context.Context
+//   - post *models.Post
+//   - relations *[]models.PostRelation
+func (_e *MockPostRepository_Expecter) SaveRelations(ctx interface{}, post interface{}, relations interface{}) *MockPostRepository_SaveRelations_Call {
+	return &MockPostRepository_SaveRelations_Call{Call: _e.mock.On("SaveRelations", ctx, post, relations)}
+}
+
+func (_c *MockPostRepository_SaveRelations_Call) Run(run func(ctx context.Context, post *models.Post, relations *[]models.PostRelation)) *MockPostRepository_SaveRelations_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(*models.Post), args[2].(*[]models.PostRelation))
+	})
+	return _c
+}
+
+func (_c *MockPostRepository_SaveRelations_Call) Return(_a0 error) *MockPostRepository_SaveRelations_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockPostRepository_SaveRelations_Call) RunAndReturn(run func(context.Context, *models.Post, *[]models.PostRelation) error) *MockPostRepository_SaveRelations_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Update provides a mock function with given fields: ctx, args
 func (_m *MockPostRepository) Update(ctx context.Context, args repositories.UpdatePostArgs) (models.Post, error) {
 	ret := _m.Called(ctx, args)
