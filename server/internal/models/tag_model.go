@@ -9,7 +9,7 @@ type Tag struct {
 	ID          string    `db:"id" json:"id"`
 	Description string    `db:"description" json:"description"`
 	PostCount   int       `db:"post_count" json:"post_count"`
-	CategoryId  string    `db:"category_id" json:"category_id"`
+	CategoryID  string    `db:"category_id" json:"category_id"`
 	CreatedAt   time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
 }

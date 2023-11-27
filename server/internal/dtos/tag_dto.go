@@ -9,3 +9,11 @@ type FetchTagDTO struct {
 type FetchTagResponseDTO struct {
 	Tag models.Tag `json:"tag"`
 }
+
+type DeleteTagDTO struct {
+	ID string `param:"id"`
+}
+
+type DeleteTagResponseDTO struct {
+	Tag models.Tag `json:"tag"`
+}

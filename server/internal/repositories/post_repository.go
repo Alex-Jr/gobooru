@@ -87,7 +87,7 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 			CreatedAt:   now,
 			UpdatedAt:   now,
 			Description: "",
-			CategoryId:  "general",
+			CategoryID:  "general",
 		}
 
 		post.TagIDs[i] = tag
@@ -282,7 +282,7 @@ func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (model
 					ID:          tag,
 					PostCount:   1,
 					Description: "",
-					CategoryId:  "general",
+					CategoryID:  "general",
 					CreatedAt:   now,
 					UpdatedAt:   now,
 				}

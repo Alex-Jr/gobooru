@@ -11,6 +11,7 @@ import (
 
 type TagQuery interface {
 	CreateMany(ctx context.Context, db database.DBClient, tags *[]models.Tag) error
+	Delete(ctx context.Context, db database.DBClient, tag models.Tag) error
 	Get(ctx context.Context, db database.DBClient, tag *models.Tag) error
 	UpdatePostCount(ctx context.Context, db database.DBClient, tags []string, increment int) error
 }
@@ -69,6 +70,25 @@ func (q *tagQuery) CreateMany(ctx context.Context, db database.DBClient, tags *[
 		}
 
 		i++
+	}
+
+	return nil
+}
+
+func (q *tagQuery) Delete(ctx context.Context, db database.DBClient, tag models.Tag) error {
+	_, err := db.ExecContext(
+		ctx,
+		`
+			DELETE FROM
+				"tags"
+			WHERE
+				id = $1
+		`,
+		tag.ID,
+	)
+
+	if err != nil {
+		return fmt.Errorf("db.ExecContext: %w", err)
 	}
 
 	return nil
