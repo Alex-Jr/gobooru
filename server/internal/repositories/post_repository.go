@@ -25,6 +25,7 @@ type postRepository struct {
 	tagQuery          queries.TagQuery
 	postTag           queries.PostTagQuery
 	postRelationQuery queries.PostRelationQuery
+	tagCategoryQuery  queries.TagCategoryQuery
 }
 
 type CreatePostArgs struct {
@@ -45,6 +46,7 @@ func NewPostRepository(sqlClient database.SQLClient) PostRepository {
 		tagQuery:          queries.NewTagQuery(),
 		postTag:           queries.NewPostTagQuery(),
 		postRelationQuery: queries.NewPostRelationQuery(),
+		tagCategoryQuery:  queries.NewTagCategoryQuery(),
 	}
 }
 
@@ -80,10 +82,12 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 
 	for i, tag := range tagsDeduped {
 		tags[i] = models.Tag{
-			ID:        tag,
-			PostCount: 1,
-			CreatedAt: now,
-			UpdatedAt: now,
+			ID:          tag,
+			PostCount:   1,
+			CreatedAt:   now,
+			UpdatedAt:   now,
+			Description: "",
+			CategoryId:  "general",
 		}
 
 		post.TagIDs[i] = tag
@@ -105,6 +109,19 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 	err = r.postTag.AssociatePosts(ctx, tx, post, tags)
 	if err != nil {
 		return models.Post{}, fmt.Errorf("postTag.AssociatePosts: %w", err)
+	}
+
+	createdTagsCount := 0
+	for _, tag := range tags {
+		if now.Before(tag.CreatedAt) {
+			createdTagsCount++
+		}
+	}
+
+	//	TODO: don't use magic string here
+	err = r.tagCategoryQuery.UpdateTagCount(ctx, tx, "general", createdTagsCount)
+	if err != nil {
+		return models.Post{}, fmt.Errorf("tagCategoryQuery.UpdateTagCount: %w", err)
 	}
 
 	tx.Commit()
@@ -262,10 +279,12 @@ func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (model
 			now := time.Now()
 			for i, tag := range toAdd {
 				tags[i] = models.Tag{
-					ID:        tag,
-					PostCount: 1,
-					CreatedAt: now,
-					UpdatedAt: now,
+					ID:          tag,
+					PostCount:   1,
+					Description: "",
+					CategoryId:  "general",
+					CreatedAt:   now,
+					UpdatedAt:   now,
 				}
 			}
 
@@ -277,6 +296,19 @@ func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (model
 			err = r.postTag.AssociatePosts(ctx, tx, post, tags)
 			if err != nil {
 				return models.Post{}, fmt.Errorf("postTag.AssociatePosts: %w", err)
+			}
+
+			createdTagsCount := 0
+			for _, tag := range tags {
+				if now.Before(tag.CreatedAt) {
+					createdTagsCount++
+				}
+			}
+
+			//	TODO: don't use magic string here
+			err = r.tagCategoryQuery.UpdateTagCount(ctx, tx, "general", createdTagsCount)
+			if err != nil {
+				return models.Post{}, fmt.Errorf("tagCategoryQuery.UpdateTagCount: %w", err)
 			}
 		}
 

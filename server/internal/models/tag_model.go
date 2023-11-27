@@ -9,6 +9,7 @@ type Tag struct {
 	ID          string    `db:"id" json:"id"`
 	Description string    `db:"description" json:"description"`
 	PostCount   int       `db:"post_count" json:"post_count"`
+	CategoryId  string    `db:"category_id" json:"category_id"`
 	CreatedAt   time.Time `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
 }
@@ -22,4 +23,12 @@ func (list *TagList) Scan(src interface{}) error {
 		}
 	}
 	return nil
+}
+
+type TagCategory struct {
+	ID          string    `db:"id" json:"id"`
+	Description string    `db:"description" json:"description"`
+	TagCount    int       `db:"tag_count" json:"tag_count"`
+	CreatedAt   time.Time `db:"created_at" json:"created_at"`
+	UpdatedAt   time.Time `db:"updated_at" json:"updated_at"`
 }

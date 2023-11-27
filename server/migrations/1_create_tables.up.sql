@@ -37,13 +37,25 @@ CREATE TABLE "pool_posts" (
   FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE
 );
 
+CREATE TABLE "tag_categories" (
+  "id" TEXT NOT NULL,
+  "description" TEXT NOT NULL,
+  "color" TEXT NOT NULL,
+  "tag_count" INTEGER NOT NULL,
+  "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  PRIMARY KEY ("id")
+);
+
 CREATE TABLE "tags" (
   "id" TEXT NOT NULL,
   "description" TEXT NOT NULL,
   "post_count" INTEGER NOT NULL,
+  "category_id" TEXT NOT NULL,
   "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
   "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
-  PRIMARY KEY ("id")
+  PRIMARY KEY ("id"),
+  FOREIGN KEY ("category_id") REFERENCES "tag_categories" ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE "post_tags" (
@@ -74,3 +86,4 @@ CREATE TABLE "post_relations" (
   FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("other_post_id") REFERENCES "posts" ("id") ON DELETE CASCADE
 );
+

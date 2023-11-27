@@ -33,19 +33,23 @@ func (q *tagQuery) CreateMany(ctx context.Context, db database.DBClient, tags *[
 				"id", 
 				"description", 
 				"post_count", 
+				"category_id",
 				"created_at", 
 				"updated_at"
 			) VALUES (
 				:id,
 				:description,
 				:post_count,
+				:category_id,
 				:created_at,
 				:updated_at
 			)
 			ON CONFLICT ("id") DO UPDATE SET
 				post_count = "tags".post_count + 1
 			RETURNING
-				"post_count"
+				"post_count",
+				"created_at",
+				"updated_at"
 		`,
 		*tags,
 	)
