@@ -27,6 +27,9 @@ func main() {
 
 	ffmpegModule := ffmpeg.NewFfmpegModule()
 
+	tagRepository := repositories.NewTagRepository(repositories.TagRepositoryConfig{
+		SQLClient: db,
+	})
 	poolRepository := repositories.NewPoolRepository(db)
 	postRepository := repositories.NewPostRepository(db)
 
@@ -38,6 +41,9 @@ func main() {
 		FFMPEGModule: ffmpegModule,
 		BASE_PATH:    os.Getenv("STATIC_PATH"),
 	})
+	tagService := services.NewTagService(services.TagServiceConfig{
+		TagRepository: tagRepository,
+	})
 	poolService := services.NewPoolService(services.PoolServiceConfig{
 		PoolRepository: poolRepository,
 	})
@@ -48,6 +54,9 @@ func main() {
 	})
 
 	healthCheckController := controllers.NewHealthCheckController()
+	tagController := controllers.NewTagController(controllers.TagControllerConfig{
+		TagService: tagService,
+	})
 	poolController := controllers.NewPoolController(controllers.PoolControllerConfig{
 		PoolService: poolService,
 	})
@@ -64,6 +73,7 @@ func main() {
 	routes.RegisterHealthCheckRoutes(e, healthCheckController)
 	routes.RegisterPoolRoutes(e, poolController)
 	routes.RegisterPostRoutes(e, postController)
+	routes.RegisterTagRoutes(e, tagController)
 
 	for _, route := range e.Routes() {
 		log.Printf("%s %s %s", route.Method, route.Path, route.Name)

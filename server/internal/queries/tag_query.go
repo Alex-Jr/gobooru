@@ -11,6 +11,7 @@ import (
 
 type TagQuery interface {
 	CreateMany(ctx context.Context, db database.DBClient, tags *[]models.Tag) error
+	Get(ctx context.Context, db database.DBClient, tag *models.Tag) error
 	UpdatePostCount(ctx context.Context, db database.DBClient, tags []string, increment int) error
 }
 
@@ -68,6 +69,33 @@ func (q *tagQuery) CreateMany(ctx context.Context, db database.DBClient, tags *[
 		}
 
 		i++
+	}
+
+	return nil
+}
+
+func (q *tagQuery) Get(ctx context.Context, db database.DBClient, tag *models.Tag) error {
+	err := db.GetContext(
+		ctx,
+		tag,
+		`
+			SELECT
+				"id",
+				"description",
+				"post_count",
+				"category_id",
+				"created_at",
+				"updated_at"
+			FROM
+				"tags"
+			WHERE
+				id = $1
+		`,
+		tag.ID,
+	)
+
+	if err != nil {
+		return fmt.Errorf("db.GetContext: %w", err)
 	}
 
 	return nil
