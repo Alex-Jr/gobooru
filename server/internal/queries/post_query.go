@@ -242,30 +242,31 @@ func (q *postQuery) List(ctx context.Context, db database.DBClient, search model
 	err = db.SelectContext(
 		ctx,
 		posts,
-		fmt.Sprintf(`
-			SELECT
-				pt."created_at",
-				pt."description",
-				pt."id",
-				pt."pool_count",
-				pt."rating",
-				pt."tag_count",
-				pt."tag_ids",
-				pt."md5",
-				pt."file_ext",
-				pt."file_size",
-				pt."file_path",
-				pt."thumb_path",
-				pt."updated_at"
-			FROM
-				"posts" pt
-			WHERE
-				%s
-			GROUP BY
-				pt."id"
-			ORDER BY
-				%s
-		`,
+		fmt.Sprintf(
+			`
+				SELECT
+					pt."created_at",
+					pt."description",
+					pt."id",
+					pt."pool_count",
+					pt."rating",
+					pt."tag_count",
+					pt."tag_ids",
+					pt."md5",
+					pt."file_ext",
+					pt."file_size",
+					pt."file_path",
+					pt."thumb_path",
+					pt."updated_at"
+				FROM
+					"posts" pt
+				WHERE
+					%s
+				GROUP BY
+					pt."id"
+				ORDER BY
+					%s
+			`,
 			parsed.WhereQuery,
 			parsed.SortQuery,
 		),

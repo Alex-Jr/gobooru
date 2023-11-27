@@ -11,6 +11,7 @@ import (
 type TagRepository interface {
 	Delete(ctx context.Context, tagID string) (models.Tag, error)
 	Get(ctx context.Context, tagID string) (models.Tag, error)
+	List(ctx context.Context, args ListTagArgs) ([]models.Tag, int, error)
 }
 
 type tagRepository struct {
@@ -76,4 +77,32 @@ func (r *tagRepository) Get(ctx context.Context, tagID string) (models.Tag, erro
 	}
 
 	return tag, nil
+}
+
+type ListTagArgs struct {
+	Search   string
+	Page     int
+	PageSize int
+}
+
+func (r *tagRepository) List(ctx context.Context, args ListTagArgs) ([]models.Tag, int, error) {
+	tags := []models.Tag{}
+	count := 0
+
+	err := r.tagQuery.List(
+		ctx,
+		r.sqlClient,
+		models.Search{
+			Text:     args.Search,
+			Page:     args.Page,
+			PageSize: args.PageSize,
+		},
+		&count,
+		&tags,
+	)
+	if err != nil {
+		return tags, count, fmt.Errorf("tagQuery.List: %w", err)
+	}
+
+	return tags, count, nil
 }

@@ -11,6 +11,7 @@ import (
 type TagController interface {
 	Fetch(c echo.Context) error
 	Delete(c echo.Context) error
+	List(c echo.Context) error
 }
 
 type tagController struct {
@@ -62,6 +63,26 @@ func (cl tagController) Delete(c echo.Context) error {
 
 	if err != nil {
 		return fmt.Errorf("tagService.Delete: %w", err)
+	}
+
+	return c.JSON(200, response)
+}
+
+func (cl tagController) List(c echo.Context) error {
+	dto := dtos.ListTagDTO{}
+
+	err := c.Bind(&dto)
+	if err != nil {
+		return fmt.Errorf("c.Bind: %w", err)
+	}
+
+	response, err := cl.tagService.List(
+		c.Request().Context(),
+		dto,
+	)
+
+	if err != nil {
+		return fmt.Errorf("tagService.List: %w", err)
 	}
 
 	return c.JSON(200, response)

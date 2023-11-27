@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gobooru/internal/database"
 	"gobooru/internal/models"
+	"gobooru/internal/query_parser"
 
 	"github.com/lib/pq"
 )
@@ -13,14 +14,43 @@ type TagQuery interface {
 	CreateMany(ctx context.Context, db database.DBClient, tags *[]models.Tag) error
 	Delete(ctx context.Context, db database.DBClient, tag models.Tag) error
 	Get(ctx context.Context, db database.DBClient, tag *models.Tag) error
+	List(ctx context.Context, db database.DBClient, search models.Search, count *int, tags *[]models.Tag) error
 	UpdatePostCount(ctx context.Context, db database.DBClient, tags []string, increment int) error
 }
 
 type tagQuery struct {
+	parser query_parser.Parser
 }
 
 func NewTagQuery() TagQuery {
-	return &tagQuery{}
+	return &tagQuery{
+		parser: query_parser.NewParser(query_parser.ParserConfig{
+			WhereField: map[string]query_parser.WhereField{
+				"id": {
+					DBName:   "t.\"id\"",
+					Operator: "ILIKE",
+					ParserFn: query_parser.LikeParserFn,
+				},
+				"post_count": {
+					DBName:   "t.\"post_count\"",
+					Rangable: true,
+					ParserFn: query_parser.IntParserFn,
+				},
+			},
+			SortField: map[string]query_parser.SortField{
+				"id": {
+					DBName:       "t.\"id\"",
+					DefaultOrder: "ASC",
+				},
+				"post_count": {
+					DBName:       "t.\"post_count\"",
+					DefaultOrder: "DESC",
+				},
+			},
+			DefaultWhereField: "id",
+			DefaultSortField:  "id",
+		}),
+	}
 }
 
 func (q *tagQuery) CreateMany(ctx context.Context, db database.DBClient, tags *[]models.Tag) error {
@@ -116,6 +146,68 @@ func (q *tagQuery) Get(ctx context.Context, db database.DBClient, tag *models.Ta
 
 	if err != nil {
 		return fmt.Errorf("db.GetContext: %w", err)
+	}
+
+	return nil
+}
+
+func (q *tagQuery) List(ctx context.Context, db database.DBClient, search models.Search, count *int, tags *[]models.Tag) error {
+	parsed, err := q.parser.ParseSearch(search)
+	if err != nil {
+		return fmt.Errorf("parser.ParseSearch: %w", err)
+	}
+
+	err = db.GetContext(
+		ctx,
+		count,
+		fmt.Sprintf(
+			`
+				SELECT
+					COUNT(*)
+				FROM
+					"tags" t
+				WHERE
+					%s
+			`,
+			parsed.WhereQuery,
+		),
+		parsed.WhereArgs...,
+	)
+
+	if err != nil {
+		return fmt.Errorf("db.GetContext: %w", err)
+	}
+
+	// TODO: maybe make count and list parallel
+	if count == nil || *count == 0 {
+		return nil
+	}
+
+	err = db.SelectContext(
+		ctx,
+		tags,
+		fmt.Sprintf(`
+			SELECT
+				t."id",
+				t."description",
+				t."post_count",
+				t."category_id",
+				t."created_at",
+				t."updated_at"
+			FROM
+				"tags" t
+			WHERE
+				%s
+			ORDER BY
+				%s`,
+			parsed.WhereQuery,
+			parsed.SortQuery,
+		),
+		append(parsed.WhereArgs, parsed.PaginationArgs...)...,
+	)
+
+	if err != nil {
+		return fmt.Errorf("db.SelectContext: %w", err)
 	}
 
 	return nil
