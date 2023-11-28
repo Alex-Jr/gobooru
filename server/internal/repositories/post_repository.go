@@ -27,6 +27,7 @@ type postRepository struct {
 	postRelationQuery queries.PostRelationQuery
 	tagCategoryQuery  queries.TagCategoryQuery
 	tagAliasQuery     queries.TagAliasQuery
+	tagImplication    queries.TagImplicationQuery
 }
 
 type CreatePostArgs struct {
@@ -49,6 +50,7 @@ func NewPostRepository(sqlClient database.SQLClient) PostRepository {
 		postRelationQuery: queries.NewPostRelationQuery(),
 		tagCategoryQuery:  queries.NewTagCategoryQuery(),
 		tagAliasQuery:     queries.NewTagAliasQuery(),
+		tagImplication:    queries.NewTagImplicationQuery(),
 	}
 }
 
@@ -62,6 +64,16 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 	now := time.Now()
 
 	tagsDeduped := slice_utils.Deduplicate(args.Tags)
+
+	err = r.tagAliasQuery.ResolveAlias(ctx, tx, tagsDeduped)
+	if err != nil {
+		return models.Post{}, fmt.Errorf("tagAliasQuery.ResolveAlias: %w", err)
+	}
+
+	err = r.tagImplication.ResolveImplications(ctx, tx, &tagsDeduped)
+	if err != nil {
+		return models.Post{}, fmt.Errorf("tagImplication.ResolveImplications: %w", err)
+	}
 
 	tags := make([]models.Tag, len(tagsDeduped))
 
@@ -80,11 +92,6 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 		FilePath:    args.FilePath,
 		FileSize:    args.FileSize,
 		ThumbPath:   args.ThumbPath,
-	}
-
-	err = r.tagAliasQuery.ResolveAlias(ctx, tx, tagsDeduped)
-	if err != nil {
-		return models.Post{}, fmt.Errorf("tagAliasQuery.ResolveAlias: %w", err)
 	}
 
 	for i, tag := range tagsDeduped {
@@ -264,15 +271,20 @@ func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (model
 	}
 
 	if args.Tags != nil {
-		err = r.tagAliasQuery.ResolveAlias(ctx, tx, *args.Tags)
+		tagsDeduped := slice_utils.Deduplicate(*args.Tags)
+
+		err = r.tagAliasQuery.ResolveAlias(ctx, tx, tagsDeduped)
 		if err != nil {
 			return models.Post{}, fmt.Errorf("tagAliasQuery.ResolveAlias: %w", err)
 		}
 
-		// TODO: resolve implications
+		err = r.tagImplication.ResolveImplications(ctx, tx, &tagsDeduped)
+		if err != nil {
+			return models.Post{}, fmt.Errorf("tagImplication.ResolveImplications: %w", err)
+		}
 
-		toRemove := slice_utils.Difference(post.TagIDs, *args.Tags)
-		toAdd := slice_utils.Difference(*args.Tags, post.TagIDs)
+		toRemove := slice_utils.Difference(post.TagIDs, tagsDeduped)
+		toAdd := slice_utils.Difference(tagsDeduped, post.TagIDs)
 
 		if len(toRemove) > 0 {
 			err = r.postTag.DisassociatePostsByID(ctx, tx, post, toRemove)
