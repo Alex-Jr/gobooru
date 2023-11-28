@@ -26,6 +26,7 @@ type postRepository struct {
 	postTag           queries.PostTagQuery
 	postRelationQuery queries.PostRelationQuery
 	tagCategoryQuery  queries.TagCategoryQuery
+	tagAliasQuery     queries.TagAliasQuery
 }
 
 type CreatePostArgs struct {
@@ -47,6 +48,7 @@ func NewPostRepository(sqlClient database.SQLClient) PostRepository {
 		postTag:           queries.NewPostTagQuery(),
 		postRelationQuery: queries.NewPostRelationQuery(),
 		tagCategoryQuery:  queries.NewTagCategoryQuery(),
+		tagAliasQuery:     queries.NewTagAliasQuery(),
 	}
 }
 
@@ -80,6 +82,11 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 		ThumbPath:   args.ThumbPath,
 	}
 
+	err = r.tagAliasQuery.ResolveAlias(ctx, tx, tagsDeduped)
+	if err != nil {
+		return models.Post{}, fmt.Errorf("tagAliasQuery.ResolveAlias: %w", err)
+	}
+
 	for i, tag := range tagsDeduped {
 		tags[i] = models.Tag{
 			ID:          tag,
@@ -92,6 +99,7 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 
 		post.TagIDs[i] = tag
 	}
+
 	post.Tags = tags
 
 	err = r.postQuery.Create(ctx, tx, &post)
@@ -256,7 +264,12 @@ func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (model
 	}
 
 	if args.Tags != nil {
-		// TODO: resolve implications and alias
+		err = r.tagAliasQuery.ResolveAlias(ctx, tx, *args.Tags)
+		if err != nil {
+			return models.Post{}, fmt.Errorf("tagAliasQuery.ResolveAlias: %w", err)
+		}
+
+		// TODO: resolve implications
 
 		toRemove := slice_utils.Difference(post.TagIDs, *args.Tags)
 		toAdd := slice_utils.Difference(*args.Tags, post.TagIDs)

@@ -26,16 +26,6 @@ CREATE TABLE "pools" (
   PRIMARY KEY ("id")
 );
 
-CREATE TABLE "pool_posts" (
-  "pool_id" INTEGER NOT NULL,
-  "post_id" INTEGER NOT NULL,
-  "position" INTEGER NOT NULL,
-  "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
-  "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
-  PRIMARY KEY ("pool_id", "post_id"),
-  FOREIGN KEY ("pool_id") REFERENCES "pools" ("id") ON DELETE CASCADE,
-  FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE
-);
 
 CREATE TABLE "tag_categories" (
   "id" TEXT NOT NULL,
@@ -56,6 +46,17 @@ CREATE TABLE "tags" (
   "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
   PRIMARY KEY ("id"),
   FOREIGN KEY ("category_id") REFERENCES "tag_categories" ("id") ON DELETE CASCADE
+);
+
+CREATE TABLE "pool_posts" (
+  "pool_id" INTEGER NOT NULL,
+  "post_id" INTEGER NOT NULL,
+  "position" INTEGER NOT NULL,
+  "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  PRIMARY KEY ("pool_id", "post_id"),
+  FOREIGN KEY ("pool_id") REFERENCES "pools" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE
 );
 
 CREATE TABLE "post_tags" (
@@ -87,3 +88,21 @@ CREATE TABLE "post_relations" (
   FOREIGN KEY ("other_post_id") REFERENCES "posts" ("id") ON DELETE CASCADE
 );
 
+CREATE TABLE "tag_aliases" (
+  "tag_id" TEXT NOT NULL,
+  "alias" TEXT NOT NULL,
+  "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  PRIMARY KEY ("tag_id", "alias"),
+  FOREIGN KEY ("tag_id") REFERENCES "tags" ("id") ON DELETE CASCADE
+);
+
+CREATE TABLE "tag_implications" (
+  "tag_id" TEXT NOT NULL,
+  "implication_id" TEXT NOT NULL,
+  "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  PRIMARY KEY ("tag_id", "implication_id"),
+  FOREIGN KEY ("tag_id") REFERENCES "tags" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("implication_id") REFERENCES "tags" ("id") ON DELETE CASCADE
+);
