@@ -18,3 +18,10 @@
   category_id: "general"
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z
+
+- id: "tag_four"
+  description: "tag four description"
+  post_count: 0
+  category_id: "general"
+  created_at: 2020-01-01T00:00:00Z
+  updated_at: 2020-01-01T00:00:00Z
