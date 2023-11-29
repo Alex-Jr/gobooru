@@ -27,3 +27,7 @@ var Tags = map[string]models.Tag{
 	"tag_one": Tag1,
 	"tag_two": Tag2,
 }
+
+func LoadTagRelations(t models.Tag) models.Tag {
+	return t
+}
