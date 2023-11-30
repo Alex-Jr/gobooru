@@ -129,6 +129,34 @@ func (s *PostTestSuit) TestPostCreate() {
 				},
 			},
 		},
+		{
+			name: "create post with alias and implication",
+			args: args{
+				description: "",
+				rating:      "e",
+				tags:        []string{"alias_one"},
+			},
+			want: want{
+				post: models.Post{
+					Description: "",
+					Rating:      "e",
+					TagIDs:      []string{"tag_four", "implied_one"},
+					TagCount:    2,
+					PoolCount:   0,
+					Pools:       make(models.PoolList, 0),
+					Tags: models.TagList{
+						{
+							ID:        "tag_four",
+							PostCount: 1,
+						},
+						{
+							ID:        "implied_one",
+							PostCount: 1,
+						},
+					},
+				},
+			},
+		},
 	}
 
 	for _, tc := range testCases {

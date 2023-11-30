@@ -1,0 +1,1 @@
+DELETE FROM "tag_categories" WHERE "id" = 'general';

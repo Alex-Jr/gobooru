@@ -26,6 +26,28 @@ CREATE TABLE "pools" (
   PRIMARY KEY ("id")
 );
 
+
+CREATE TABLE "tag_categories" (
+  "id" TEXT NOT NULL,
+  "description" TEXT NOT NULL,
+  "color" TEXT NOT NULL,
+  "tag_count" INTEGER NOT NULL,
+  "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  PRIMARY KEY ("id")
+);
+
+CREATE TABLE "tags" (
+  "id" TEXT NOT NULL,
+  "description" TEXT NOT NULL,
+  "post_count" INTEGER NOT NULL,
+  "category_id" TEXT NOT NULL,
+  "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  PRIMARY KEY ("id"),
+  FOREIGN KEY ("category_id") REFERENCES "tag_categories" ("id") ON DELETE CASCADE
+);
+
 CREATE TABLE "pool_posts" (
   "pool_id" INTEGER NOT NULL,
   "post_id" INTEGER NOT NULL,
@@ -35,15 +57,6 @@ CREATE TABLE "pool_posts" (
   PRIMARY KEY ("pool_id", "post_id"),
   FOREIGN KEY ("pool_id") REFERENCES "pools" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE
-);
-
-CREATE TABLE "tags" (
-  "id" TEXT NOT NULL,
-  "description" TEXT NOT NULL,
-  "post_count" INTEGER NOT NULL,
-  "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
-  "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
-  PRIMARY KEY ("id")
 );
 
 CREATE TABLE "post_tags" (
@@ -73,4 +86,23 @@ CREATE TABLE "post_relations" (
   PRIMARY KEY ("post_id", "other_post_id"),
   FOREIGN KEY ("post_id") REFERENCES "posts" ("id") ON DELETE CASCADE,
   FOREIGN KEY ("other_post_id") REFERENCES "posts" ("id") ON DELETE CASCADE
+);
+
+CREATE TABLE "tag_aliases" (
+  "tag_id" TEXT NOT NULL,
+  "alias" TEXT NOT NULL,
+  "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  PRIMARY KEY ("tag_id", "alias"),
+  FOREIGN KEY ("tag_id") REFERENCES "tags" ("id") ON DELETE CASCADE
+);
+
+CREATE TABLE "tag_implications" (
+  "tag_id" TEXT NOT NULL,
+  "implication_id" TEXT NOT NULL,
+  "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
+  PRIMARY KEY ("tag_id", "implication_id"),
+  FOREIGN KEY ("tag_id") REFERENCES "tags" ("id") ON DELETE CASCADE,
+  FOREIGN KEY ("implication_id") REFERENCES "tags" ("id") ON DELETE CASCADE
 );

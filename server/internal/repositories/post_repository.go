@@ -25,6 +25,9 @@ type postRepository struct {
 	tagQuery          queries.TagQuery
 	postTag           queries.PostTagQuery
 	postRelationQuery queries.PostRelationQuery
+	tagCategoryQuery  queries.TagCategoryQuery
+	tagAliasQuery     queries.TagAliasQuery
+	tagImplication    queries.TagImplicationQuery
 }
 
 type CreatePostArgs struct {
@@ -45,6 +48,9 @@ func NewPostRepository(sqlClient database.SQLClient) PostRepository {
 		tagQuery:          queries.NewTagQuery(),
 		postTag:           queries.NewPostTagQuery(),
 		postRelationQuery: queries.NewPostRelationQuery(),
+		tagCategoryQuery:  queries.NewTagCategoryQuery(),
+		tagAliasQuery:     queries.NewTagAliasQuery(),
+		tagImplication:    queries.NewTagImplicationQuery(),
 	}
 }
 
@@ -58,6 +64,16 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 	now := time.Now()
 
 	tagsDeduped := slice_utils.Deduplicate(args.Tags)
+
+	err = r.tagAliasQuery.ResolveAlias(ctx, tx, tagsDeduped)
+	if err != nil {
+		return models.Post{}, fmt.Errorf("tagAliasQuery.ResolveAlias: %w", err)
+	}
+
+	err = r.tagImplication.ResolveImplications(ctx, tx, &tagsDeduped)
+	if err != nil {
+		return models.Post{}, fmt.Errorf("tagImplication.ResolveImplications: %w", err)
+	}
 
 	tags := make([]models.Tag, len(tagsDeduped))
 
@@ -80,14 +96,17 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 
 	for i, tag := range tagsDeduped {
 		tags[i] = models.Tag{
-			ID:        tag,
-			PostCount: 1,
-			CreatedAt: now,
-			UpdatedAt: now,
+			ID:          tag,
+			PostCount:   1,
+			CreatedAt:   now,
+			UpdatedAt:   now,
+			Description: "",
+			CategoryID:  "general",
 		}
 
 		post.TagIDs[i] = tag
 	}
+
 	post.Tags = tags
 
 	err = r.postQuery.Create(ctx, tx, &post)
@@ -105,6 +124,19 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 	err = r.postTag.AssociatePosts(ctx, tx, post, tags)
 	if err != nil {
 		return models.Post{}, fmt.Errorf("postTag.AssociatePosts: %w", err)
+	}
+
+	createdTagsCount := 0
+	for _, tag := range tags {
+		if now.Before(tag.CreatedAt) {
+			createdTagsCount++
+		}
+	}
+
+	//	TODO: don't use magic string here
+	err = r.tagCategoryQuery.UpdateTagCount(ctx, tx, "general", createdTagsCount)
+	if err != nil {
+		return models.Post{}, fmt.Errorf("tagCategoryQuery.UpdateTagCount: %w", err)
 	}
 
 	tx.Commit()
@@ -239,10 +271,20 @@ func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (model
 	}
 
 	if args.Tags != nil {
-		// TODO: resolve implications and alias
+		tagsDeduped := slice_utils.Deduplicate(*args.Tags)
 
-		toRemove := slice_utils.Difference(post.TagIDs, *args.Tags)
-		toAdd := slice_utils.Difference(*args.Tags, post.TagIDs)
+		err = r.tagAliasQuery.ResolveAlias(ctx, tx, tagsDeduped)
+		if err != nil {
+			return models.Post{}, fmt.Errorf("tagAliasQuery.ResolveAlias: %w", err)
+		}
+
+		err = r.tagImplication.ResolveImplications(ctx, tx, &tagsDeduped)
+		if err != nil {
+			return models.Post{}, fmt.Errorf("tagImplication.ResolveImplications: %w", err)
+		}
+
+		toRemove := slice_utils.Difference(post.TagIDs, tagsDeduped)
+		toAdd := slice_utils.Difference(tagsDeduped, post.TagIDs)
 
 		if len(toRemove) > 0 {
 			err = r.postTag.DisassociatePostsByID(ctx, tx, post, toRemove)
@@ -262,10 +304,12 @@ func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (model
 			now := time.Now()
 			for i, tag := range toAdd {
 				tags[i] = models.Tag{
-					ID:        tag,
-					PostCount: 1,
-					CreatedAt: now,
-					UpdatedAt: now,
+					ID:          tag,
+					PostCount:   1,
+					Description: "",
+					CategoryID:  "general",
+					CreatedAt:   now,
+					UpdatedAt:   now,
 				}
 			}
 
@@ -277,6 +321,19 @@ func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (model
 			err = r.postTag.AssociatePosts(ctx, tx, post, tags)
 			if err != nil {
 				return models.Post{}, fmt.Errorf("postTag.AssociatePosts: %w", err)
+			}
+
+			createdTagsCount := 0
+			for _, tag := range tags {
+				if now.Before(tag.CreatedAt) {
+					createdTagsCount++
+				}
+			}
+
+			//	TODO: don't use magic string here
+			err = r.tagCategoryQuery.UpdateTagCount(ctx, tx, "general", createdTagsCount)
+			if err != nil {
+				return models.Post{}, fmt.Errorf("tagCategoryQuery.UpdateTagCount: %w", err)
 			}
 		}
 

@@ -19,6 +19,7 @@ type PostQuery interface {
 	List(ctx context.Context, db database.DBClient, search models.Search, posts *[]models.Post, count *int) error
 	Update(ctx context.Context, db database.DBClient, post models.Post) error
 	UpdatePoolCount(ctx context.Context, db database.DBClient, post []models.Post, increment int) error
+	RemoveTag(ctx context.Context, db database.DBClient, tag string) error
 }
 
 type postQuery struct {
@@ -241,30 +242,31 @@ func (q *postQuery) List(ctx context.Context, db database.DBClient, search model
 	err = db.SelectContext(
 		ctx,
 		posts,
-		fmt.Sprintf(`
-			SELECT
-				pt."created_at",
-				pt."description",
-				pt."id",
-				pt."pool_count",
-				pt."rating",
-				pt."tag_count",
-				pt."tag_ids",
-				pt."md5",
-				pt."file_ext",
-				pt."file_size",
-				pt."file_path",
-				pt."thumb_path",
-				pt."updated_at"
-			FROM
-				"posts" pt
-			WHERE
-				%s
-			GROUP BY
-				pt."id"
-			ORDER BY
-				%s
-		`,
+		fmt.Sprintf(
+			`
+				SELECT
+					pt."created_at",
+					pt."description",
+					pt."id",
+					pt."pool_count",
+					pt."rating",
+					pt."tag_count",
+					pt."tag_ids",
+					pt."md5",
+					pt."file_ext",
+					pt."file_size",
+					pt."file_path",
+					pt."thumb_path",
+					pt."updated_at"
+				FROM
+					"posts" pt
+				WHERE
+					%s
+				GROUP BY
+					pt."id"
+				ORDER BY
+					%s
+			`,
 			parsed.WhereQuery,
 			parsed.SortQuery,
 		),
@@ -301,6 +303,28 @@ func (q *postQuery) Update(ctx context.Context, db database.DBClient, post model
 
 	if err != nil {
 		return fmt.Errorf("db.NamedExecContext: %w", err)
+	}
+
+	return nil
+}
+
+func (q *postQuery) RemoveTag(ctx context.Context, db database.DBClient, tag string) error {
+	_, err := db.ExecContext(
+		ctx,
+		`
+			UPDATE
+				"posts"
+			SET
+				"tag_count" = "tag_count" - 1,
+				"tag_ids" = array_remove("tag_ids", $1)
+			WHERE
+				"tag_ids" @> ARRAY[$1]
+		`,
+		tag,
+	)
+
+	if err != nil {
+		return fmt.Errorf("db.ExecContext: %w", err)
 	}
 
 	return nil

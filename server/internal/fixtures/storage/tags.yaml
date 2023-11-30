@@ -1,17 +1,27 @@
 - id: "tag_one"
   description: "tag one description"
   post_count: 1
+  category_id: "general"
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z
 
 - id: "tag_two"
   description: "tag two description"
   post_count: 0
+  category_id: "general"
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z
 
 - id: "tag_three"
   description: "tag three description"
   post_count: 0
+  category_id: "general"
+  created_at: 2020-01-01T00:00:00Z
+  updated_at: 2020-01-01T00:00:00Z
+
+- id: "tag_four"
+  description: "tag four description"
+  post_count: 0
+  category_id: "general"
   created_at: 2020-01-01T00:00:00Z
   updated_at: 2020-01-01T00:00:00Z

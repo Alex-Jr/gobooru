@@ -11,6 +11,7 @@ var Tag1 = models.Tag{
 	PostCount:   1,
 	CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 	UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+	CategoryID:  "general",
 }
 
 var Tag2 = models.Tag{
@@ -19,8 +20,14 @@ var Tag2 = models.Tag{
 	PostCount:   1,
 	CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 	UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
+	CategoryID:  "general",
 }
 
 var Tags = map[string]models.Tag{
 	"tag_one": Tag1,
+	"tag_two": Tag2,
+}
+
+func LoadTagRelations(t models.Tag) models.Tag {
+	return t
 }

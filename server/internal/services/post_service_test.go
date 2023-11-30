@@ -142,6 +142,7 @@ func TestPostServiceCreate(t *testing.T) {
 					{
 						"id": "tag_one",
 						"post_count": 1,
+						"category_id": "general",
 						"created_at": "2020-01-01T00:00:00Z",
 						"updated_at": "2020-01-01T00:00:00Z",
 						"description": "tag one description"
@@ -277,7 +278,8 @@ func TestPostServiceDelete(t *testing.T) {
 						"post_count": 1,
 						"created_at": "2020-01-01T00:00:00Z",
 						"updated_at": "2020-01-01T00:00:00Z",
-						"description": "tag one description"
+						"description": "tag one description",
+						"category_id": "general"
 					}
 				],
 				"updated_at": "2020-01-01T00:00:00Z"
@@ -402,7 +404,8 @@ func TestPostServiceFetch(t *testing.T) {
 						"post_count": 1,
 						"created_at": "2020-01-01T00:00:00Z",
 						"updated_at": "2020-01-01T00:00:00Z",
-						"description": "tag one description"
+						"description": "tag one description",
+						"category_id": "general"
 					}
 				],
 				"updated_at": "2020-01-01T00:00:00Z"
