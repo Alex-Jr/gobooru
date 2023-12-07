@@ -7,6 +7,7 @@ import (
 	"gobooru/internal/models"
 	"gobooru/internal/queries"
 	"gobooru/internal/slice_utils"
+	"time"
 
 	"github.com/lib/pq"
 )
@@ -43,10 +44,17 @@ type PoolCreateArgs struct {
 }
 
 func (r poolRepository) Create(ctx context.Context, args PoolCreateArgs) (models.Pool, error) {
+	// TODO: maybe should use int64 all over the place
+	postIDs := make([]int64, len(args.PostIDs))
+	for i, id := range args.PostIDs {
+		postIDs[i] = int64(id)
+	}
+
 	pool := models.Pool{
 		Description: args.Description,
 		ID:          0,
 		Name:        args.Name,
+		PostIDs:     postIDs,
 		PostCount:   len(args.PostIDs),
 		Posts:       make([]models.Post, len(args.PostIDs)),
 		Custom:      pq.StringArray(args.Custom),
@@ -211,6 +219,9 @@ func (r poolRepository) Update(ctx context.Context, args PoolUpdateArgs) (models
 
 	// TODO: don't allow to remove all posts
 	if args.Posts != nil {
+		// TODO: maybe should use int64 all over the place
+		postIDs := make([]int64, len(*args.Posts))
+
 		oldPostIDs := make([]int, len(pool.Posts))
 		for i, post := range pool.Posts {
 			oldPostIDs[i] = post.ID
@@ -226,7 +237,10 @@ func (r poolRepository) Update(ctx context.Context, args PoolUpdateArgs) (models
 			pool.Posts[i] = models.Post{
 				ID: postID,
 			}
+			postIDs[i] = int64(postID)
 		}
+
+		pool.PostIDs = postIDs
 
 		if len(toRemove) > 0 {
 			postsToRemove := make([]models.Post, len(toRemove))
@@ -274,6 +288,8 @@ func (r poolRepository) Update(ctx context.Context, args PoolUpdateArgs) (models
 			}
 		}
 	}
+
+	pool.UpdatedAt = time.Now()
 
 	err = r.poolQuery.Update(ctx, tx, &pool)
 	if err != nil {

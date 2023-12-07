@@ -10,6 +10,8 @@ CREATE TABLE "posts" (
   "file_size" INTEGER NOT NULL,
   "file_path" TEXT NOT NULL,
   "thumb_path" TEXT NOT NULL,
+  "sources" TEXT[] NOT NULL,
+  "custom" TEXT[] NOT NULL,
   "created_at" TIMESTAMP WITH TIME ZONE NOT NULL,
   "updated_at" TIMESTAMP WITH TIME ZONE NOT NULL,
   PRIMARY KEY ("id")
@@ -18,6 +20,7 @@ CREATE TABLE "posts" (
 CREATE TABLE "pools" (
   "id" SERIAL NOT NULL,
   "name" TEXT NOT NULL,
+  "post_ids" INTEGER[] NOT NULL,
   "post_count" INTEGER NOT NULL,
   "description" TEXT NOT NULL,
   "custom" TEXT[] NOT NULL,

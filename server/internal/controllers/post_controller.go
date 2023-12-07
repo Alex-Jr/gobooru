@@ -12,6 +12,7 @@ type PostController interface {
 	Create(c echo.Context) error
 	Delete(c echo.Context) error
 	Fetch(c echo.Context) error
+	FetchByHash(c echo.Context) error
 	List(c echo.Context) error
 	Update(c echo.Context) error
 }
@@ -89,6 +90,25 @@ func (cl postController) Fetch(c echo.Context) error {
 
 	if err != nil {
 		return fmt.Errorf("postService.Fetch: %w", err)
+	}
+
+	return c.JSON(200, response)
+}
+
+func (cl postController) FetchByHash(c echo.Context) error {
+	dto := dtos.FetchPostByHashDTO{}
+
+	if err := c.Bind(&dto); err != nil {
+		return fmt.Errorf("c.Bind: %w", err)
+	}
+
+	response, err := cl.postService.FetchByHash(
+		c.Request().Context(),
+		dto,
+	)
+
+	if err != nil {
+		return fmt.Errorf("postService.FetchByHash: %w", err)
 	}
 
 	return c.JSON(200, response)

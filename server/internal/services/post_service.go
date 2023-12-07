@@ -11,6 +11,7 @@ type PostService interface {
 	Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.CreatePostResponseDTO, error)
 	Delete(ctx context.Context, dto dtos.DeletePostDTO) (dtos.DeletePostResponseDTO, error)
 	Fetch(ctx context.Context, dto dtos.FetchPostDTO) (dtos.FetchPostResponseDTO, error)
+	FetchByHash(ctx context.Context, dto dtos.FetchPostByHashDTO) (dtos.FetchPostByHashResponseDTO, error)
 	List(ctx context.Context, dto dtos.ListPostDTO) (dtos.ListPostResponseDTO, error)
 	Update(ctx context.Context, dto dtos.UpdatePostDTO) (dtos.UpdatePostResponseDTO, error)
 }
@@ -42,6 +43,7 @@ func (s postService) Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.C
 	}
 
 	post, err := s.postRepository.Create(ctx, repositories.CreatePostArgs{
+		Custom:      dto.Custom,
 		Description: dto.Description,
 		Rating:      dto.Rating,
 		Tags:        dto.Tags,
@@ -50,6 +52,7 @@ func (s postService) Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.C
 		FilePath:    file.FilePath,
 		ThumbPath:   file.ThumbPath,
 		MD5:         file.MD5,
+		Sources:     dto.Sources,
 	})
 
 	if err != nil {
@@ -99,6 +102,17 @@ func (s postService) Fetch(ctx context.Context, dto dtos.FetchPostDTO) (dtos.Fet
 	}, nil
 }
 
+func (s postService) FetchByHash(ctx context.Context, dto dtos.FetchPostByHashDTO) (dtos.FetchPostByHashResponseDTO, error) {
+	post, err := s.postRepository.GetFullByHash(ctx, dto.Hash)
+	if err != nil {
+		return dtos.FetchPostByHashResponseDTO{}, fmt.Errorf("postRepository.GetByHash: %w", err)
+	}
+
+	return dtos.FetchPostByHashResponseDTO{
+		Post: post,
+	}, nil
+}
+
 func (s postService) List(ctx context.Context, dto dtos.ListPostDTO) (dtos.ListPostResponseDTO, error) {
 	posts, count, err := s.postRepository.List(ctx, repositories.ListPostsArgs{
 		Search:   dto.Search,
@@ -122,6 +136,8 @@ func (s postService) Update(ctx context.Context, dto dtos.UpdatePostDTO) (dtos.U
 		Description: dto.Description,
 		Rating:      dto.Rating,
 		Tags:        dto.Tags,
+		Sources:     dto.Sources,
+		Custom:      dto.Custom,
 	})
 
 	if err != nil {

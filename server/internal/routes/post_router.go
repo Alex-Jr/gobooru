@@ -14,4 +14,5 @@ func RegisterPostRoutes(e *echo.Echo, postController controllers.PostController)
 	g.GET("/:id", postController.Fetch)
 	g.PATCH("/:id", postController.Update)
 	g.POST("", postController.Create)
+	g.GET("/hash/:hash", postController.FetchByHash)
 }

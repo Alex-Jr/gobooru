@@ -10,6 +10,7 @@ import (
 type Pool struct {
 	ID          int            `db:"id" json:"id"`
 	Name        string         `db:"name" json:"name"`
+	PostIDs     pq.Int64Array  `db:"post_ids" json:"post_ids"`
 	PostCount   int            `db:"post_count" json:"post_count"`
 	Description string         `db:"description" json:"description"`
 	Custom      pq.StringArray `db:"custom" json:"custom"`
