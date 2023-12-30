@@ -5,6 +5,7 @@
   updated_at: 2022-01-01T00:00:00Z
   name: "pool 1 name"
   post_count: 1
+  post_ids: '{1}'
 
 - id: 2
   description: "pool 2 description"
@@ -13,6 +14,7 @@
   updated_at: 2022-01-01T00:00:00Z
   name: "pool 2 name"
   post_count: 2
+  post_ids: '{1, 2}'
 
 - id: 3
   description: "pool 3 description"
@@ -21,6 +23,7 @@
   updated_at: 2020-01-01T00:00:00Z
   name: "pool 3 name"
   post_count: 3
+  post_ids: '{3, 1, 2}'
 
 - id: 4
   description: "pool 4 description"
@@ -29,6 +32,7 @@
   updated_at: 2020-01-01T00:00:00Z
   name: "pool 4 name"
   post_count: 1
+  post_ids: '{1}'
 
 - id: 5
   description: "pool 5 description"
@@ -37,6 +41,7 @@
   updated_at: 2020-01-01T00:00:00Z
   name: "pool 5 name"
   post_count: 1
+  post_ids: '{2}'
 
 - id: 6
   description: "pool 6 description"
@@ -45,3 +50,4 @@
   updated_at: 2020-01-01T00:00:00Z
   name: "pool 6 name"
   post_count: 1
+  post_ids: '{3}'

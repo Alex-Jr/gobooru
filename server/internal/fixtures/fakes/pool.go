@@ -19,6 +19,7 @@ var Pool1 = models.Pool{
 			ID: 1,
 		},
 	},
+	PostIDs:   pq.Int64Array{1},
 	UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 }
 
@@ -37,7 +38,7 @@ var Pool2 = models.Pool{
 			ID: 2,
 		},
 	},
-
+	PostIDs:   pq.Int64Array{1, 2},
 	UpdatedAt: time.Date(2022, 1, 1, 0, 0, 0, 0, time.UTC),
 }
 
@@ -59,6 +60,7 @@ var Pool3 = models.Pool{
 			ID: 2,
 		},
 	},
+	PostIDs:   pq.Int64Array{3, 1, 2},
 	UpdatedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 }
 
@@ -74,6 +76,7 @@ var Pool4 = models.Pool{
 			ID: 1,
 		},
 	},
+	PostIDs:   pq.Int64Array{1},
 	UpdatedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 }
 
@@ -89,6 +92,7 @@ var Pool5 = models.Pool{
 			ID: 2,
 		},
 	},
+	PostIDs:   pq.Int64Array{2},
 	UpdatedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 }
 
@@ -104,6 +108,7 @@ var Pool6 = models.Pool{
 			ID: 3,
 		},
 	},
+	PostIDs:   pq.Int64Array{3},
 	UpdatedAt: time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 }
 
