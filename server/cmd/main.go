@@ -12,6 +12,7 @@ import (
 	"os"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 )
 
 func main() {
@@ -76,6 +77,11 @@ func main() {
 	e := echo.New()
 
 	e.Use(middlewares.NewLoggerMiddleware())
+
+	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{
+		AllowOrigins:     []string{os.Getenv("CLIENT_URL")},
+		AllowCredentials: true,
+	}))
 
 	e.Static("/static", os.Getenv("STATIC_PATH"))
 

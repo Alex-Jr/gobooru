@@ -16,6 +16,7 @@ type PostQuery interface {
 	Create(ctx context.Context, db database.DBClient, post *models.Post) error
 	Delete(ctx context.Context, db database.DBClient, post *models.Post) error
 	GetFull(ctx context.Context, db database.DBClient, post *models.Post) error
+	GetFullByHash(ctx context.Context, db database.DBClient, post *models.Post) error
 	List(ctx context.Context, db database.DBClient, search models.Search, posts *[]models.Post, count *int) error
 	Update(ctx context.Context, db database.DBClient, post models.Post) error
 	UpdatePoolCount(ctx context.Context, db database.DBClient, post []models.Post, increment int) error
@@ -68,6 +69,8 @@ func (q *postQuery) Create(ctx context.Context, db database.DBClient, post *mode
 				"file_size",
 				"file_path",
 				"thumb_path",
+				"sources",
+				"custom",
 				"created_at",
 				"updated_at"
 			) VALUES (
@@ -81,6 +84,8 @@ func (q *postQuery) Create(ctx context.Context, db database.DBClient, post *mode
 				:file_size,
 				:file_path,
 				:thumb_path,
+				:sources,
+				:custom,
 				:created_at,
 				:updated_at
 			) RETURNING 
@@ -125,6 +130,7 @@ func (q *postQuery) Delete(ctx context.Context, db database.DBClient, post *mode
 	return nil
 }
 
+// TODO: merge GetFull and GetFullByHash
 func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *models.Post) error {
 	err := db.GetContext(
 		ctx,
@@ -172,6 +178,7 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 				)
 			SELECT
 				p."created_at",
+				p."custom",
 				p."description",
 				p."id",
 				p."updated_at",
@@ -184,9 +191,10 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 				p."file_size",
 				p."file_path",
 				p."thumb_path",
-				pl."pools",
-				t."tags",
-				r."relations"
+				p."sources",
+				COALESCE(pl."pools", '[]'::jsonb) as "pools",
+				COALESCE(t."tags", '[]'::jsonb) as "tags",
+				COALESCE(r."relations", '[]'::jsonb) as "relations"
 			FROM
 				"posts" as "p"
 			LEFT JOIN "pools" as "pl" ON
@@ -207,6 +215,39 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 		}
 		return fmt.Errorf("db.GetContext: %w", err)
 	}
+
+	return nil
+}
+
+// TODO: merge GetFull and GetFullByHash
+func (q *postQuery) GetFullByHash(ctx context.Context, db database.DBClient, post *models.Post) error {
+	postID := 0
+
+	err := db.GetContext(
+		ctx,
+		&postID,
+		`
+			SELECT
+				p."id"
+			FROM
+				"posts" p
+			WHERE
+				p."md5" = $1::text
+			LIMIT 1
+		`,
+		post.MD5,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return database.ErrNotFound
+		}
+		return fmt.Errorf("db.GetContext: %w", err)
+	}
+
+	post.ID = postID
+
+	q.GetFull(ctx, db, post)
 
 	return nil
 }
@@ -245,6 +286,7 @@ func (q *postQuery) List(ctx context.Context, db database.DBClient, search model
 		fmt.Sprintf(
 			`
 				SELECT
+					pt."custom",
 					pt."created_at",
 					pt."description",
 					pt."id",
@@ -257,6 +299,7 @@ func (q *postQuery) List(ctx context.Context, db database.DBClient, search model
 					pt."file_size",
 					pt."file_path",
 					pt."thumb_path",
+					pt."sources",
 					pt."updated_at"
 				FROM
 					"posts" pt
@@ -281,8 +324,6 @@ func (q *postQuery) List(ctx context.Context, db database.DBClient, search model
 }
 
 func (q *postQuery) Update(ctx context.Context, db database.DBClient, post models.Post) error {
-	post.UpdatedAt = time.Now()
-
 	_, err := db.NamedExecContext(
 		ctx,
 		`
@@ -294,6 +335,8 @@ func (q *postQuery) Update(ctx context.Context, db database.DBClient, post model
 				"tag_ids" = :tag_ids,
 				"tag_count" = :tag_count,
 				"pool_count" = :pool_count,
+				"sources" = :sources,
+				"custom" = :custom,
 				"updated_at" = :updated_at
 			WHERE
 				"id" = :id

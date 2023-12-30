@@ -17,6 +17,7 @@ type PoolQuery interface {
 	Delete(ctx context.Context, db database.DBClient, pool *models.Pool) error
 	// GetFull fetches a pool by ID and all of its posts.
 	GetFull(ctx context.Context, db database.DBClient, pool *models.Pool) error
+	RemovePost(ctx context.Context, db database.DBClient, postID int) error
 	// ListFull fetches all pools and their posts based on the given arguments.
 	ListFull(ctx context.Context, db database.DBClient, search models.Search, pools *[]models.Pool, count *int) error
 	// Update updates a pool entry.
@@ -35,6 +36,11 @@ func NewPoolQuery() PoolQuery {
 					DBName:   "pl.id",
 					Operator: "=",
 					ParserFn: query_parser.IntParserFn,
+				},
+				"name": {
+					DBName:   "pl.name",
+					Operator: "ILIKE",
+					ParserFn: query_parser.LikeParserFn,
 				},
 				"custom": {
 					DBName:   "pl.custom",
@@ -58,7 +64,7 @@ func NewPoolQuery() PoolQuery {
 					DefaultOrder: "DESC",
 				},
 			},
-			DefaultWhereField: "id",
+			DefaultWhereField: "name",
 			DefaultSortField:  "id",
 		}),
 	}
@@ -78,6 +84,7 @@ func (q poolQuery) Create(ctx context.Context, db database.DBClient, pool *model
 				"custom",
 				"description", 
 				"name", 
+				"post_ids",
 				"post_count",
 				"updated_at"
 			)
@@ -86,6 +93,7 @@ func (q poolQuery) Create(ctx context.Context, db database.DBClient, pool *model
 				:custom,
 				:description,
 				:name, 
+				:post_ids,
 				:post_count,
 				:updated_at
 			)
@@ -144,6 +152,7 @@ func (q poolQuery) GetFull(ctx context.Context, db database.DBClient, pool *mode
 					ORDER BY pp."position"
 				) AS "posts",
 				pl."post_count",
+				pl."post_ids",
 				pl."updated_at"
 			FROM
 				"pools" pl
@@ -164,6 +173,26 @@ func (q poolQuery) GetFull(ctx context.Context, db database.DBClient, pool *mode
 		}
 
 		return fmt.Errorf("db.GetContext: %w", err)
+	}
+
+	return nil
+}
+
+func (q poolQuery) RemovePost(ctx context.Context, db database.DBClient, postID int) error {
+	_, err := db.ExecContext(
+		ctx,
+		`
+		UPDATE "pools"
+		SET
+			"post_count" = "post_count" - 1,
+			"post_ids" = array_remove("post_ids", $1)
+		WHERE
+			$1 = ANY("post_ids")
+		`,
+		postID,
+	)
+	if err != nil {
+		return fmt.Errorf("db.ExecContext: %w", err)
 	}
 
 	return nil
@@ -210,6 +239,7 @@ func (q poolQuery) ListFull(ctx context.Context, db database.DBClient, search mo
 					ROW_TO_JSON(pt.*)
 					ORDER BY pp."position"
 				) AS "posts",
+				pl."post_ids",
 				pl."updated_at"
 			FROM
 				"pools" pl

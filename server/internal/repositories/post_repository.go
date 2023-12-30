@@ -14,6 +14,7 @@ type PostRepository interface {
 	Create(ctx context.Context, args CreatePostArgs) (models.Post, error)
 	Delete(ctx context.Context, postID int) error
 	GetFull(ctx context.Context, postID int) (models.Post, error)
+	GetFullByHash(ctx context.Context, hash string) (models.Post, error)
 	List(ctx context.Context, args ListPostsArgs) ([]models.Post, int, error)
 	SaveRelations(ctx context.Context, post *models.Post, relations *[]models.PostRelation) error
 	Update(ctx context.Context, args UpdatePostArgs) (models.Post, error)
@@ -22,6 +23,7 @@ type PostRepository interface {
 type postRepository struct {
 	sqlClient         database.SQLClient
 	postQuery         queries.PostQuery
+	poolQuery         queries.PoolQuery
 	tagQuery          queries.TagQuery
 	postTag           queries.PostTagQuery
 	postRelationQuery queries.PostRelationQuery
@@ -31,12 +33,14 @@ type postRepository struct {
 }
 
 type CreatePostArgs struct {
+	Custom      []string
 	Description string
 	FileExt     string
 	FilePath    string
 	FileSize    int
 	MD5         string
 	Rating      string
+	Sources     []string
 	Tags        []string
 	ThumbPath   string
 }
@@ -51,6 +55,7 @@ func NewPostRepository(sqlClient database.SQLClient) PostRepository {
 		tagCategoryQuery:  queries.NewTagCategoryQuery(),
 		tagAliasQuery:     queries.NewTagAliasQuery(),
 		tagImplication:    queries.NewTagImplicationQuery(),
+		poolQuery:         queries.NewPoolQuery(),
 	}
 }
 
@@ -78,6 +83,7 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 	tags := make([]models.Tag, len(tagsDeduped))
 
 	post := models.Post{
+		Custom:      args.Custom,
 		Rating:      args.Rating,
 		Description: args.Description,
 		TagIDs:      make([]string, len(tags)),
@@ -92,6 +98,16 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 		FilePath:    args.FilePath,
 		FileSize:    args.FileSize,
 		ThumbPath:   args.ThumbPath,
+		Sources:     args.Sources,
+	}
+
+	// TODO: probably there's a better way to handle nil slices
+	if post.Custom == nil {
+		post.Custom = make([]string, 0)
+	}
+
+	if post.Sources == nil {
+		post.Sources = make([]string, 0)
 	}
 
 	for i, tag := range tagsDeduped {
@@ -145,15 +161,33 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 }
 
 func (r *postRepository) Delete(ctx context.Context, postID int) error {
+	tx, err := r.sqlClient.BeginTxx(ctx, nil)
+	if err != nil {
+		return fmt.Errorf("sqlClient.BeginTxx: %w", err)
+	}
+	defer tx.Rollback()
+
 	post := models.Post{
 		ID: postID,
 	}
 
-	err := r.postQuery.Delete(ctx, r.sqlClient, &post)
+	err = r.postQuery.Delete(ctx, tx, &post)
 
 	if err != nil {
 		return fmt.Errorf("postQuery.Delete: %w", err)
 	}
+
+	err = r.tagQuery.UpdatePostCount(ctx, tx, post.TagIDs, -1)
+	if err != nil {
+		return fmt.Errorf("tagQuery.UpdatePostCount: %w", err)
+	}
+
+	err = r.poolQuery.RemovePost(ctx, tx, post.ID)
+	if err != nil {
+		return fmt.Errorf("poolQuery.RemovePost: %w", err)
+	}
+
+	tx.Commit()
 
 	return nil
 }
@@ -167,6 +201,20 @@ func (r *postRepository) GetFull(ctx context.Context, postID int) (models.Post, 
 
 	if err != nil {
 		return models.Post{}, fmt.Errorf("postQuery.GetFull: %w", err)
+	}
+
+	return post, nil
+}
+
+func (r *postRepository) GetFullByHash(ctx context.Context, hash string) (models.Post, error) {
+	post := models.Post{
+		MD5: hash,
+	}
+
+	err := r.postQuery.GetFullByHash(ctx, r.sqlClient, &post)
+
+	if err != nil {
+		return models.Post{}, fmt.Errorf("postQuery.GetFullByHash: %w", err)
 	}
 
 	return post, nil
@@ -245,6 +293,8 @@ type UpdatePostArgs struct {
 	Description *string
 	Rating      *string
 	Tags        *[]string
+	Sources     *[]string
+	Custom      *[]string
 }
 
 func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (models.Post, error) {
@@ -341,6 +391,16 @@ func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (model
 
 		post.TagCount = len(*args.Tags)
 	}
+
+	if args.Sources != nil {
+		post.Sources = *args.Sources
+	}
+
+	if args.Custom != nil {
+		post.Custom = *args.Custom
+	}
+
+	post.UpdatedAt = time.Now()
 
 	err = r.postQuery.Update(ctx, tx, post)
 	if err != nil {

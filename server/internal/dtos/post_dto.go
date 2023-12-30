@@ -6,10 +6,12 @@ import (
 )
 
 type CreatePostDTO struct {
+	Custom      []string              `form:"custom"`
 	Description string                `form:"description"`
-	Rating      string                `form:"rating"`
-	Tags        []string              `form:"tags"`
 	File        *multipart.FileHeader `form:"file"`
+	Rating      string                `form:"rating"`
+	Sources     []string              `form:"sources"`
+	Tags        []string              `form:"tags"`
 }
 
 type CreatePostResponseDTO struct {
@@ -32,6 +34,14 @@ type FetchPostResponseDTO struct {
 	Post models.Post `json:"post"`
 }
 
+type FetchPostByHashDTO struct {
+	Hash string `param:"hash"`
+}
+
+type FetchPostByHashResponseDTO struct {
+	Post models.Post `json:"post"`
+}
+
 type ListPostDTO struct {
 	Search   string `query:"search"`
 	Page     int    `query:"page"`
@@ -48,6 +58,8 @@ type UpdatePostDTO struct {
 	Description *string   `json:"description"`
 	Rating      *string   `json:"rating"`
 	Tags        *[]string `json:"tags"`
+	Sources     *[]string `json:"sources"`
+	Custom      *[]string `json:"custom"`
 }
 
 type UpdatePostResponseDTO struct {

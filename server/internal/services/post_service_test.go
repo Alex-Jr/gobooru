@@ -111,6 +111,8 @@ func TestPostServiceCreate(t *testing.T) {
 				"file_ext": "jpg",
 				"file_path": "1.jpg",
 				"thumb_path": "1-thumb.webp",
+				"sources": ["https://example.com/1.jpg"],
+				"custom": [],
 				"relations": [
 					{
 						"post_id": 1,
@@ -131,6 +133,8 @@ func TestPostServiceCreate(t *testing.T) {
 							"file_ext": "jpg",
 							"file_path": "2.jpg",
 							"thumb_path": "2-thumb.webp",
+							"sources": ["https://example.com/2.jpg"],
+							"custom": [],
 							"relations": null,
 							"tags": null,
 							"updated_at": "2020-01-01T00:00:00Z",
@@ -203,6 +207,8 @@ func TestPostServiceDelete(t *testing.T) {
 				"file_ext": "jpg",
 				"file_path": "1.jpg",
 				"thumb_path": "1-thumb.webp",
+				"sources": ["https://example.com/1.jpg"],
+				"custom": [],
 				"relations":[
 					{
 						"post_id": 1,
@@ -226,7 +232,9 @@ func TestPostServiceDelete(t *testing.T) {
 							"relations": null,
 							"tags": null,
 							"updated_at": "2020-01-01T00:00:00Z",
-							"pools": null
+							"pools": null,
+							"sources": ["https://example.com/2.jpg"],
+							"custom": []
 						}
 					}
 				],
@@ -239,6 +247,7 @@ func TestPostServiceDelete(t *testing.T) {
 						"name": "pool 1 name",
 						"post_count": 1,
 						"posts": null,
+						"post_ids": [1],
 						"updated_at": "2022-01-01T00:00:00Z"
 					},
 					{
@@ -249,6 +258,7 @@ func TestPostServiceDelete(t *testing.T) {
 						"name": "pool 2 name",
 						"post_count": 2,
 						"posts": null,
+						"post_ids": [1, 2],
 						"updated_at": "2022-01-01T00:00:00Z"
 					},
 					{
@@ -259,6 +269,7 @@ func TestPostServiceDelete(t *testing.T) {
 						"name": "pool 3 name",
 						"post_count": 3,
 						"posts": null,
+						"post_ids": [3, 1, 2],
 						"updated_at": "2020-01-01T00:00:00Z"
 					},
 					{
@@ -269,6 +280,7 @@ func TestPostServiceDelete(t *testing.T) {
 						"name": "pool 4 name",
 						"post_count": 1,
 						"posts": null,
+						"post_ids": [1],
 						"updated_at": "2020-01-01T00:00:00Z"
 					}
 				],
@@ -329,6 +341,8 @@ func TestPostServiceFetch(t *testing.T) {
 				"file_ext": "jpg",
 				"file_path": "1.jpg",
 				"thumb_path": "1-thumb.webp",
+				"sources": ["https://example.com/1.jpg"],
+				"custom": [],
 				"relations": [
 					{
 						"post_id": 1,
@@ -352,7 +366,9 @@ func TestPostServiceFetch(t *testing.T) {
 							"relations": null,
 							"tags": null,
 							"updated_at": "2020-01-01T00:00:00Z",
-							"pools": null
+							"pools": null,
+							"sources": ["https://example.com/2.jpg"],
+							"custom": []
 						}
 					}
 				],
@@ -365,6 +381,7 @@ func TestPostServiceFetch(t *testing.T) {
 						"name": "pool 1 name",
 						"post_count": 1,
 						"posts": null,
+						"post_ids": [1],
 						"updated_at": "2022-01-01T00:00:00Z"
 					},
 					{
@@ -375,6 +392,7 @@ func TestPostServiceFetch(t *testing.T) {
 						"name": "pool 2 name",
 						"post_count": 2,
 						"posts": null,
+						"post_ids": [1, 2],
 						"updated_at": "2022-01-01T00:00:00Z"
 					},
 					{
@@ -385,6 +403,7 @@ func TestPostServiceFetch(t *testing.T) {
 						"name": "pool 3 name",
 						"post_count": 3,
 						"posts": null,
+						"post_ids": [3, 1, 2],
 						"updated_at": "2020-01-01T00:00:00Z"
 					},
 					{
@@ -395,6 +414,7 @@ func TestPostServiceFetch(t *testing.T) {
 						"name": "pool 4 name",
 						"post_count": 1,
 						"posts": null,
+						"post_ids": [1],
 						"updated_at": "2020-01-01T00:00:00Z"
 					}
 				],
@@ -469,7 +489,9 @@ func TestPostServiceList(t *testing.T) {
 					"thumb_path": "1-thumb.webp",
 					"tags": null, 
 					"updated_at": "2020-01-01T00:00:00Z",
-					"relations": null
+					"relations": null,
+					"sources": ["https://example.com/1.jpg"],
+					"custom": []
 				}
 			]
 		}

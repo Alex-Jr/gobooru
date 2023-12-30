@@ -56,6 +56,7 @@ func TestPoolServiceCreate(t *testing.T) {
 				"name": "pool 1 name",
 				"post_count": 1,
 				"updated_at": "2022-01-01T00:00:00Z",
+				"post_ids": [1],
 				"posts": [
 					{
 						"created_at": "2020-01-01T00:00:00Z",
@@ -73,6 +74,8 @@ func TestPoolServiceCreate(t *testing.T) {
 						"file_path": "1.jpg",
 						"thumb_path": "1-thumb.webp",
 						"updated_at": "2020-01-01T00:00:00Z",
+						"sources": ["https://example.com/1.jpg"],
+						"custom": [],
 						"relations": null
 					}
 				]
@@ -120,6 +123,7 @@ func TestPoolServiceDelete(t *testing.T) {
 				"name": "pool 1 name",
 				"post_count": 1,
 				"updated_at": "2022-01-01T00:00:00Z",
+				"post_ids": [1],
 				"posts": [
 					{
 						"created_at": "2020-01-01T00:00:00Z",
@@ -137,6 +141,8 @@ func TestPoolServiceDelete(t *testing.T) {
 						"file_path": "1.jpg",
 						"thumb_path": "1-thumb.webp",
 						"updated_at": "2020-01-01T00:00:00Z",
+						"sources": ["https://example.com/1.jpg"],
+						"custom": [],
 						"relations": null
 					}
 				]
@@ -182,6 +188,7 @@ func TestPoolServiceFetch(t *testing.T) {
 				"name": "pool 1 name",
 				"post_count": 1,
 				"updated_at": "2022-01-01T00:00:00Z",
+				"post_ids": [1],
 				"posts": [
 					{
 						"created_at": "2020-01-01T00:00:00Z",
@@ -199,6 +206,8 @@ func TestPoolServiceFetch(t *testing.T) {
 						"file_path": "1.jpg",
 						"thumb_path": "1-thumb.webp",
 						"updated_at": "2020-01-01T00:00:00Z",
+						"sources": ["https://example.com/1.jpg"],
+						"custom": [],
 						"relations": null
 					}
 				]
@@ -255,6 +264,7 @@ func TestPoolServiceList(t *testing.T) {
 					"name": "pool 1 name",
 					"post_count": 1,
 					"updated_at": "2022-01-01T00:00:00Z",
+					"post_ids": [1],
 					"posts": [
 						{
 							"created_at": "2020-01-01T00:00:00Z",
@@ -272,6 +282,8 @@ func TestPoolServiceList(t *testing.T) {
 							"file_path": "1.jpg",
 							"thumb_path": "1-thumb.webp",
 							"updated_at": "2020-01-01T00:00:00Z",
+							"sources": ["https://example.com/1.jpg"],
+							"custom": [],
 							"relations": null
 						}
 					]

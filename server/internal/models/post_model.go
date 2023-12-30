@@ -19,6 +19,8 @@ type Post struct {
 	FileSize    int              `db:"file_size" json:"file_size"`
 	FilePath    string           `db:"file_path" json:"file_path"`
 	ThumbPath   string           `db:"thumb_path" json:"thumb_path"`
+	Sources     pq.StringArray   `db:"sources" json:"sources"`
+	Custom      pq.StringArray   `db:"custom" json:"custom"`
 	CreatedAt   time.Time        `db:"created_at" json:"created_at"`
 	UpdatedAt   time.Time        `db:"updated_at" json:"updated_at"`
 	Pools       PoolList         `db:"pools" json:"pools"`

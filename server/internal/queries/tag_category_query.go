@@ -27,6 +27,7 @@ func (q *tagCategoryQuery) List(ctx context.Context, db database.DBClient, tagCa
 			SELECT 
 				"id",
 				"description",
+				"color",
 				"tag_count",
 				"created_at",
 				"updated_at"

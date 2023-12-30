@@ -3,6 +3,8 @@ package fakes
 import (
 	"gobooru/internal/models"
 	"time"
+
+	"github.com/lib/pq"
 )
 
 var Post1 = models.Post{
@@ -23,6 +25,7 @@ var Post1 = models.Post{
 			ID: "tag_one",
 		},
 	},
+	Custom: pq.StringArray{},
 	Pools: []models.Pool{
 		{
 			ID: 1,
@@ -37,6 +40,7 @@ var Post1 = models.Post{
 			ID: 4,
 		},
 	},
+	Sources: pq.StringArray{"https://example.com/1.jpg"},
 	Relations: []models.PostRelation{
 		{
 			CreatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
@@ -63,6 +67,8 @@ var Post2 = models.Post{
 	FilePath:    "2.jpg",
 	ThumbPath:   "2-thumb.webp",
 	Tags:        nil,
+	Custom:      pq.StringArray{},
+	Sources:     pq.StringArray{"https://example.com/2.jpg"},
 	Pools: []models.Pool{
 		{
 			ID: 2,
@@ -100,6 +106,8 @@ var Post3 = models.Post{
 	FileSize:    100,
 	FilePath:    "3.jpg",
 	ThumbPath:   "3-thumb.webp",
+	Custom:      pq.StringArray{},
+	Sources:     pq.StringArray{"https://example.com/3.jpg"},
 	Pools: []models.Pool{
 		{
 			ID: 3,
@@ -124,6 +132,8 @@ var Post4 = models.Post{
 	FileSize:    100,
 	FilePath:    "4.jpg",
 	ThumbPath:   "4-thumb.webp",
+	Custom:      pq.StringArray{},
+	Sources:     pq.StringArray{"https://example.com/4.jpg"},
 	UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 }
 
@@ -140,6 +150,8 @@ var Post5 = models.Post{
 	FileSize:    1000,
 	FilePath:    "5.png",
 	ThumbPath:   "5-thumb.webp",
+	Custom:      pq.StringArray{},
+	Sources:     pq.StringArray{"https://example.com/5.png"},
 	UpdatedAt:   time.Date(2020, 1, 1, 0, 0, 0, 0, time.UTC),
 }
 
