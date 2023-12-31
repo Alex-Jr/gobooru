@@ -43,16 +43,17 @@ func (s postService) Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.C
 	}
 
 	post, err := s.postRepository.Create(ctx, repositories.CreatePostArgs{
-		Custom:      dto.Custom,
-		Description: dto.Description,
-		Rating:      dto.Rating,
-		Tags:        dto.Tags,
-		FileExt:     file.FileExt,
-		FileSize:    file.FileSize,
-		FilePath:    file.FilePath,
-		ThumbPath:   file.ThumbPath,
-		MD5:         file.MD5,
-		Sources:     dto.Sources,
+		Custom:           dto.Custom,
+		Description:      dto.Description,
+		Rating:           dto.Rating,
+		Tags:             dto.Tags,
+		FileExt:          file.FileExt,
+		FileSize:         file.FileSize,
+		FilePath:         file.FilePath,
+		FileOriginalName: file.FileOriginalName,
+		ThumbPath:        file.ThumbPath,
+		MD5:              file.MD5,
+		Sources:          dto.Sources,
 	})
 
 	if err != nil {

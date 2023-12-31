@@ -9,6 +9,7 @@ CREATE TABLE "posts" (
   "file_ext" TEXT NOT NULL,
   "file_size" INTEGER NOT NULL,
   "file_path" TEXT NOT NULL,
+  "file_original_name" TEXT NOT NULL,
   "thumb_path" TEXT NOT NULL,
   "sources" TEXT[] NOT NULL,
   "custom" TEXT[] NOT NULL,

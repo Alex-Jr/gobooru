@@ -17,14 +17,13 @@ import {
 } from "@chakra-ui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useContext } from "react";
+import { useTranslation } from "react-i18next";
 import { FaHome } from "react-icons/fa";
 import { Link as RouterLink } from "react-router-dom";
 
 import { useLogout } from "services/auth/use-logout";
 import { UserContext } from "shared/context/userContext";
 import { APIUser } from "shared/types/services/user/APIUser";
-
-import { ColorModeSwitcher } from "../buttons/color-mode-switcher";
 
 const navItems = ["posts", "pools", "tags"];
 
@@ -35,6 +34,8 @@ const UserMenu = ({
   user: APIUser;
   onLogoutClick: () => void;
 }) => {
+  const { t } = useTranslation();
+
   return (
     <Menu>
       <MenuButton
@@ -73,29 +74,29 @@ const UserMenu = ({
       <MenuList>
         <MenuItem>
           <Link as={RouterLink} to="/posts/new">
-            Novo post
+            {t("loggedMenu.newPost")}
           </Link>
         </MenuItem>
         <MenuItem>
           <Link as={RouterLink} to="/posts/new/batch">
-            Novo lote de post
+            {t("loggedMenu.newPostBatch")}
           </Link>
         </MenuItem>
-        <MenuItem>
+        {/* <MenuItem>
           <Link as={RouterLink} to="/pool/new">
             Nova pool
           </Link>
-        </MenuItem>
+        </MenuItem> */}
         <MenuDivider />
 
-        <MenuItem>
-          <Link as={RouterLink} to="/account">
-            Minha conta
+        <MenuItem isDisabled>
+          <Link pointerEvents={"none"} as={RouterLink}>
+            {t("loggedMenu.myAccount")}
           </Link>
         </MenuItem>
         <MenuDivider />
 
-        <MenuItem onClick={onLogoutClick}>Sair</MenuItem>
+        <MenuItem onClick={onLogoutClick}>{t("loggedMenu.logout")}</MenuItem>
       </MenuList>
     </Menu>
   );
@@ -166,10 +167,10 @@ export const NavBar = () => {
         />
       ) : (
         <HStack>
-          <ColorModeSwitcher />
-          <Button as={RouterLink} to={"/signin"} variant={"ghost"}>
+          {/* <ColorModeSwitcher /> */}
+          {/* <Button as={RouterLink} to={"/signin"} variant={"ghost"}>
             Cadastro
-          </Button>
+          </Button> */}
           <Button as={RouterLink} to={"/login"} colorScheme={"orange"}>
             Entrar
           </Button>

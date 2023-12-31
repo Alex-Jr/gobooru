@@ -73,11 +73,12 @@ func (f fileService) HandleUpload(fileHeader *multipart.FileHeader) (models.File
 	}
 
 	file := models.File{
-		MD5:       MD5String,
-		FilePath:  strings.Replace(filePath, f.basePath, "", 1),
-		FileExt:   ext,
-		ThumbPath: strings.Replace(thumbPath, f.basePath, "", 1),
-		FileSize:  int(fileHeader.Size),
+		MD5:              MD5String,
+		FilePath:         strings.Replace(filePath, f.basePath, "", 1),
+		FileExt:          ext,
+		ThumbPath:        strings.Replace(thumbPath, f.basePath, "", 1),
+		FileSize:         int(fileHeader.Size),
+		FileOriginalName: fileHeader.Filename,
 	}
 
 	return file, nil
