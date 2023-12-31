@@ -35,7 +35,12 @@ function Loading() {
 }
 
 export const App = () => {
-  const [user, setUser] = useState<APIUser | undefined>();
+  const [user, setUser] = useState<APIUser | undefined>({
+    id: 1,
+    name: "demo",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  });
 
   const [loading, { off: setLoadingFalse }] = useBoolean(true);
 

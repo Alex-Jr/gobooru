@@ -218,6 +218,54 @@ func (_c *MockPoolQuery_ListFull_Call) RunAndReturn(run func(context.Context, da
 	return _c
 }
 
+// RemovePost provides a mock function with given fields: ctx, db, postID
+func (_m *MockPoolQuery) RemovePost(ctx context.Context, db database.DBClient, postID int) error {
+	ret := _m.Called(ctx, db, postID)
+
+	if len(ret) == 0 {
+		panic("no return value specified for RemovePost")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, database.DBClient, int) error); ok {
+		r0 = rf(ctx, db, postID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockPoolQuery_RemovePost_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'RemovePost'
+type MockPoolQuery_RemovePost_Call struct {
+	*mock.Call
+}
+
+// RemovePost is a helper method to define mock.On call
+//   - ctx context.Context
+//   - db database.DBClient
+//   - postID int
+func (_e *MockPoolQuery_Expecter) RemovePost(ctx interface{}, db interface{}, postID interface{}) *MockPoolQuery_RemovePost_Call {
+	return &MockPoolQuery_RemovePost_Call{Call: _e.mock.On("RemovePost", ctx, db, postID)}
+}
+
+func (_c *MockPoolQuery_RemovePost_Call) Run(run func(ctx context.Context, db database.DBClient, postID int)) *MockPoolQuery_RemovePost_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(database.DBClient), args[2].(int))
+	})
+	return _c
+}
+
+func (_c *MockPoolQuery_RemovePost_Call) Return(_a0 error) *MockPoolQuery_RemovePost_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockPoolQuery_RemovePost_Call) RunAndReturn(run func(context.Context, database.DBClient, int) error) *MockPoolQuery_RemovePost_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Update provides a mock function with given fields: ctx, db, pool
 func (_m *MockPoolQuery) Update(ctx context.Context, db database.DBClient, pool *models.Pool) error {
 	ret := _m.Called(ctx, db, pool)

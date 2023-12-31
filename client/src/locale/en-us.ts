@@ -46,6 +46,8 @@ export const enUs = {
     to: "to",
     toDate: "to date",
     usage: "usage",
+    parentId: "parent id",
+    redirect: "redirect",
   },
   feedback: {
     deleteError: "{{target}} couldn't be deleted",
@@ -71,5 +73,11 @@ export const enUs = {
   tagPage: {
     deleteTag: "delete tag",
     deleteTagMsg: "tag will be deleted and remove from all posts",
+  },
+  loggedMenu: {
+    newPost: "new post",
+    newPostBatch: "new post batch",
+    myAccount: "my account",
+    logout: "logout",
   },
 };

@@ -17,7 +17,7 @@ export const useLoginMutation = () => {
         return {
           createdAt: new Date().toISOString(),
           id: 1,
-          name: "test",
+          name: body.name,
           updatedAt: new Date().toISOString(),
         };
       }

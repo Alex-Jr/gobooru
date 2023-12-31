@@ -53,6 +53,7 @@ export function Sidebar({
       h={"fit-content"}
       p={4}
       w={{ base: "100%", lg: 275 }}
+      minW={275}
       bgColor={useColorModeValue("lightgray", "gray.700")}
       mx={"auto"}
     >
@@ -105,27 +106,31 @@ export function Sidebar({
 
       <Divider />
       <Text>Sources</Text>
-      <UnorderedList>
-        {post.sources.map((source, index) => {
-          const parsedSource = removeHttpAndWWW(source);
+      {post.sources.length === 0 ? (
+        <Text>None available</Text>
+      ) : (
+        <UnorderedList>
+          {post.sources.map((source, index) => {
+            const parsedSource = removeHttpAndWWW(source);
 
-          return (
-            <ListItem key={"source" + index}>
-              <Link
-                href={source}
-                isExternal
-                display={"flex"}
-                gap={2}
-                alignItems={"center"}
-                wordBreak={"break-all"}
-              >
-                {parsedSource}
-                <ExternalLinkIcon />
-              </Link>
-            </ListItem>
-          );
-        })}
-      </UnorderedList>
+            return (
+              <ListItem key={"source" + index}>
+                <Link
+                  href={source}
+                  isExternal
+                  display={"flex"}
+                  gap={2}
+                  alignItems={"center"}
+                  wordBreak={"break-all"}
+                >
+                  {parsedSource}
+                  <ExternalLinkIcon />
+                </Link>
+              </ListItem>
+            );
+          })}
+        </UnorderedList>
+      )}
 
       <Divider />
       <Text>Information</Text>

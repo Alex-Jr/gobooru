@@ -33,16 +33,17 @@ type postRepository struct {
 }
 
 type CreatePostArgs struct {
-	Custom      []string
-	Description string
-	FileExt     string
-	FilePath    string
-	FileSize    int
-	MD5         string
-	Rating      string
-	Sources     []string
-	Tags        []string
-	ThumbPath   string
+	Custom           []string
+	Description      string
+	FileExt          string
+	FilePath         string
+	FileSize         int
+	FileOriginalName string
+	MD5              string
+	Rating           string
+	Sources          []string
+	Tags             []string
+	ThumbPath        string
 }
 
 func NewPostRepository(sqlClient database.SQLClient) PostRepository {
@@ -83,22 +84,23 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 	tags := make([]models.Tag, len(tagsDeduped))
 
 	post := models.Post{
-		Custom:      args.Custom,
-		Rating:      args.Rating,
-		Description: args.Description,
-		TagIDs:      make([]string, len(tags)),
-		TagCount:    len(tags),
-		PoolCount:   0,
-		CreatedAt:   now,
-		UpdatedAt:   now,
-		Pools:       make(models.PoolList, 0),
-		Tags:        make(models.TagList, len(tags)),
-		MD5:         args.MD5,
-		FileExt:     args.FileExt,
-		FilePath:    args.FilePath,
-		FileSize:    args.FileSize,
-		ThumbPath:   args.ThumbPath,
-		Sources:     args.Sources,
+		Custom:           args.Custom,
+		Rating:           args.Rating,
+		Description:      args.Description,
+		TagIDs:           make([]string, len(tags)),
+		TagCount:         len(tags),
+		PoolCount:        0,
+		CreatedAt:        now,
+		UpdatedAt:        now,
+		Pools:            make(models.PoolList, 0),
+		Tags:             make(models.TagList, len(tags)),
+		MD5:              args.MD5,
+		FileExt:          args.FileExt,
+		FilePath:         args.FilePath,
+		FileSize:         args.FileSize,
+		FileOriginalName: args.FileOriginalName,
+		ThumbPath:        args.ThumbPath,
+		Sources:          args.Sources,
 	}
 
 	// TODO: probably there's a better way to handle nil slices
