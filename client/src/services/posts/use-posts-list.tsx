@@ -10,7 +10,7 @@ interface IUsePostList {
   [index: string]: string | string[];
   search: string;
   page: string;
-  pageSize: string;
+  page_size: string;
 }
 
 export const usePostsList = (
@@ -43,6 +43,6 @@ export const usePostsList = (
   return {
     posts: data.posts,
     count: data.count,
-    totalPages: Math.ceil(data.count / +queryData.pageSize),
+    totalPages: Math.ceil(data.count / +queryData.page_size),
   };
 };

@@ -10,7 +10,7 @@ interface IUsePostList {
   [index: string]: string;
   search: string;
   page: string;
-  pageSize: string;
+  page_size: string;
 }
 
 export const usePoolList = (
@@ -38,6 +38,6 @@ export const usePoolList = (
   return {
     pools: data.pools,
     count: data.count,
-    totalPages: Math.ceil(data.count / parseInt(queryData.pageSize)),
+    totalPages: Math.ceil(data.count / parseInt(queryData.page_size)),
   };
 };
