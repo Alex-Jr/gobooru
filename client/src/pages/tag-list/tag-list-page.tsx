@@ -23,7 +23,7 @@ export const TagListPage = () => {
   const { tags, count, totalPages } = useTagsLists({
     search,
     page,
-    pageSize: "23",
+    page_size: "23",
   });
 
   const { t } = useTranslation();

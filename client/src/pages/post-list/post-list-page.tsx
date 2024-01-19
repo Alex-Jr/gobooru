@@ -19,7 +19,7 @@ export const PostListPage = () => {
 
   const [pageSize, setPageSize] = useState("20");
   const { posts, count, totalPages } = usePostsList({
-    pageSize,
+    page_size: pageSize,
     search,
     page,
   });

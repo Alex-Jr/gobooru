@@ -9,7 +9,7 @@ export const PostCount = () => {
   const { count } = usePostsList({
     search: "",
     page: "1",
-    pageSize: "20",
+    page_size: "20",
   });
 
   return (
