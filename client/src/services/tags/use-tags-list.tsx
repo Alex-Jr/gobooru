@@ -10,7 +10,7 @@ interface IUseTagsList {
   [index: string]: string;
   search: string;
   page: string;
-  pageSize: string;
+  page_size: string;
 }
 
 export const useTagsLists = (
@@ -38,6 +38,6 @@ export const useTagsLists = (
   return {
     tags: data.tags,
     count: data.count,
-    totalPages: Math.ceil(data.count / +queryData.pageSize),
+    totalPages: Math.ceil(data.count / +queryData.page_size),
   };
 };

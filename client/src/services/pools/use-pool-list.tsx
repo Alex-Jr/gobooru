@@ -38,6 +38,6 @@ export const usePoolList = (
   return {
     pools: data.pools,
     count: data.count,
-    totalPages: Math.ceil(data.count / parseInt(queryData.pageSize)),
+    totalPages: Math.ceil(data.count / parseInt(queryData.page_size)),
   };
 };
