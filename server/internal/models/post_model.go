@@ -20,6 +20,9 @@ type Post struct {
 	FilePath         string           `db:"file_path" json:"file_path"`
 	FileOriginalName string           `db:"file_original_name" json:"file_original_name"`
 	ThumbPath        string           `db:"thumb_path" json:"thumb_path"`
+	Width            int              `db:"width" json:"width"`
+	Height           int              `db:"height" json:"height"`
+	Duration         int              `db:"duration" json:"duration"`
 	Sources          pq.StringArray   `db:"sources" json:"sources"`
 	Custom           pq.StringArray   `db:"custom" json:"custom"`
 	CreatedAt        time.Time        `db:"created_at" json:"created_at"`
@@ -27,6 +30,7 @@ type Post struct {
 	Pools            PoolList         `db:"pools" json:"pools"`
 	Tags             TagList          `db:"tags" json:"tags"`
 	Relations        PostRelationList `db:"relations" json:"relations"`
+	Notes            PostNoteList     `db:"notes" json:"notes"`
 	// TODO: Add source
 	// Source      []string         `db:"source" json:"source"`
 }

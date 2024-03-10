@@ -35,8 +35,9 @@ func (s *iqdbService) HandlePost(post models.Post) ([]models.PostRelation, error
 	url := fmt.Sprintf("%s/add", s.IQDB_URL)
 
 	body, err := json.Marshal(map[string]interface{}{
-		"postId":   post.ID,
-		"filePath": fmt.Sprintf("%s%s", s.BASE_PATH, post.FilePath),
+		"postId": post.ID,
+		// using thumb path because iqdb only accepts jpg, png, and webp
+		"filePath": fmt.Sprintf("%s%s", s.BASE_PATH, post.ThumbPath),
 	})
 
 	if err != nil {

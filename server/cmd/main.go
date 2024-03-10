@@ -35,6 +35,7 @@ func main() {
 		SQLClient: db,
 	})
 	poolRepository := repositories.NewPoolRepository(db)
+	postNotesRepository := repositories.NewPostNotesRepository(db)
 	postRepository := repositories.NewPostRepository(db)
 
 	IQDBService := services.NewIQDBService(services.IQDBServiceConfig{
@@ -55,9 +56,10 @@ func main() {
 		PoolRepository: poolRepository,
 	})
 	postService := services.NewPostService(services.PostServiceConfig{
-		PostRepository: postRepository,
-		FileService:    fileService,
-		IQDBService:    IQDBService,
+		PostRepository:      postRepository,
+		PostNotesRepository: postNotesRepository,
+		FileService:         fileService,
+		IQDBService:         IQDBService,
 	})
 
 	healthCheckController := controllers.NewHealthCheckController()

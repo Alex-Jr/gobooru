@@ -16,6 +16,9 @@ export interface APIPost {
     thumb_path: string;
     created_at: string;
     updated_at: string;
+    width: number;
+    height: number;
+    duration: number;
     pools: Array<{
       id: number;
       name: string;
@@ -60,5 +63,16 @@ export interface APIPost {
       similarity: number;
       type: string;
     }>;
+    notes: {
+      id: number;
+      post_id: number;
+      body: string;
+      x: number;
+      y: number;
+      width: number;
+      height: number;
+      created_at: string;
+      updated_at: string;
+    }[];
   };
 }

@@ -6,6 +6,7 @@ import (
 	"gobooru/internal/ffmpeg"
 	"gobooru/internal/models"
 	"io"
+	"log"
 	"mime/multipart"
 	"os"
 	"path/filepath"
@@ -69,7 +70,13 @@ func (f fileService) HandleUpload(fileHeader *multipart.FileHeader) (models.File
 
 	err = f.GenerateThumb(filePath, thumbPath)
 	if err != nil {
-		return models.File{}, fmt.Errorf("f.GenerateThumb: %w", err)
+		log.Println(fmt.Errorf("f.GenerateThumb: %w", err))
+		thumbPath = fmt.Sprintf("%s/%s", folderPath, "error.webp")
+	}
+
+	fileMetadata, err := f.ffmpegModule.ExtractMetadata(filePath)
+	if err != nil {
+		return models.File{}, fmt.Errorf("f.ffmpegModule.ExtractMetadata: %w", err)
 	}
 
 	file := models.File{
@@ -79,6 +86,9 @@ func (f fileService) HandleUpload(fileHeader *multipart.FileHeader) (models.File
 		ThumbPath:        strings.Replace(thumbPath, f.basePath, "", 1),
 		FileSize:         int(fileHeader.Size),
 		FileOriginalName: fileHeader.Filename,
+		Width:            fileMetadata.Width,
+		Height:           fileMetadata.Height,
+		Duration:         fileMetadata.Duration,
 	}
 
 	return file, nil

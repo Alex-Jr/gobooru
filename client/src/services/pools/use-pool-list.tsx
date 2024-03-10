@@ -10,7 +10,7 @@ interface IUsePostList {
   [index: string]: string;
   search: string;
   page: string;
-  pageSize: string;
+  page_size: string;
 }
 
 export const usePoolList = (

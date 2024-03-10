@@ -3,7 +3,7 @@ export const imageModeToChakraCss = (imageMode: string) => {
     case "ORIGINAL":
       return { maxW: "unset", h: "unset" };
     case "FIT_V":
-      return { maxW: "unset", h: "95vh" };
+      return { maxW: "unset", h: "85vh" };
     case "FIT_H":
       return { maxW: "100%", h: "auto" };
     case "SAMPLE":

@@ -66,6 +66,52 @@ func (_c *MockPostController_Create_Call) RunAndReturn(run func(echo.Context) er
 	return _c
 }
 
+// CreateNote provides a mock function with given fields: c
+func (_m *MockPostController) CreateNote(c echo.Context) error {
+	ret := _m.Called(c)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateNote")
+	}
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(echo.Context) error); ok {
+		r0 = rf(c)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// MockPostController_CreateNote_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateNote'
+type MockPostController_CreateNote_Call struct {
+	*mock.Call
+}
+
+// CreateNote is a helper method to define mock.On call
+//   - c echo.Context
+func (_e *MockPostController_Expecter) CreateNote(c interface{}) *MockPostController_CreateNote_Call {
+	return &MockPostController_CreateNote_Call{Call: _e.mock.On("CreateNote", c)}
+}
+
+func (_c *MockPostController_CreateNote_Call) Run(run func(c echo.Context)) *MockPostController_CreateNote_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(echo.Context))
+	})
+	return _c
+}
+
+func (_c *MockPostController_CreateNote_Call) Return(_a0 error) *MockPostController_CreateNote_Call {
+	_c.Call.Return(_a0)
+	return _c
+}
+
+func (_c *MockPostController_CreateNote_Call) RunAndReturn(run func(echo.Context) error) *MockPostController_CreateNote_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Delete provides a mock function with given fields: c
 func (_m *MockPostController) Delete(c echo.Context) error {
 	ret := _m.Called(c)

@@ -20,6 +20,9 @@ export interface APIPostList {
     pools: any;
     tags: any;
     relations: any;
+    width: number;
+    height: number;
+    duration: number;
   }>;
   count: number;
 }

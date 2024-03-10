@@ -15,6 +15,7 @@ type PostController interface {
 	FetchByHash(c echo.Context) error
 	List(c echo.Context) error
 	Update(c echo.Context) error
+	CreateNote(c echo.Context) error
 }
 
 type postController struct {
@@ -147,6 +148,25 @@ func (cl postController) Update(c echo.Context) error {
 
 	if err != nil {
 		return fmt.Errorf("postService.Update: %w", err)
+	}
+
+	return c.JSON(200, response)
+}
+
+func (cl postController) CreateNote(c echo.Context) error {
+	dto := dtos.CreatePostNoteDTO{}
+
+	if err := c.Bind(&dto); err != nil {
+		return fmt.Errorf("c.Bind: %w", err)
+	}
+
+	response, err := cl.postService.CreateNote(
+		c.Request().Context(),
+		dto,
+	)
+
+	if err != nil {
+		return fmt.Errorf("postService.CreateNote: %w", err)
 	}
 
 	return c.JSON(200, response)

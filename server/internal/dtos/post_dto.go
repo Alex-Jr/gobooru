@@ -65,3 +65,16 @@ type UpdatePostDTO struct {
 type UpdatePostResponseDTO struct {
 	Post models.Post `json:"post"`
 }
+
+type CreatePostNoteDTO struct {
+	PostID int    `param:"id"`
+	Body   string `json:"body"`
+	X      int    `json:"x"`
+	Y      int    `json:"y"`
+	Width  int    `json:"width"`
+	Height int    `json:"height"`
+}
+
+type CreatePostNoteResponseDTO struct {
+	PostNote models.PostNote `json:"note"`
+}

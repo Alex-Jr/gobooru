@@ -44,6 +44,9 @@ type CreatePostArgs struct {
 	Sources          []string
 	Tags             []string
 	ThumbPath        string
+	Width            int
+	Height           int
+	Duration         int
 }
 
 func NewPostRepository(sqlClient database.SQLClient) PostRepository {
@@ -101,6 +104,9 @@ func (r *postRepository) Create(ctx context.Context, args CreatePostArgs) (model
 		FileOriginalName: args.FileOriginalName,
 		ThumbPath:        args.ThumbPath,
 		Sources:          args.Sources,
+		Width:            args.Width,
+		Height:           args.Height,
+		Duration:         args.Duration,
 	}
 
 	// TODO: probably there's a better way to handle nil slices
@@ -297,6 +303,9 @@ type UpdatePostArgs struct {
 	Tags        *[]string
 	Sources     *[]string
 	Custom      *[]string
+	Width       *int
+	Height      *int
+	Duration    *int
 }
 
 func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (models.Post, error) {
@@ -400,6 +409,18 @@ func (r *postRepository) Update(ctx context.Context, args UpdatePostArgs) (model
 
 	if args.Custom != nil {
 		post.Custom = *args.Custom
+	}
+
+	if args.Width != nil {
+		post.Width = *args.Width
+	}
+
+	if args.Height != nil {
+		post.Height = *args.Height
+	}
+
+	if args.Duration != nil {
+		post.Duration = *args.Duration
 	}
 
 	post.UpdatedAt = time.Now()

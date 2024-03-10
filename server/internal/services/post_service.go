@@ -2,7 +2,9 @@ package services
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"gobooru/internal/database"
 	"gobooru/internal/dtos"
 	"gobooru/internal/repositories"
 )
@@ -14,25 +16,29 @@ type PostService interface {
 	FetchByHash(ctx context.Context, dto dtos.FetchPostByHashDTO) (dtos.FetchPostByHashResponseDTO, error)
 	List(ctx context.Context, dto dtos.ListPostDTO) (dtos.ListPostResponseDTO, error)
 	Update(ctx context.Context, dto dtos.UpdatePostDTO) (dtos.UpdatePostResponseDTO, error)
+	CreateNote(ctx context.Context, dto dtos.CreatePostNoteDTO) (dtos.CreatePostNoteResponseDTO, error)
 }
 
 type postService struct {
-	postRepository repositories.PostRepository
-	fileService    FileService
-	IQDBService    IQDBService
+	postRepository      repositories.PostRepository
+	postNotesRepository repositories.PostNotesRepository
+	fileService         FileService
+	IQDBService         IQDBService
 }
 
 type PostServiceConfig struct {
-	PostRepository repositories.PostRepository
-	FileService    FileService
-	IQDBService    IQDBService
+	PostRepository      repositories.PostRepository
+	PostNotesRepository repositories.PostNotesRepository
+	FileService         FileService
+	IQDBService         IQDBService
 }
 
 func NewPostService(c PostServiceConfig) PostService {
 	return &postService{
-		postRepository: c.PostRepository,
-		fileService:    c.FileService,
-		IQDBService:    c.IQDBService,
+		postRepository:      c.PostRepository,
+		postNotesRepository: c.PostNotesRepository,
+		fileService:         c.FileService,
+		IQDBService:         c.IQDBService,
 	}
 }
 
@@ -42,7 +48,20 @@ func (s postService) Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.C
 		return dtos.CreatePostResponseDTO{}, fmt.Errorf("fileService.HandleFileUpload: %w", err)
 	}
 
-	post, err := s.postRepository.Create(ctx, repositories.CreatePostArgs{
+	post, err := s.postRepository.GetFullByHash(ctx, file.MD5)
+	if err != nil {
+		if !errors.Is(err, database.ErrNotFound) {
+			return dtos.CreatePostResponseDTO{}, fmt.Errorf("postRepository.GetByHash: %w", err)
+		}
+	}
+
+	if post.ID != 0 {
+		return dtos.CreatePostResponseDTO{
+			Post: post,
+		}, nil
+	}
+
+	post, err = s.postRepository.Create(ctx, repositories.CreatePostArgs{
 		Custom:           dto.Custom,
 		Description:      dto.Description,
 		Rating:           dto.Rating,
@@ -54,6 +73,9 @@ func (s postService) Create(ctx context.Context, dto dtos.CreatePostDTO) (dtos.C
 		ThumbPath:        file.ThumbPath,
 		MD5:              file.MD5,
 		Sources:          dto.Sources,
+		Width:            file.Width,
+		Height:           file.Height,
+		Duration:         file.Duration,
 	})
 
 	if err != nil {
@@ -147,5 +169,27 @@ func (s postService) Update(ctx context.Context, dto dtos.UpdatePostDTO) (dtos.U
 
 	return dtos.UpdatePostResponseDTO{
 		Post: post,
+	}, nil
+}
+
+func (s postService) CreateNote(ctx context.Context, dto dtos.CreatePostNoteDTO) (dtos.CreatePostNoteResponseDTO, error) {
+	postNote, err := s.postNotesRepository.Create(
+		ctx,
+		repositories.CreatePostNotesArgs{
+			PostID: dto.PostID,
+			Body:   dto.Body,
+			X:      dto.X,
+			Y:      dto.Y,
+			Width:  dto.Width,
+			Height: dto.Height,
+		},
+	)
+
+	if err != nil {
+		return dtos.CreatePostNoteResponseDTO{}, fmt.Errorf("postNotesRepository.Create: %w", err)
+	}
+
+	return dtos.CreatePostNoteResponseDTO{
+		PostNote: postNote,
 	}, nil
 }

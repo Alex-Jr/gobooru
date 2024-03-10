@@ -36,6 +36,21 @@ func NewPostQuery() PostQuery {
 					Operator: "@>",
 					ParserFn: query_parser.ArrayParserFn,
 				},
+				"width": {
+					DBName:   "pt.\"width\"",
+					ParserFn: query_parser.IntParserFn,
+					Rangable: true,
+				},
+				"height": {
+					DBName:   "pt.\"height\"",
+					ParserFn: query_parser.IntParserFn,
+					Rangable: true,
+				},
+				"duration": {
+					DBName:   "pt.\"duration\"",
+					ParserFn: query_parser.IntParserFn,
+					Rangable: true,
+				},
 			},
 			SortField: map[string]query_parser.SortField{
 				"id": {
@@ -73,7 +88,10 @@ func (q *postQuery) Create(ctx context.Context, db database.DBClient, post *mode
 				"sources",
 				"custom",
 				"created_at",
-				"updated_at"
+				"updated_at",
+				"width",
+				"height",
+				"duration"
 			) VALUES (
 				:rating,
 				:description,
@@ -89,7 +107,10 @@ func (q *postQuery) Create(ctx context.Context, db database.DBClient, post *mode
 				:sources,
 				:custom,
 				:created_at,
-				:updated_at
+				:updated_at,
+				:width,
+				:height,
+				:duration
 			) RETURNING 
 				"id"
 		`,
@@ -177,6 +198,17 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 						"pr"."other_post_id" = "op"."id"
 					WHERE
 						"pr"."post_id" = $1::int
+				),
+				"notes" AS (
+					SELECT
+						$1::int as "post_id",
+						JSONB_AGG(to_jsonb(pn.*)) as "notes"
+					FROM
+						"post_notes" "pn"
+					WHERE
+						"pn"."post_id" = $1::int
+					GROUP BY
+						"pn"."post_id"
 				)
 			SELECT
 				p."created_at",
@@ -194,9 +226,13 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 				p."file_path",
 				p."thumb_path",
 				p."sources",
+				p."width",
+				p."height",
+				p."duration",
 				COALESCE(pl."pools", '[]'::jsonb) as "pools",
 				COALESCE(t."tags", '[]'::jsonb) as "tags",
-				COALESCE(r."relations", '[]'::jsonb) as "relations"
+				COALESCE(r."relations", '[]'::jsonb) as "relations",
+				COALESCE(n."notes", '[]'::jsonb) as "notes"
 			FROM
 				"posts" as "p"
 			LEFT JOIN "pools" as "pl" ON
@@ -205,6 +241,8 @@ func (q *postQuery) GetFull(ctx context.Context, db database.DBClient, post *mod
 				"t"."post_id" = "p"."id"
 			LEFT JOIN "relations" AS "r" ON
 				"r"."post_id" = "p"."id"
+			LEFT JOIN "notes" AS "n" ON
+				"n"."post_id" = "p"."id"
 			WHERE
 				p."id" = $1::int
 		`,
@@ -302,7 +340,10 @@ func (q *postQuery) List(ctx context.Context, db database.DBClient, search model
 					pt."file_path",
 					pt."thumb_path",
 					pt."sources",
-					pt."updated_at"
+					pt."updated_at",
+					pt."width",
+					pt."height",
+					pt."duration"
 				FROM
 					"posts" pt
 				WHERE
@@ -339,7 +380,10 @@ func (q *postQuery) Update(ctx context.Context, db database.DBClient, post model
 				"pool_count" = :pool_count,
 				"sources" = :sources,
 				"custom" = :custom,
-				"updated_at" = :updated_at
+				"updated_at" = :updated_at,
+				"width" = :width,
+				"height" = :height,
+				"duration" = :duration
 			WHERE
 				"id" = :id
 		`,

@@ -79,6 +79,63 @@ func (_c *MockPostService_Create_Call) RunAndReturn(run func(context.Context, dt
 	return _c
 }
 
+// CreateNote provides a mock function with given fields: ctx, dto
+func (_m *MockPostService) CreateNote(ctx context.Context, dto dtos.CreatePostNoteDTO) (dtos.CreatePostNoteResponseDTO, error) {
+	ret := _m.Called(ctx, dto)
+
+	if len(ret) == 0 {
+		panic("no return value specified for CreateNote")
+	}
+
+	var r0 dtos.CreatePostNoteResponseDTO
+	var r1 error
+	if rf, ok := ret.Get(0).(func(context.Context, dtos.CreatePostNoteDTO) (dtos.CreatePostNoteResponseDTO, error)); ok {
+		return rf(ctx, dto)
+	}
+	if rf, ok := ret.Get(0).(func(context.Context, dtos.CreatePostNoteDTO) dtos.CreatePostNoteResponseDTO); ok {
+		r0 = rf(ctx, dto)
+	} else {
+		r0 = ret.Get(0).(dtos.CreatePostNoteResponseDTO)
+	}
+
+	if rf, ok := ret.Get(1).(func(context.Context, dtos.CreatePostNoteDTO) error); ok {
+		r1 = rf(ctx, dto)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// MockPostService_CreateNote_Call is a *mock.Call that shadows Run/Return methods with type explicit version for method 'CreateNote'
+type MockPostService_CreateNote_Call struct {
+	*mock.Call
+}
+
+// CreateNote is a helper method to define mock.On call
+//   - ctx context.Context
+//   - dto dtos.CreatePostNoteDTO
+func (_e *MockPostService_Expecter) CreateNote(ctx interface{}, dto interface{}) *MockPostService_CreateNote_Call {
+	return &MockPostService_CreateNote_Call{Call: _e.mock.On("CreateNote", ctx, dto)}
+}
+
+func (_c *MockPostService_CreateNote_Call) Run(run func(ctx context.Context, dto dtos.CreatePostNoteDTO)) *MockPostService_CreateNote_Call {
+	_c.Call.Run(func(args mock.Arguments) {
+		run(args[0].(context.Context), args[1].(dtos.CreatePostNoteDTO))
+	})
+	return _c
+}
+
+func (_c *MockPostService_CreateNote_Call) Return(_a0 dtos.CreatePostNoteResponseDTO, _a1 error) *MockPostService_CreateNote_Call {
+	_c.Call.Return(_a0, _a1)
+	return _c
+}
+
+func (_c *MockPostService_CreateNote_Call) RunAndReturn(run func(context.Context, dtos.CreatePostNoteDTO) (dtos.CreatePostNoteResponseDTO, error)) *MockPostService_CreateNote_Call {
+	_c.Call.Return(run)
+	return _c
+}
+
 // Delete provides a mock function with given fields: ctx, dto
 func (_m *MockPostService) Delete(ctx context.Context, dto dtos.DeletePostDTO) (dtos.DeletePostResponseDTO, error) {
 	ret := _m.Called(ctx, dto)

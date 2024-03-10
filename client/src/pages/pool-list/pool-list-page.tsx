@@ -19,7 +19,7 @@ export const PoolListPage = () => {
   const { pools, count, totalPages } = usePoolList({
     search,
     page,
-    pageSize: "12",
+    page_size: "12",
   });
 
   return (
