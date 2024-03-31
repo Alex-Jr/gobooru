@@ -2,9 +2,15 @@ FROM golang:1.21-alpine3.18 AS builder
 
 WORKDIR /app
 
-COPY . .
+COPY go.mod go.sum /app/
 
 RUN go mod download
+
+COPY cmd /app/cmd
+
+COPY internal /app/internal
+
+COPY migrations /app/migrations
 
 RUN go build -o /app/cmd/main /app/cmd
 
