@@ -19,7 +19,7 @@ services:
       test: [ "CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}" ]
       interval: 5s  
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - gobooru-dev-db-data:/var/lib/postgresql/data
 
 volumes:
-  db-data:
+  gobooru-dev-db-data:
