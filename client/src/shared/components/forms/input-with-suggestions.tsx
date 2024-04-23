@@ -6,8 +6,9 @@ import {
   PopoverBody,
   PopoverContent,
   PopoverTrigger,
+  useDisclosure,
 } from "@chakra-ui/react";
-import React, { forwardRef, useRef, useState } from "react";
+import React, { ChangeEvent, forwardRef, useRef, useState } from "react";
 import { ControllerRenderProps } from "react-hook-form";
 
 import { useDebounce } from "shared/hooks/use-debounce";
@@ -21,6 +22,8 @@ export const InputWithSuggestions = forwardRef<
   HTMLInputElement,
   InputWithSuggestionsProps
 >(function InputWithSuggestions(props, ref) {
+  const { isOpen, onClose, onOpen } = useDisclosure();
+
   const inputRef = useRef<HTMLInputElement | null>(null);
 
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
@@ -31,105 +34,127 @@ export const InputWithSuggestions = forwardRef<
     return !props.value.includes(suggestion.value);
   });
 
+  const handleClose = () => {
+    props.onBlur();
+    onClose();
+    setHighlightedIndex(-1);
+  };
+
+  const handleOnChange = (e: ChangeEvent<HTMLInputElement>) => {
+    console.log("a");
+    props.onChange(e);
+    onTypeEndDebounced(e.target.value);
+  };
+
+  const handleSuggestionPick = () => {
+    const words = props.value.split(" ");
+
+    props.onChange(
+      words
+        .filter((w: string) => w !== "")
+        .slice(
+          0,
+          words[words.length - 1] === "" ? words.length : words.length - 1
+        )
+        .concat(suggestions[highlightedIndex].value)
+        .join(" ")
+    );
+
+    setHighlightedIndex(-1);
+
+    props.onTypeEnd("");
+  };
+
   return (
     <>
-      <Popover initialFocusRef={inputRef}>
-        {({ isOpen, onClose }) => (
-          <>
-            <PopoverTrigger>
-              <Input
-                name={props.name}
-                autoComplete="off"
-                size={"sm"}
-                ref={(el) => {
-                  inputRef.current = el;
-                  if (ref) {
-                    if (typeof ref === "function") {
-                      ref(inputRef.current);
-                    }
+      <Popover
+        initialFocusRef={inputRef}
+        isOpen={isOpen}
+        returnFocusOnClose={false}
+      >
+        <>
+          <PopoverTrigger>
+            <Input
+              size={"sm"}
+              name={props.name}
+              autoComplete="off"
+              value={props.value}
+              ref={(el) => {
+                inputRef.current = el;
+                if (ref) {
+                  if (typeof ref === "function") {
+                    ref(inputRef.current);
                   }
-                }}
-                value={props.value}
-                onChange={(e) => {
-                  props.onChange(e);
-
-                  onTypeEndDebounced(e.target.value);
-                }}
-                onKeyDown={(e) => {
-                  // console.log("key down", e.key);
-                  if (e.key === "ArrowDown") {
-                    setHighlightedIndex((prevIndex) =>
-                      Math.min(prevIndex + 1, suggestions.length - 1)
-                    );
-                    e.preventDefault();
-                  } else if (e.key === "ArrowUp") {
-                    setHighlightedIndex((prevIndex) =>
-                      Math.max(prevIndex - 1, -1)
-                    );
-                    e.preventDefault();
-                  } else if (e.key === "Enter") {
-                    if (highlightedIndex === -1) {
-                      onClose();
-                      return;
-                    }
-
-                    const words = props.value.split(" ");
-
-                    console.log(
-                      words
-                        .slice(0, words.length - 1)
-                        .concat(suggestions[highlightedIndex].value)
-                        .join(" ")
-                        .trim()
-                    );
-
-                    props.onChange(
-                      words
-                        .filter((w: string) => w !== "")
-                        .slice(
-                          0,
-                          words[words.length - 1] === ""
-                            ? words.length
-                            : words.length - 1
-                        )
-                        .concat(suggestions[highlightedIndex].value)
-                        .join(" ")
-                    );
-
-                    setHighlightedIndex(-1);
-
-                    e.preventDefault();
+                }
+              }}
+              onChange={handleOnChange}
+              onKeyDown={(e) => {
+                if (e.key === "Escape") {
+                  handleClose();
+                  return e.preventDefault();
+                }
+                if (e.key === "ArrowDown") {
+                  setHighlightedIndex((prevIndex) =>
+                    Math.min(prevIndex + 1, suggestions.length - 1)
+                  );
+                  return e.preventDefault();
+                }
+                if (e.key === "ArrowUp") {
+                  setHighlightedIndex((prevIndex) =>
+                    Math.max(prevIndex - 1, -1)
+                  );
+                  return e.preventDefault();
+                }
+                if (e.key === "Enter") {
+                  if (highlightedIndex === -1) {
+                    return handleClose();
                   }
-                }}
-                onBlur={(e) => {
-                  onClose();
-                }}
-              />
-            </PopoverTrigger>
-            {suggestions.length > 0 && (
-              <PopoverContent justifySelf={"start"}>
-                <PopoverBody p={0}>
-                  <List>
-                    {suggestions.map((suggestion, index) => (
-                      <ListItem
-                        fontSize={"sm"}
-                        key={index}
-                        bg={
-                          highlightedIndex === index
-                            ? "gray.800"
-                            : "transparent"
-                        }
-                        p={2}
-                      >
-                        {suggestion.value}
-                      </ListItem>
-                    ))}
-                  </List>
-                </PopoverBody>
-              </PopoverContent>
-            )}
-          </>
-        )}
+
+                  handleSuggestionPick();
+
+                  return e.preventDefault();
+                }
+              }}
+              onBlur={() => {
+                handleClose();
+              }}
+              onFocus={() => {
+                onOpen();
+              }}
+            />
+          </PopoverTrigger>
+          {suggestions.length > 0 && (
+            <PopoverContent
+              width={inputRef.current?.clientWidth || "100%"}
+              onFocus={() => {
+                inputRef.current?.focus();
+              }}
+            >
+              <PopoverBody p={0}>
+                <List>
+                  {suggestions.map((suggestion, index) => (
+                    <ListItem
+                      fontSize={"sm"}
+                      key={index}
+                      bg={
+                        highlightedIndex === index ? "gray.800" : "transparent"
+                      }
+                      p={2}
+                      onMouseEnter={(e) => {
+                        setHighlightedIndex(index);
+                      }}
+                      onMouseDown={(e) => {
+                        handleSuggestionPick();
+                      }}
+                    >
+                      {suggestion.value}
+                    </ListItem>
+                  ))}
+                </List>
+              </PopoverBody>
+            </PopoverContent>
+          )}
+        </>
       </Popover>
     </>
   );

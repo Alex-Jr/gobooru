@@ -27,7 +27,7 @@ export const Sidebar = ({ defaultValues, onSubmit }: ISidebarProps) => {
   const { tags } = useTagsLists({
     page: "1",
     page_size: "10",
-    search: search,
+    search: `${search} sort-asc:post_count`,
   });
 
   const tagSuggestions = tags.map((tag) => ({

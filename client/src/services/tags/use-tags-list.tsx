@@ -21,7 +21,10 @@ export const useTagsLists = (
     queryFn: async () => {
       const { data } = await axios<APITagsList>({
         method: "GET",
-        url: `${BASE_URL}/tags?${parseQueryString(queryData)}`,
+        url: `${BASE_URL}/tags?${parseQueryString({
+          ...queryData,
+          search: queryData.search.trim(),
+        })}`,
       });
 
       return data;
