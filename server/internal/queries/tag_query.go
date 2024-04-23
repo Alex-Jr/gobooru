@@ -29,7 +29,7 @@ func NewTagQuery() TagQuery {
 				"id": {
 					DBName:   "t.\"id\"",
 					Operator: "ILIKE",
-					ParserFn: query_parser.LikeParserFn,
+					ParserFn: query_parser.LikeParserFnConfigurable(query_parser.RIGHT),
 				},
 				"post_count": {
 					DBName:   "t.\"post_count\"",
