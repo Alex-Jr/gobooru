@@ -1,4 +1,12 @@
 -- using default because there's already data in the table
-ALTER TABLE "posts" ADD COLUMN "width" INTEGER NOT NULL DEFAULT 0;
-ALTER TABLE "posts" ADD COLUMN "height" INTEGER NOT NULL DEFAULT 0;
-ALTER TABLE "posts" ADD COLUMN "duration" INTEGER NOT NULL DEFAULT 0;
+CREATE TABLE "post_notes" (
+  "id" SERIAL PRIMARY KEY,
+  "post_id" INTEGER NOT NULL,
+  "body" TEXT NOT NULL,
+  "x" INTEGER NOT NULL,
+  "y" INTEGER NOT NULL,
+  "width" INTEGER NOT NULL,
+  "height" INTEGER NOT NULL,
+  "created_at" TIMESTAMP NOT NULL,
+  "updated_at" TIMESTAMP NOT NULL
+);

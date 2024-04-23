@@ -77,7 +77,11 @@ func TestPoolServiceCreate(t *testing.T) {
 						"updated_at": "2020-01-01T00:00:00Z",
 						"sources": ["https://example.com/1.jpg"],
 						"custom": [],
-						"relations": null
+						"relations": null,
+						"notes": null,
+						"width": 0,
+						"height": 0,
+						"duration": 0
 					}
 				]
 			}
@@ -145,7 +149,11 @@ func TestPoolServiceDelete(t *testing.T) {
 						"updated_at": "2020-01-01T00:00:00Z",
 						"sources": ["https://example.com/1.jpg"],
 						"custom": [],
-						"relations": null
+						"relations": null,
+						"notes": null,
+						"width": 0,
+						"height": 0,
+						"duration": 0
 					}
 				]
 			}
@@ -211,7 +219,11 @@ func TestPoolServiceFetch(t *testing.T) {
 						"updated_at": "2020-01-01T00:00:00Z",
 						"sources": ["https://example.com/1.jpg"],
 						"custom": [],
-						"relations": null
+						"relations": null,
+						"notes": null,
+						"width": 0,
+						"height": 0,
+						"duration": 0
 					}
 				]
 			}
@@ -288,7 +300,11 @@ func TestPoolServiceList(t *testing.T) {
 							"updated_at": "2020-01-01T00:00:00Z",
 							"sources": ["https://example.com/1.jpg"],
 							"custom": [],
-							"relations": null
+							"relations": null,
+							"notes": null,
+							"width": 0,
+							"height": 0,
+							"duration": 0
 						}
 					]
 				}

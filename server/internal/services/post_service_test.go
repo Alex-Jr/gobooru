@@ -42,7 +42,19 @@ func TestPostServiceCreate(t *testing.T) {
 			FilePath:         "1.jpg",
 			FileOriginalName: "1-original.jpg",
 			ThumbPath:        "1-thumb.webp",
+			Width:            100,
+			Height:           100,
+			Duration:         0,
 		},
+		nil,
+	)
+
+	postRepository.On(
+		"GetFullByHash",
+		context.TODO(),
+		"1",
+	).Return(
+		models.Post{},
 		nil,
 	)
 
@@ -59,6 +71,9 @@ func TestPostServiceCreate(t *testing.T) {
 			FileOriginalName: "1-original.jpg",
 			MD5:              "1",
 			ThumbPath:        "1-thumb.webp",
+			Width:            100,
+			Height:           100,
+			Duration:         0,
 		},
 	).Return(
 		mockedPost,
@@ -116,6 +131,10 @@ func TestPostServiceCreate(t *testing.T) {
 				"thumb_path": "1-thumb.webp",
 				"sources": ["https://example.com/1.jpg"],
 				"custom": [],
+				"notes": null,
+				"width": 0,
+				"height": 0,
+				"duration": 0,
 				"relations": [
 					{
 						"post_id": 1,
@@ -142,7 +161,11 @@ func TestPostServiceCreate(t *testing.T) {
 							"relations": null,
 							"tags": null,
 							"updated_at": "2020-01-01T00:00:00Z",
-							"pools": null
+							"pools": null,
+							"notes": null,
+							"width": 0,
+							"height": 0,
+							"duration": 0
 						}
 					}
 				],
@@ -214,6 +237,10 @@ func TestPostServiceDelete(t *testing.T) {
 				"thumb_path": "1-thumb.webp",
 				"sources": ["https://example.com/1.jpg"],
 				"custom": [],
+				"notes": null,
+				"height": 0,
+				"width": 0,
+				"duration": 0,
 				"relations":[
 					{
 						"post_id": 1,
@@ -240,7 +267,11 @@ func TestPostServiceDelete(t *testing.T) {
 							"updated_at": "2020-01-01T00:00:00Z",
 							"pools": null,
 							"sources": ["https://example.com/2.jpg"],
-							"custom": []
+							"custom": [],
+							"notes": null,
+							"height": 0,
+							"width": 0,
+							"duration": 0
 						}
 					}
 				],
@@ -350,6 +381,10 @@ func TestPostServiceFetch(t *testing.T) {
 				"thumb_path": "1-thumb.webp",
 				"sources": ["https://example.com/1.jpg"],
 				"custom": [],
+				"notes": null,
+				"height": 0,
+				"width": 0,
+				"duration": 0,
 				"relations": [
 					{
 						"post_id": 1,
@@ -376,7 +411,11 @@ func TestPostServiceFetch(t *testing.T) {
 							"updated_at": "2020-01-01T00:00:00Z",
 							"pools": null,
 							"sources": ["https://example.com/2.jpg"],
-							"custom": []
+							"custom": [],
+							"notes": null,
+							"height": 0,
+							"width": 0,
+							"duration": 0
 						}
 					}
 				],
@@ -500,7 +539,11 @@ func TestPostServiceList(t *testing.T) {
 					"updated_at": "2020-01-01T00:00:00Z",
 					"relations": null,
 					"sources": ["https://example.com/1.jpg"],
-					"custom": []
+					"custom": [],
+					"notes": null,
+					"height": 0,
+					"width": 0,
+					"duration": 0
 				}
 			]
 		}
