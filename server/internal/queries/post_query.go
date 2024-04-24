@@ -36,6 +36,24 @@ func NewPostQuery() PostQuery {
 					Operator: "@>",
 					ParserFn: query_parser.ArrayParserFn,
 				},
+				"rating": {
+					DBName:   "pt.\"rating\"",
+					Operator: "ILIKE",
+				},
+				"fileExt": {
+					DBName:   "pt.\"file_ext\"",
+					Operator: "=",
+				},
+				"fileSize": {
+					DBName:   "pt.\"file_size\"",
+					ParserFn: query_parser.IntParserFn,
+					Rangable: true,
+				},
+				"tagCount": {
+					DBName:   "pt.\"tag_count\"",
+					ParserFn: query_parser.IntParserFn,
+					Rangable: true,
+				},
 				"width": {
 					DBName:   "pt.\"width\"",
 					ParserFn: query_parser.IntParserFn,
