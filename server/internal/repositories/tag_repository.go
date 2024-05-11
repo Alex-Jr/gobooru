@@ -6,12 +6,14 @@ import (
 	"gobooru/internal/database"
 	"gobooru/internal/models"
 	"gobooru/internal/queries"
+	"time"
 )
 
 type TagRepository interface {
 	Delete(ctx context.Context, tagID string) (models.Tag, error)
 	Get(ctx context.Context, tagID string) (models.Tag, error)
 	List(ctx context.Context, args ListTagArgs) ([]models.Tag, int, error)
+	Update(ctx context.Context, args UpdateTagArgs) (models.Tag, error)
 }
 
 type tagRepository struct {
@@ -105,4 +107,54 @@ func (r *tagRepository) List(ctx context.Context, args ListTagArgs) ([]models.Ta
 	}
 
 	return tags, count, nil
+}
+
+type UpdateTagArgs struct {
+	ID          string
+	Description *string
+	CategoryID  *string
+}
+
+func (r *tagRepository) Update(ctx context.Context, args UpdateTagArgs) (models.Tag, error) {
+	tx, err := r.sqlClient.BeginTxx(ctx, nil)
+	if err != nil {
+		return models.Tag{}, fmt.Errorf("sqlClient.BeginTx: %w", err)
+	}
+	defer tx.Rollback()
+
+	tag := models.Tag{ID: args.ID}
+
+	err = r.tagQuery.Get(ctx, tx, &tag)
+	if err != nil {
+		return models.Tag{}, fmt.Errorf("tagQuery.Get: %w", err)
+	}
+
+	if args.Description != nil {
+		tag.Description = *args.Description
+	}
+
+	if args.CategoryID != nil && *args.CategoryID != tag.CategoryID {
+		err = r.tagCategory.UpdateTagCount(ctx, tx, *args.CategoryID, 1)
+		if err != nil {
+			return models.Tag{}, fmt.Errorf("tagCategory.UpdateTagCount: %w", err)
+		}
+
+		err = r.tagCategory.UpdateTagCount(ctx, tx, tag.CategoryID, -1)
+		if err != nil {
+			return models.Tag{}, fmt.Errorf("tagCategory.UpdateTagCount: %w", err)
+		}
+
+		tag.CategoryID = *args.CategoryID
+	}
+
+	tag.UpdatedAt = time.Now()
+
+	err = r.tagQuery.Update(ctx, tx, tag)
+	if err != nil {
+		return models.Tag{}, fmt.Errorf("tag.Update: %w", err)
+	}
+
+	tx.Commit()
+
+	return tag, nil
 }

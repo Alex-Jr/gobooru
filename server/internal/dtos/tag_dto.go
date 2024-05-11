@@ -28,3 +28,13 @@ type ListTagResponseDTO struct {
 	Tags  []models.Tag `json:"tags"`
 	Count int          `json:"count"`
 }
+
+type UpdateTagDTO struct {
+	ID          string  `param:"id"`
+	Description *string `json:"description"`
+	CategoryID  *string `json:"category_id"`
+}
+
+type UpdateTagResponseDTO struct {
+	Tag models.Tag `json:"tag"`
+}

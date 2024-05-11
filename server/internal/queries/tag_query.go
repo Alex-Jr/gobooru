@@ -15,6 +15,7 @@ type TagQuery interface {
 	Delete(ctx context.Context, db database.DBClient, tag models.Tag) error
 	Get(ctx context.Context, db database.DBClient, tag *models.Tag) error
 	List(ctx context.Context, db database.DBClient, search models.Search, count *int, tags *[]models.Tag) error
+	Update(ctx context.Context, db database.DBClient, tag models.Tag) error
 	UpdatePostCount(ctx context.Context, db database.DBClient, tags []string, increment int) error
 }
 
@@ -208,6 +209,28 @@ func (q *tagQuery) List(ctx context.Context, db database.DBClient, search models
 
 	if err != nil {
 		return fmt.Errorf("db.SelectContext: %w", err)
+	}
+
+	return nil
+}
+
+func (q *tagQuery) Update(ctx context.Context, db database.DBClient, tag models.Tag) error {
+	_, err := db.NamedExecContext(
+		ctx,
+		`
+			UPDATE
+				"tags"
+			SET
+				"description" = :description,
+				"category_id" = :category_id
+			WHERE
+				"id" = :id
+		`,
+		tag,
+	)
+
+	if err != nil {
+		return fmt.Errorf("db.NamedExecContext: %w", err)
 	}
 
 	return nil

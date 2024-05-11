@@ -11,6 +11,7 @@ type TagService interface {
 	Fetch(ctx context.Context, dto dtos.FetchTagDTO) (dtos.FetchTagResponseDTO, error)
 	Delete(ctx context.Context, dto dtos.DeleteTagDTO) (dtos.DeleteTagResponseDTO, error)
 	List(ctx context.Context, dto dtos.ListTagDTO) (dtos.ListTagResponseDTO, error)
+	Update(ctx context.Context, dto dtos.UpdateTagDTO) (dtos.UpdateTagResponseDTO, error)
 }
 
 type tagService struct {
@@ -62,5 +63,20 @@ func (s *tagService) List(ctx context.Context, dto dtos.ListTagDTO) (dtos.ListTa
 	return dtos.ListTagResponseDTO{
 		Tags:  tags,
 		Count: count,
+	}, nil
+}
+
+func (s *tagService) Update(ctx context.Context, dto dtos.UpdateTagDTO) (dtos.UpdateTagResponseDTO, error) {
+	tag, err := s.tagRepository.Update(ctx, repositories.UpdateTagArgs{
+		ID:          dto.ID,
+		Description: dto.Description,
+		CategoryID:  dto.CategoryID,
+	})
+	if err != nil {
+		return dtos.UpdateTagResponseDTO{}, fmt.Errorf("tagRepository.Update: %w", err)
+	}
+
+	return dtos.UpdateTagResponseDTO{
+		Tag: tag,
 	}, nil
 }
