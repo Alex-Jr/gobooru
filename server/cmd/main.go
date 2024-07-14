@@ -78,6 +78,17 @@ func main() {
 
 	e := echo.New()
 
+	// TODO: Move to a middleware and should not print all errors
+	e.HTTPErrorHandler = func(err error, c echo.Context) {
+		if c.Response().Committed {
+			return
+		}
+
+		c.JSON(500, map[string]interface{}{
+			"error": err.Error(),
+		})
+	}
+
 	e.Use(middlewares.NewLoggerMiddleware())
 
 	e.Use(middleware.CORSWithConfig(middleware.CORSConfig{

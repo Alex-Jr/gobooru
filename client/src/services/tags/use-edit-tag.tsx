@@ -22,7 +22,7 @@ export const useEditTag = <T,>() => {
         method: "PATCH",
         baseURL: `${BASE_URL}/tags/${id}`,
         data: {
-          categoryId,
+          category_id: categoryId,
           description,
         },
       });
