@@ -17,6 +17,7 @@ import { DeleteModal } from "./components/delete-modal";
 import { EditForm } from "./components/edit-form";
 import { FilePreview } from "./components/file-preview";
 import { PoolPagination } from "./components/pool-pagination";
+import { QueryPagination } from "./components/query-pagination";
 import { Sidebar } from "./components/sidebar";
 
 export const PostPage = () => {
@@ -88,6 +89,7 @@ export const PostPage = () => {
       />
 
       <Flex direction={"column"} gap={4} flex={1}>
+        <QueryPagination postId={post.id} />
         <PoolPagination post={post} />
 
         <Box

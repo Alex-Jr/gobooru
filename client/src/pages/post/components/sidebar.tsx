@@ -21,6 +21,7 @@ import { ImageModeSelect } from "shared/components/buttons/image-mode-select";
 import { formatFileSize } from "shared/functions/format_file_size";
 import { removeHttpAndWWW } from "shared/functions/remove_http_and_www";
 import { tagGroupOrder } from "shared/functions/tag-group-order";
+import { useQueryString } from "shared/hooks/use-query-string";
 import { ImageModeEnum } from "shared/types/enums/image-mode-enum";
 import { APIPost } from "shared/types/services/posts/APIPost";
 
@@ -39,6 +40,12 @@ export function Sidebar({
   onDeleteClick: () => void;
   onDownloadClick: () => void;
 }) {
+  const {
+    asString: { search = "", page = "1" },
+  } = useQueryString({
+    asString: ["search", "page"],
+  });
+
   const { tagCategoriesObj } = useTagCategoryList();
 
   const tagsCategory = post.tags.reduce((acc, cur) => {
@@ -78,14 +85,20 @@ export function Sidebar({
                   aria-label={`Add ${tagId} to search`}
                   icon={<AddIcon />}
                   as={RouterLink}
-                  to={`/posts?search=${tagId}`}
+                  to={{
+                    pathname: `/posts`,
+                    search: `?search=${search} ${tagId}&page=${1}`,
+                  }}
                 />
                 <IconButton
                   size={"xxs"}
                   aria-label={`Remove ${tagId} from search`}
                   icon={<MinusIcon />}
                   as={RouterLink}
-                  to={`/posts?search=-${tagId}`}
+                  to={{
+                    pathname: `/posts`,
+                    search: `?search=${search} -${tagId}&page=${1}`,
+                  }}
                 />
 
                 <Link

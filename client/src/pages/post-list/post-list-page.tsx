@@ -1,5 +1,4 @@
 import { Flex } from "@chakra-ui/react";
-import { useState } from "react";
 
 import { usePostsList } from "services/posts/use-posts-list";
 import { GenericGrid } from "shared/components/lists/generic-list";
@@ -17,10 +16,8 @@ export const PostListPage = () => {
     asString: ["search", "page"],
   });
 
-  const [pageSize, setPageSize] = useState("20");
-
   const { posts, count, totalPages } = usePostsList({
-    page_size: pageSize,
+    page_size: "20",
     search,
     page,
   });

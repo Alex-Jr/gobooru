@@ -15,6 +15,7 @@ import { Link as RouterLink } from "react-router-dom";
 
 import { filePathToUrl } from "shared/functions/file_path_to_url";
 import { ratingToChakraColor } from "shared/functions/rating-to-chakra-color";
+import { useQueryString } from "shared/hooks/use-query-string";
 import { RatingEnum } from "shared/types/enums/rating-enum";
 
 interface IPostItem {
@@ -29,6 +30,12 @@ interface IPostItem {
 export const PostItem = ({ post }: IPostItem) => {
   const [tagLabel, setTagLabel] = useState<string>();
 
+  const {
+    asString: { search = "", page = "1" },
+  } = useQueryString({
+    asString: ["search", "page"],
+  });
+
   return (
     <Box mx={"auto"}>
       <Tooltip
@@ -37,7 +44,13 @@ export const PostItem = ({ post }: IPostItem) => {
         closeOnScroll={true}
         hasArrow={true}
       >
-        <Link as={RouterLink} to={`/posts/${post.id}`}>
+        <Link
+          as={RouterLink}
+          to={{
+            pathname: `/posts/${post.id}`,
+            search: `?search=${search}&page=${page}`,
+          }}
+        >
           <Image
             src={filePathToUrl(post.thumb_path)}
             objectFit="contain"
