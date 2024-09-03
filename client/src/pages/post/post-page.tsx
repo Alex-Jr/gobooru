@@ -36,7 +36,7 @@ export const PostPage = () => {
   const [isNoteOpen, setNoteOpen] = useBoolean(true);
 
   const [imageMode, setImageMode] = useState<ImageModeEnum>(
-    ImageModeEnum.FIT_V
+    (localStorage.getItem("imageMode") as ImageModeEnum) || ImageModeEnum.FIT_H
   );
 
   const [isImageLoaded, setIsImageLoaded] = useBoolean(false);
@@ -71,12 +71,17 @@ export const PostPage = () => {
     link.click();
   };
 
+  const handleImageModeChange = (newState: ImageModeEnum) => {
+    setImageMode(newState);
+    localStorage.setItem("imageMode", newState);
+  };
+
   return (
     <Flex direction={{ base: "column-reverse", lg: "row" }} gap={4}>
       <Sidebar
         post={post}
         imageMode={imageMode}
-        setImageMode={setImageMode}
+        setImageMode={handleImageModeChange}
         onEditClick={onEditToggle}
         onDeleteClick={onDeleteToggle}
         onDownloadClick={onDownloadClick}
