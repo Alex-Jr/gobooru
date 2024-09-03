@@ -12,8 +12,6 @@ export const QueryPagination = ({ postId }: { postId: number }) => {
     asString: ["search", "page"],
   });
 
-  if (!search || search.length === 0) return <></>;
-
   // TODO: avoid preloading previous and next page if not needed
 
   // preloads previous page
@@ -40,6 +38,8 @@ export const QueryPagination = ({ postId }: { postId: number }) => {
   const currentIndex = posts.findIndex((post) => post.id === postId);
   const previous = posts[currentIndex - 1] || previousPosts.at(-1);
   const next = posts[currentIndex + 1] || nextPosts[0];
+
+  if (!search || search.length === 0) return <></>;
 
   return (
     <VStack width={"100%"}>
