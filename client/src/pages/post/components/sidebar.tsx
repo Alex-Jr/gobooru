@@ -30,12 +30,14 @@ export function Sidebar({
   setImageMode,
   onEditClick,
   onDeleteClick,
+  onDownloadClick,
 }: {
   post: APIPost["post"];
   imageMode: ImageModeEnum;
   setImageMode: (x: ImageModeEnum) => void;
   onEditClick: () => void;
   onDeleteClick: () => void;
+  onDownloadClick: () => void;
 }) {
   const { tagCategoriesObj } = useTagCategoryList();
 
@@ -155,6 +157,9 @@ export function Sidebar({
       <SimpleGrid minChildWidth={"100px"} gap={1}>
         <Button size={"sm"} colorScheme="green">
           Favorite
+        </Button>
+        <Button size={"sm"} colorScheme="blue" onClick={onDownloadClick}>
+          Download
         </Button>
         <Button size={"sm"} colorScheme="yellow" onClick={onEditClick}>
           Edit

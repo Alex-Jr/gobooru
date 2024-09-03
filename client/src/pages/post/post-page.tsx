@@ -10,6 +10,7 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { usePost } from "services/posts/use-post";
+import { filePathToUrl } from "shared/functions/file_path_to_url";
 import { ImageModeEnum } from "shared/types/enums/image-mode-enum";
 
 import { DeleteModal } from "./components/delete-modal";
@@ -63,7 +64,12 @@ export const PostPage = () => {
   const heightScale = filePreviewDimensions.height / post.height;
   const widthScale = filePreviewDimensions.width / post.width;
 
-  console.log(heightScale, widthScale);
+  const onDownloadClick = () => {
+    const link = document.createElement("a");
+    link.href = filePathToUrl(post.file_path);
+    link.download = post.md5;
+    link.click();
+  };
 
   return (
     <Flex direction={{ base: "column-reverse", lg: "row" }} gap={4}>
@@ -73,6 +79,7 @@ export const PostPage = () => {
         setImageMode={setImageMode}
         onEditClick={onEditToggle}
         onDeleteClick={onDeleteToggle}
+        onDownloadClick={onDownloadClick}
       />
 
       <Flex direction={"column"} gap={4} flex={1}>
