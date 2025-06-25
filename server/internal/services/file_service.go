@@ -57,7 +57,7 @@ func (f fileService) HandleUpload(fileHeader *multipart.FileHeader) (models.File
 		return models.File{}, fmt.Errorf("ext is empty")
 	}
 
-	folderPath := fmt.Sprintf("%s/posts/%s", f.basePath, MD5String)
+	folderPath := fmt.Sprintf("%s/posts/%s/%s/%s", f.basePath, MD5String[:2], MD5String[2:4], MD5String)
 	filePath := fmt.Sprintf("%s/%s.%s", folderPath, "original", ext)
 	thumbPath := fmt.Sprintf("%s/%s.%s", folderPath, "250", "webp")
 
